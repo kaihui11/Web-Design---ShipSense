@@ -1,0 +1,55 @@
+name: Update Forecast (pkl -> Supabase)
+
+on:
+  push:
+    # main only: this job writes to the live Supabase project, so a .pkl
+    # pushed on a feature branch must not reprice the production dashboard
+    # before it is merged. Use workflow_dispatch to ingest one deliberately.
+    branches:
+      - main
+    paths:
+      - "**.pkl"
+  workflow_dispatch:
+    inputs:
+      pkl_path:
+        description: "Path to the .pkl file to ingest"
+        required: true
+        default: "shipsense_website_bundle.pkl"
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pandas joblib
+
+      - name: Find pkl file
+        id: find
+        run: |
+          if [ -n "${{ github.event.inputs.pkl_path }}" ]; then
+            path="${{ github.event.inputs.pkl_path }}"
+          else
+            path="$(git diff --name-only HEAD~1 HEAD -- '*.pkl' | head -n1)"
+          fi
+          if [ -z "$path" ]; then
+            echo "::error::No .pkl path found (git diff against HEAD~1 returned nothing)" >&2
+            exit 1
+          fi
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+
+      - name: Convert pkl and push to Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python scripts/pkl_to_json.py "${{ steps.find.outputs.path }}"

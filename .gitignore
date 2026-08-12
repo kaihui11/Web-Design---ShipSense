@@ -1,0 +1,28 @@
+# Python virtualenv
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Local Supabase secrets (e.g. SUPABASE_SERVICE_KEY for manual pkl_to_json.py runs)
+.env
+
+# Stray / duplicate files (root-level only)
+/forecast.json
+16062026 Cost Surge Probability + Forecast Macro.json
+
+# Internal planning docs
+datacolumn.md\
+
+# macOS
+.DS_Store
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+.gstack/
+
+# ML training notebook — delivered alongside each .pkl export, kept out of the
+# repo so docs/data-schema.md's "not tracked in this repo" stays true. Only the
+# .pkl it produces is tracked, since that is what the ingest actually reads.
+/ShipSense_New_Output_Complete_Pipeline.ipynb

@@ -1,0 +1,1484 @@
+{
+  "historical": [
+    {
+      "date": "2018-01-09",
+      "fee": 1459.0,
+      "wti": 62.87,
+      "usdEur": 0.8378,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-10",
+      "fee": 1459.0,
+      "wti": 63.42,
+      "usdEur": 0.8371,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-11",
+      "fee": 1459.0,
+      "wti": 63.68,
+      "usdEur": 0.8311,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-12",
+      "fee": 1458.0,
+      "wti": 64.23,
+      "usdEur": 0.8206,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-13",
+      "fee": 1458.0,
+      "wti": 64.23,
+      "usdEur": 0.8206,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-14",
+      "fee": 1458.0,
+      "wti": 64.28,
+      "usdEur": 0.8206,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-15",
+      "fee": 1458.0,
+      "wti": 64.73,
+      "usdEur": 0.8155,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-16",
+      "fee": 1458.0,
+      "wti": 63.67,
+      "usdEur": 0.8156,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-17",
+      "fee": 1458.0,
+      "wti": 63.92,
+      "usdEur": 0.8206,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-18",
+      "fee": 1458.0,
+      "wti": 63.89,
+      "usdEur": 0.8171,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-19",
+      "fee": 1458.0,
+      "wti": 63.31,
+      "usdEur": 0.8182,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-20",
+      "fee": 1458.0,
+      "wti": 63.31,
+      "usdEur": 0.8182,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-21",
+      "fee": 1458.0,
+      "wti": 63.31,
+      "usdEur": 0.8182,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-22",
+      "fee": 1458.0,
+      "wti": 63.57,
+      "usdEur": 0.8156,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-23",
+      "fee": 1458.0,
+      "wti": 64.31,
+      "usdEur": 0.8131,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-24",
+      "fee": 1458.0,
+      "wti": 65.36,
+      "usdEur": 0.8059,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-25",
+      "fee": 1458.0,
+      "wti": 65.37,
+      "usdEur": 0.8067,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-26",
+      "fee": 1458.0,
+      "wti": 65.97,
+      "usdEur": 0.8051,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-27",
+      "fee": 1458.0,
+      "wti": 65.97,
+      "usdEur": 0.8051,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-28",
+      "fee": 1458.0,
+      "wti": 65.97,
+      "usdEur": 0.8051,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-29",
+      "fee": 1458.0,
+      "wti": 65.39,
+      "usdEur": 0.8076,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-30",
+      "fee": 1458.0,
+      "wti": 64.35,
+      "usdEur": 0.8064,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-01-31",
+      "fee": 1458.0,
+      "wti": 64.56,
+      "usdEur": 0.8051,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-01",
+      "fee": 1458.0,
+      "wti": 65.55,
+      "usdEur": 0.7994,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-02",
+      "fee": 1458.0,
+      "wti": 65.07,
+      "usdEur": 0.8025,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-03",
+      "fee": 1458.0,
+      "wti": 65.07,
+      "usdEur": 0.8025,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-04",
+      "fee": 1458.0,
+      "wti": 65.07,
+      "usdEur": 0.8025,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-05",
+      "fee": 1458.0,
+      "wti": 63.83,
+      "usdEur": 0.8086,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-06",
+      "fee": 1458.0,
+      "wti": 63.11,
+      "usdEur": 0.8079,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-07",
+      "fee": 1509.0,
+      "wti": 61.55,
+      "usdEur": 0.8154,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-08",
+      "fee": 1509.0,
+      "wti": 60.94,
+      "usdEur": 0.8166,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-09",
+      "fee": 1509.0,
+      "wti": 58.99,
+      "usdEur": 0.8174,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-10",
+      "fee": 1509.0,
+      "wti": 58.99,
+      "usdEur": 0.8174,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-11",
+      "fee": 1509.0,
+      "wti": 58.99,
+      "usdEur": 0.8174,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-12",
+      "fee": 1509.0,
+      "wti": 59.08,
+      "usdEur": 0.8136,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-13",
+      "fee": 1509.0,
+      "wti": 59.03,
+      "usdEur": 0.8096,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-14",
+      "fee": 1509.0,
+      "wti": 60.51,
+      "usdEur": 0.8032,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-15",
+      "fee": 1509.0,
+      "wti": 61.17,
+      "usdEur": 0.7997,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-16",
+      "fee": 1509.0,
+      "wti": 61.55,
+      "usdEur": 0.806,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-17",
+      "fee": 1509.0,
+      "wti": 61.55,
+      "usdEur": 0.806,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-18",
+      "fee": 1509.0,
+      "wti": 61.72,
+      "usdEur": 0.806,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-19",
+      "fee": 1509.0,
+      "wti": 62.38,
+      "usdEur": 0.8059,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-20",
+      "fee": 1509.0,
+      "wti": 61.79,
+      "usdEur": 0.8105,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-21",
+      "fee": 1509.0,
+      "wti": 61.52,
+      "usdEur": 0.814,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-22",
+      "fee": 1427.0,
+      "wti": 62.6,
+      "usdEur": 0.811,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-23",
+      "fee": 1427.0,
+      "wti": 63.41,
+      "usdEur": 0.8135,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-24",
+      "fee": 1427.0,
+      "wti": 63.41,
+      "usdEur": 0.8135,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-25",
+      "fee": 1427.0,
+      "wti": 63.41,
+      "usdEur": 0.8135,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-26",
+      "fee": 1427.0,
+      "wti": 63.77,
+      "usdEur": 0.8119,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-27",
+      "fee": 1427.0,
+      "wti": 62.9,
+      "usdEur": 0.8175,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-02-28",
+      "fee": 1427.0,
+      "wti": 61.47,
+      "usdEur": 0.8201,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-01",
+      "fee": 1427.0,
+      "wti": 60.8,
+      "usdEur": 0.8152,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-02",
+      "fee": 1427.0,
+      "wti": 61.09,
+      "usdEur": 0.8119,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-03",
+      "fee": 1427.0,
+      "wti": 61.09,
+      "usdEur": 0.8119,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-04",
+      "fee": 1427.0,
+      "wti": 61.09,
+      "usdEur": 0.8119,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-05",
+      "fee": 1427.0,
+      "wti": 62.39,
+      "usdEur": 0.8107,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-06",
+      "fee": 1427.0,
+      "wti": 62.45,
+      "usdEur": 0.8062,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-07",
+      "fee": 1449.0,
+      "wti": 61.02,
+      "usdEur": 0.8058,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-08",
+      "fee": 1449.0,
+      "wti": 60.06,
+      "usdEur": 0.8122,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-09",
+      "fee": 1449.0,
+      "wti": 61.92,
+      "usdEur": 0.8126,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-10",
+      "fee": 1449.0,
+      "wti": 61.92,
+      "usdEur": 0.8126,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-11",
+      "fee": 1449.0,
+      "wti": 61.92,
+      "usdEur": 0.8126,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-12",
+      "fee": 1449.0,
+      "wti": 61.33,
+      "usdEur": 0.8107,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-13",
+      "fee": 1449.0,
+      "wti": 60.75,
+      "usdEur": 0.8071,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-14",
+      "fee": 1449.0,
+      "wti": 61.02,
+      "usdEur": 0.8086,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-15",
+      "fee": 1449.0,
+      "wti": 61.25,
+      "usdEur": 0.8127,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-16",
+      "fee": 1449.0,
+      "wti": 62.41,
+      "usdEur": 0.8137,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-17",
+      "fee": 1449.0,
+      "wti": 62.41,
+      "usdEur": 0.8137,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-18",
+      "fee": 1449.0,
+      "wti": 62.41,
+      "usdEur": 0.8137,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-19",
+      "fee": 1449.0,
+      "wti": 62.13,
+      "usdEur": 0.8107,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-20",
+      "fee": 1449.0,
+      "wti": 63.54,
+      "usdEur": 0.8169,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-21",
+      "fee": 1449.0,
+      "wti": 64.95,
+      "usdEur": 0.8105,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-22",
+      "fee": 1449.0,
+      "wti": 64.18,
+      "usdEur": 0.8129,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-23",
+      "fee": 1449.0,
+      "wti": 65.71,
+      "usdEur": 0.8096,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-24",
+      "fee": 1449.0,
+      "wti": 65.71,
+      "usdEur": 0.8096,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-25",
+      "fee": 1449.0,
+      "wti": 65.71,
+      "usdEur": 0.8096,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-26",
+      "fee": 1449.0,
+      "wti": 65.41,
+      "usdEur": 0.8037,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-27",
+      "fee": 1449.0,
+      "wti": 65.18,
+      "usdEur": 0.8063,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-28",
+      "fee": 1449.0,
+      "wti": 64.35,
+      "usdEur": 0.8125,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-29",
+      "fee": 1449.0,
+      "wti": 64.87,
+      "usdEur": 0.813,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-30",
+      "fee": 1449.0,
+      "wti": 64.87,
+      "usdEur": 0.8115,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-03-31",
+      "fee": 1449.0,
+      "wti": 64.87,
+      "usdEur": 0.8115,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-01",
+      "fee": 1449.0,
+      "wti": 64.87,
+      "usdEur": 0.8115,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-02",
+      "fee": 1449.0,
+      "wti": 62.99,
+      "usdEur": 0.8129,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-03",
+      "fee": 1449.0,
+      "wti": 63.46,
+      "usdEur": 0.8149,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-04",
+      "fee": 1465.0,
+      "wti": 63.33,
+      "usdEur": 0.8145,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-05",
+      "fee": 1465.0,
+      "wti": 63.54,
+      "usdEur": 0.817,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-06",
+      "fee": 1465.0,
+      "wti": 62.1,
+      "usdEur": 0.8141,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-07",
+      "fee": 1465.0,
+      "wti": 62.1,
+      "usdEur": 0.8141,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-08",
+      "fee": 1465.0,
+      "wti": 62.1,
+      "usdEur": 0.8141,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-09",
+      "fee": 1465.0,
+      "wti": 63.43,
+      "usdEur": 0.8117,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-10",
+      "fee": 1465.0,
+      "wti": 65.44,
+      "usdEur": 0.8094,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-11",
+      "fee": 1465.0,
+      "wti": 66.74,
+      "usdEur": 0.8086,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-12",
+      "fee": 1465.0,
+      "wti": 66.95,
+      "usdEur": 0.8113,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-13",
+      "fee": 1465.0,
+      "wti": 67.33,
+      "usdEur": 0.811,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-14",
+      "fee": 1465.0,
+      "wti": 67.33,
+      "usdEur": 0.811,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-15",
+      "fee": 1465.0,
+      "wti": 67.33,
+      "usdEur": 0.811,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-16",
+      "fee": 1477.0,
+      "wti": 66.2,
+      "usdEur": 0.8078,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-17",
+      "fee": 1477.0,
+      "wti": 66.51,
+      "usdEur": 0.8084,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-18",
+      "fee": 1477.0,
+      "wti": 68.47,
+      "usdEur": 0.8082,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-19",
+      "fee": 1518.0,
+      "wti": 68.33,
+      "usdEur": 0.8099,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-20",
+      "fee": 1518.0,
+      "wti": 68.4,
+      "usdEur": 0.8138,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-21",
+      "fee": 1518.0,
+      "wti": 68.4,
+      "usdEur": 0.8138,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-22",
+      "fee": 1518.0,
+      "wti": 68.4,
+      "usdEur": 0.8138,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-23",
+      "fee": 1518.0,
+      "wti": 68.47,
+      "usdEur": 0.8191,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-24",
+      "fee": 1518.0,
+      "wti": 67.57,
+      "usdEur": 0.8175,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-25",
+      "fee": 1518.0,
+      "wti": 67.92,
+      "usdEur": 0.8223,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-26",
+      "fee": 1518.0,
+      "wti": 68.08,
+      "usdEur": 0.8263,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-27",
+      "fee": 1518.0,
+      "wti": 67.98,
+      "usdEur": 0.8244,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-28",
+      "fee": 1518.0,
+      "wti": 67.98,
+      "usdEur": 0.8244,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-29",
+      "fee": 1518.0,
+      "wti": 67.98,
+      "usdEur": 0.8244,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-04-30",
+      "fee": 1518.0,
+      "wti": 68.48,
+      "usdEur": 0.8279,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-01",
+      "fee": 1518.0,
+      "wti": 67.13,
+      "usdEur": 0.8338,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-02",
+      "fee": 1514.0,
+      "wti": 67.77,
+      "usdEur": 0.8368,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-03",
+      "fee": 1514.0,
+      "wti": 68.26,
+      "usdEur": 0.8341,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-04",
+      "fee": 1514.0,
+      "wti": 69.58,
+      "usdEur": 0.8362,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-05",
+      "fee": 1514.0,
+      "wti": 69.58,
+      "usdEur": 0.8362,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-06",
+      "fee": 1514.0,
+      "wti": 69.58,
+      "usdEur": 0.8362,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-07",
+      "fee": 1514.0,
+      "wti": 70.62,
+      "usdEur": 0.8388,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-08",
+      "fee": 1514.0,
+      "wti": 68.97,
+      "usdEur": 0.8429,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-09",
+      "fee": 1514.0,
+      "wti": 71.05,
+      "usdEur": 0.8439,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-10",
+      "fee": 1514.0,
+      "wti": 71.31,
+      "usdEur": 0.8393,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-11",
+      "fee": 1514.0,
+      "wti": 70.68,
+      "usdEur": 0.8373,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-12",
+      "fee": 1514.0,
+      "wti": 70.68,
+      "usdEur": 0.8373,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-13",
+      "fee": 1514.0,
+      "wti": 70.68,
+      "usdEur": 0.8373,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-14",
+      "fee": 1514.0,
+      "wti": 70.99,
+      "usdEur": 0.8385,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-15",
+      "fee": 1514.0,
+      "wti": 71.37,
+      "usdEur": 0.8448,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-16",
+      "fee": 1514.0,
+      "wti": 71.56,
+      "usdEur": 0.847,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-17",
+      "fee": 1514.0,
+      "wti": 71.57,
+      "usdEur": 0.8479,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-18",
+      "fee": 1514.0,
+      "wti": 71.37,
+      "usdEur": 0.8491,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-19",
+      "fee": 1514.0,
+      "wti": 71.37,
+      "usdEur": 0.8491,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-20",
+      "fee": 1514.0,
+      "wti": 71.37,
+      "usdEur": 0.8491,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-21",
+      "fee": 1514.0,
+      "wti": 72.35,
+      "usdEur": 0.8481,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-22",
+      "fee": 1514.0,
+      "wti": 72.2,
+      "usdEur": 0.849,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-23",
+      "fee": 1514.0,
+      "wti": 71.71,
+      "usdEur": 0.855,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-24",
+      "fee": 1514.0,
+      "wti": 70.58,
+      "usdEur": 0.8533,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-25",
+      "fee": 1514.0,
+      "wti": 67.78,
+      "usdEur": 0.8583,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-26",
+      "fee": 1514.0,
+      "wti": 67.78,
+      "usdEur": 0.8583,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-27",
+      "fee": 1514.0,
+      "wti": 67.36,
+      "usdEur": 0.8583,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-28",
+      "fee": 1514.0,
+      "wti": 67.05,
+      "usdEur": 0.8603,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-29",
+      "fee": 1514.0,
+      "wti": 66.62,
+      "usdEur": 0.8666,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-30",
+      "fee": 1513.0,
+      "wti": 68.08,
+      "usdEur": 0.8575,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-05-31",
+      "fee": 1513.0,
+      "wti": 66.91,
+      "usdEur": 0.8553,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-06-01",
+      "fee": 1513.0,
+      "wti": 65.77,
+      "usdEur": 0.8576,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-06-02",
+      "fee": 1513.0,
+      "wti": 65.77,
+      "usdEur": 0.8576,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-06-03",
+      "fee": 1513.0,
+      "wti": 65.77,
+      "usdEur": 0.8576,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-06-04",
+      "fee": 1513.0,
+      "wti": 64.68,
+      "usdEur": 0.8548,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    },
+    {
+      "date": "2018-06-05",
+      "fee": 1513.0,
+      "wti": 65.46,
+      "usdEur": 0.8534,
+      "gdpOrigin": 2.373,
+      "gdpDestination": 2.373,
+      "inflationOrigin": 2.443,
+      "inflationDestination": 2.443
+    }
+  ]
+}
