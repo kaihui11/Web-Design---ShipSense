@@ -6,7 +6,18 @@ Checklist for pushing a freshly-trained model's `.pkl` export into Supabase. See
 
 ## 1. Sanity-check the file before ingesting
 
-Confirm it matches the `ShipSenseWebsiteBundle` contract `pkl_to_json.py` expects:
+Confirm it matches the `ShipSenseWebsiteBundle` contract `pkl_to_json.py` expects.
+
+First install what the *pickle* needs, which is more than the script imports:
+
+```bash
+pip install pandas joblib xgboost
+```
+
+The bundle stores the trained fee/oil/fx regressors next to the forecast, so `joblib.load()` has to
+import `xgboost` to rebuild them before any of the DataFrames are reachable. Without it the load
+fails with `ModuleNotFoundError: No module named 'xgboost'` — the stub trick below only covers the
+exporting notebook's own module, never third-party ones.
 
 ```bash
 python -c "
