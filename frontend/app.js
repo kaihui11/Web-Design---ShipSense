@@ -255,6 +255,11 @@ function reInitLucide() {
 
 /* ===== NAVIGATION ===== */
 async function navigateTo(viewId) {
+  /* Picking a destination is the end of using the menu, so the drawer closes
+     with the choice rather than being left over the page the user just asked
+     for. No-op when the sidebar is a permanent rail. */
+  closeSidebar();
+
   document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
@@ -286,6 +291,39 @@ async function navigateTo(viewId) {
   reInitLucide();
   document.querySelector('.page-area').scrollTop = 0;
 }
+
+/* ===== MOBILE NAVIGATION =====
+   The sidebar is a fixed rail on wide screens and an off-canvas drawer on
+   narrow ones. Which of the two is in play is decided entirely in CSS, so
+   nothing here needs to measure the window — this only tracks whether the
+   drawer is open, and on desktop that class simply has nothing to do. */
+function setSidebarOpen(open) {
+  document.getElementById('app-sidebar')?.classList.toggle('open', open);
+  document.getElementById('sidebar-backdrop')?.classList.toggle('visible', open);
+  document.getElementById('sidebar-toggle')?.setAttribute('aria-expanded', String(open));
+  /* Without this the page scrolls under the drawer as the user swipes it. */
+  document.body.classList.toggle('nav-open', open);
+}
+
+function toggleSidebar() {
+  setSidebarOpen(!document.getElementById('app-sidebar')?.classList.contains('open'));
+}
+
+function closeSidebar() { setSidebarOpen(false); }
+
+/* Escape closes the drawer, matching every other dismissable layer here. */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSidebar();
+});
+
+/* Widening past the breakpoint turns the drawer back into a permanent rail,
+   and the CSS handles that on its own. What it cannot undo is body.nav-open:
+   that rule has no breakpoint, so an open drawer left over from a narrow
+   window would go on holding the desktop page unscrollable with nothing on
+   screen to explain why. The 1024 here is the one in style.css. */
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 1024) closeSidebar();
+});
 
 /* ===== EXECUTIVE DASHBOARD TABS ===== */
 function switchExecTab(tab) {

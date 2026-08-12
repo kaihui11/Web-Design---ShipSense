@@ -222,8 +222,10 @@
      ==================================================== -->
 <div id="view-app" class="hidden">
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
+  <!-- Sidebar. Fixed and always visible on desktop; below the tablet
+       breakpoint it slides in over the page and #sidebar-backdrop covers
+       what's behind it (see toggleSidebar in app.js). -->
+  <aside class="sidebar" id="app-sidebar">
     <div class="sidebar-logo">
       <svg width="36" height="36" viewBox="0 0 44 44" fill="none">
         <rect width="44" height="44" rx="10" fill="#1e3a8a"/>
@@ -272,11 +274,20 @@
     </div>
   </aside>
 
+  <!-- Dims and blocks the page while the mobile sidebar is open. Tapping it
+       closes the menu, which is the gesture people try first. -->
+  <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
   <!-- Main area -->
   <div class="app-main">
 
     <!-- Top header -->
     <header class="app-header">
+      <button type="button" class="sidebar-toggle" id="sidebar-toggle"
+              onclick="toggleSidebar()" aria-label="Open navigation menu"
+              aria-controls="app-sidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
       <div id="header-left"></div>
       <div class="header-user" onclick="toggleUserMenu()">
         <div class="user-avatar">LA</div>

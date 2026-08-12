@@ -1677,6 +1677,233 @@ table.ss-table td.label-lowest { color:var(--green); }
 }
 
 /* ============================================================
+   RESPONSIVE — desktop, tablet, mobile
+   ============================================================
+
+   Four decisions shape everything below.
+
+   1. The sidebar is a 210px fixed rail on wide screens and an off-canvas
+      drawer on narrow ones. .app-main's matching margin-left has to move
+      with it — leaving it behind is what strands a phone layout behind a
+      210px empty gutter.
+
+   2. Tables are NOT reflowed into stacked cards. An eight-column history
+      table turned into key/value blocks stops being something you can read
+      down a column of, which is the only reason it was a table. They scroll
+      horizontally inside their card instead, with a min-width that keeps
+      columns legible rather than crushed to two words each.
+
+   3. Charts already scale — every SVG carries a viewBox and .ss-chart-svg is
+      width:100%. Their text scales too, which is the problem: shrink an
+      880-unit chart into a 360px phone and 10.5px axis labels land at about
+      4px. The sizes are pushed back up in user units as the viewport
+      narrows, so they come out roughly constant on screen.
+
+   4. Touch sizing keys off (pointer: coarse), not off width. A 13px-tall
+      table button is awkward on any touchscreen, including a 1024px tablet
+      that never trips the phone breakpoints.
+   ============================================================ */
+
+/* Revealed by the tablet breakpoint; inert above it. */
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+.sidebar-toggle:hover { background: #f1f5f9; }
+.sidebar-toggle svg { width: 20px; height: 20px; }
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 190;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.sidebar-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+/* Holds the page still while the drawer is over it. */
+body.nav-open { overflow: hidden; }
+
+/* Flex items default to min-width:auto, which means "never shrink below your
+   own content". That default quietly defeats point 2 above: the moment a
+   table is given a min-width so its columns stay legible, that width
+   propagates up through .page and .app-main and makes the whole shell wider
+   than the phone it is on. The table then sits there un-scrolled while the
+   entire page scrolls sideways underneath it — sidebar, header and all.
+   Setting min-width:0 restores what was intended: the shell fits the screen,
+   and the overflow happens inside the card that owns it. */
+.app-main, .page-area, .page { min-width: 0; }
+.table-card, .quote-card, .section-card, .ss-card { max-width: 100%; }
+
+/* ── Small desktop / large tablet ── */
+@media (max-width: 1280px) {
+  .page-area { padding: 20px; }
+  .page { max-width: 100%; }
+  .four-col-cards { gap: 12px; }
+}
+
+/* ── Tablet: the sidebar leaves the flow ── */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 250px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 6px 0 32px rgba(15, 23, 42, 0.28);
+  }
+  .app-main { margin-left: 0; }
+  .sidebar-toggle { display: inline-flex; }
+  .sidebar-backdrop { display: block; }
+
+  .three-col-cards,
+  .four-col-cards { grid-template-columns: repeat(2, 1fr); }
+  .quote-two-col  { grid-template-columns: 1fr; }
+
+  /* Wide tables start scrolling here rather than compressing further. */
+  .quote-card { overflow-x: auto; }
+  .hist-table { min-width: 900px; }
+  .rev-hist-table { min-width: 520px; }
+}
+
+/* The dashboard's own cols-3 rule collapses straight from three columns to
+   one at 1000px, which on a tablet leaves three short KPI cards stacked down
+   a page with half its width empty. Two columns is the size that actually
+   fits there. Below 560px there is only room for one. */
+@media (min-width: 561px) and (max-width: 1000px) {
+  .ss-grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Small tablet / large phone ── */
+@media (max-width: 768px) {
+  .page-area { padding: 16px; }
+  .page { gap: 16px; }
+  .page-title { font-size: 21px; }
+  .page-desc  { font-size: 13px; }
+  .app-header { padding: 0 14px; }
+
+  /* Login stacks: the branding panel is decoration, the form is the job, so
+     the form goes first and the panel keeps only enough height to set the
+     scene. Its feature cards are absolutely positioned against a full-height
+     panel, which no longer exists here. */
+  .login-page  { flex-direction: column-reverse; }
+  .login-left  { min-height: 340px; }
+  .login-right {
+    width: 100%;
+    padding: 32px 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  }
+  .login-left-content { padding: 28px 24px; }
+  .login-hero h1 { font-size: 27px; }
+  .login-hero p  { font-size: 13.5px; max-width: none; }
+  .login-feat-row {
+    position: static;
+    margin-top: 20px;
+    padding: 0 24px 24px;
+    flex-wrap: wrap;
+  }
+  .login-ship-photo { height: 62%; bottom: 0; }
+  .login-title { font-size: 24px; }
+
+  .three-col-cards,
+  .four-col-cards { grid-template-columns: 1fr; }
+
+  /* The divider only reads as a divider between side-by-side columns. */
+  .summary-bar { flex-direction: column; align-items: stretch; gap: 14px; padding: 16px 18px; }
+  .sum-divider { display: none; }
+
+  .filter-bar { flex-direction: column; align-items: stretch; padding: 14px 16px; }
+  .filter-group,
+  .filter-date-wrap,
+  .filter-select-wrap { width: 100%; }
+  .filter-input,
+  .filter-select { width: 100% !important; }
+  .btn-clear-filter { width: 100%; justify-content: center; }
+
+  .action-row { flex-direction: column; }
+  .action-row .btn-primary,
+  .action-row .btn-secondary { width: 100%; justify-content: center; }
+
+  .cmp-table { min-width: 480px; }
+  .ss-card { padding: 15px 16px; }
+  .ss-card-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .ss-page-head { flex-direction: column; align-items: stretch; }
+
+  /* See note 3 — restoring apparent size, not enlarging the labels. */
+  .ss-axis, .ss-axis text { font-size: 15px; }
+  .rev-chart-axis { font-size: 15px; }
+}
+
+/* ── Phone ── */
+@media (max-width: 480px) {
+  .page-area { padding: 12px; }
+  .page-title { font-size: 19px; }
+  .app-header { height: 54px; padding: 0 12px; }
+
+  /* The avatar still identifies the account; the name is what has to go. */
+  .user-name { display: none; }
+
+  .form-card   { padding: 20px 16px; }
+  .quote-card  { padding: 16px 14px; }
+  .section-card { padding: 16px 14px; }
+  .modal-box   { padding: 22px 18px; }
+  .modal-actions { flex-direction: column-reverse; }
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary { width: 100%; justify-content: center; }
+
+  .day-card { min-width: 78px; }
+  .login-hero h1 { font-size: 23px; }
+  .login-right { padding: 26px 16px; }
+
+  /* Four actions per row need the room more than they need one line. */
+  .row-actions { flex-direction: column; align-items: stretch; }
+  .hist-table { min-width: 760px; }
+
+  .ss-axis, .ss-axis text { font-size: 19px; }
+  .rev-chart-axis { font-size: 18px; }
+  .ss-kpi-value { font-size: 20px; }
+
+  .qd-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Touch targets ──
+   Keyed off the pointer, not the viewport: a 1024px tablet needs these just
+   as much as a phone does, and a narrow desktop window does not need them at
+   all. 40-44px is the size a fingertip actually hits reliably. */
+@media (pointer: coarse) {
+  .nav-item { padding: 12px; font-size: 14.5px; }
+  .btn-view, .btn-edit, .btn-cancel, .btn-delete {
+    min-height: 40px;
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  .text-input, .filter-input, .filter-select, .styled-select { min-height: 44px; }
+  .btn-primary, .btn-secondary { min-height: 44px; }
+  .exec-tab, .ss-gran-btn { min-height: 40px; }
+  .date-picker-day { min-height: 38px; }
+  .date-picker-nav { width: 36px; height: 36px; }
+  .modal-close { width: 40px; height: 40px; }
+  .pw-eye { width: 40px; height: 40px; padding: 8px; }
+  .sidebar-toggle { width: 44px; height: 44px; }
+  .mi-slider { height: 32px; }
+}
+
+/* ============================================================
    PRINT
    ============================================================ */
 @media print {
