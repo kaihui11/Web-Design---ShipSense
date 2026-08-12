@@ -1229,6 +1229,51 @@ input:focus, select:focus { outline: none; }
   cursor: pointer;
 }
 .btn-cancel:hover { background: #fef2f2; }
+.btn-edit {
+  background: #fff;
+  color: #d97706;
+  border: 1.5px solid #d97706;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.12s;
+  cursor: pointer;
+}
+.btn-edit:hover { background: #fffbeb; }
+.btn-delete {
+  background: #dc2626;
+  color: #fff;
+  border: 1.5px solid #dc2626;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.12s;
+  cursor: pointer;
+}
+.btn-delete:hover { background: #b91c1c; }
+
+/* Wraps every row's action buttons. Wrapping rather than overflowing is what
+   keeps the narrow Action column usable once four buttons live in it. */
+.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Inputs that stand on their own rather than inside an .input-wrap — the
+   wrapper normally carries the border and the icon's 40px of left padding,
+   so a bare .text-input outside one would render as invisible text. */
+.text-input-plain {
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+.text-input-plain:focus { outline: none; border-color: #2563eb; }
+
+/* Action button on the quotation document — Save Forecast Record / Generate
+   Quotation. Full width would swamp the card, so it sizes to its label. */
+.qd-action { margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; }
 
 /* ============================================================
    EXECUTIVE DASHBOARD
@@ -1578,6 +1623,17 @@ table.ss-table td.label-lowest { color:var(--green); }
   color: #64748b;
   margin-bottom: 20px;
 }
+/* Form modals hold four fields rather than two choices, so they get more
+   width and a scroll cap for short viewports. */
+.modal-box-form { width: 460px; max-height: 90vh; overflow-y: auto; }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+.modal-actions .btn-primary,
+.modal-actions .btn-secondary { width: auto; padding: 10px 20px; }
 .modal-options {
   display: flex;
   flex-direction: column;

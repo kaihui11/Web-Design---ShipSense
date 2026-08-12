@@ -117,6 +117,47 @@ create policy "Public update access"
     using (true)
     with check (true);
 
+-- Delete. Deliberately narrower than the policies above: a request may be
+-- removed only while it is still Pending -- that is, while no client
+-- decision has been recorded against it. Once a client has Confirmed or
+-- Cancelled, the row is the record of a decision that actually happened and
+-- deleting it would erase business history, so those are permanent.
+--
+-- Note this permits deleting an *issued* quotation that is still awaiting a
+-- client response (withdrawing a quote before it is answered). The issue
+-- lock in enforce_quote_status_transition() stops an issued quotation being
+-- silently re-priced; it was never meant to stop a still-open request being
+-- withdrawn outright. Restricting deletion to never-issued rows instead
+-- would make the operation unreachable in practice, since opening the Client
+-- Quote Preview issues the quotation immediately (see docs/business-logic.md).
+drop policy if exists "Delete pending requests" on quote_requests;
+create policy "Delete pending requests"
+    on quote_requests
+    for delete
+    using (status = 'Pending');
+
+-- The policy above already filters what the anon key can delete, but a
+-- policy failure deletes zero rows silently rather than reporting why. This
+-- trigger turns the same rule into an explicit error, and also covers the
+-- service_role key, which bypasses RLS entirely.
+create or replace function enforce_quote_delete_rules()
+returns trigger as $$
+begin
+    if old.status <> 'Pending' then
+        raise exception
+            'quote_requests: record % is % — a recorded client decision is permanent and cannot be deleted',
+            old.id, old.status;
+    end if;
+    return old;
+end;
+$$ language plpgsql;
+
+drop trigger if exists quote_requests_delete_guard on quote_requests;
+create trigger quote_requests_delete_guard
+    before delete on quote_requests
+    for each row
+    execute function enforce_quote_delete_rules();
+
 -- Field validity: these mirror checks app.js already does in the UI
 -- (see handleForecast()'s containers < 1 guard), but the anon key can
 -- write to this table directly over PostgREST, bypassing app.js

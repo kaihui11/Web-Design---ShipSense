@@ -96,6 +96,14 @@ async function updateHistoryRecord(id, patch) {
   if ('clientDate' in patch) body.client_date = patch.clientDate;
   if ('status'     in patch) body.status = patch.status;
   if ('decision'   in patch) body.decision_date = patch.decision;
+  /* Editable request details — written by the Edit Record modal on the
+     Forecast History page (see saveEditRecord()). The database refuses these
+     on an issued quotation, which is why the modal only opens on rows that
+     are still Pending and un-issued. */
+  if ('company'    in patch) body.company = patch.company;
+  if ('pic'        in patch) body.pic = patch.pic;
+  if ('containers' in patch) body.containers = patch.containers;
+  if ('isdDate'    in patch) body.isd_date = patch.isdDate;
   if ('isdFee'     in patch) body.isd_fee  = patch.isdFee;
   if ('lowDate'    in patch) body.low_date = patch.lowDate;
   if ('lowFee'     in patch) body.low_fee  = patch.lowFee;
@@ -123,6 +131,34 @@ async function updateHistoryRecord(id, patch) {
   const idx = HISTORY_DATA.findIndex(h => h.id === id);
   if (idx !== -1) HISTORY_DATA[idx] = normalized;
   return normalized;
+}
+
+/* Deletes a record outright — the D of the CRUD set, and the only operation
+   here that destroys data rather than adding to it.
+
+   The database is the authority on what may be deleted (schema.sql's
+   "Delete pending requests" policy plus its delete guard); this function
+   only carries the request. That split matters: an RLS policy that matches
+   no row deletes nothing and still returns 200, so an empty response body
+   means "the rules refused this row", not "done". Callers need to tell those
+   apart, hence return=representation and the explicit check below. */
+async function deleteHistoryRecord(id) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/quote_requests?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: {
+      apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      Prefer: 'return=representation',
+    },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const rows = await res.json();
+  if (!rows.length) {
+    const err = new Error('Deletion was refused by the database rules.');
+    err.blocked = true;
+    throw err;
+  }
+  HISTORY_DATA = HISTORY_DATA.filter(h => String(h.id) !== String(id));
+  return rows[0];
 }
 
 /* ===== APP STATE ===== */
@@ -819,37 +855,14 @@ async function renderClientQuote() {
   document.getElementById('cq-isd').textContent   = fmtDate(cf.isdDate);
   document.getElementById('cq-qty').textContent   = cf.containers + ' FEU';
 
-  /* Auto-save a Pending record the first time this quote is opened. Done
-     before any figure is rendered so an already-issued record (reopened
-     from History) renders from its frozen values, not from live data. */
-  if (!cf.pendingId) {
-    const pendingEntry = await insertHistoryRecord({
-      company: cf.company,
-      pic: cf.pic,
-      route: cf.routeId,
-      isdDate: cf.isdDate,
-      containers: cf.containers,
-      isdFee: cf.isdRow.f,
-      lowDate: cf.lowestRow.date,
-      lowFee: cf.lowestRow.f,
-      clientDate: cf.clientDate || cf.isdDate,
-    });
-    cf.pendingId = pendingEntry.id;
-  }
-
-  /* Issue on open. Kept out of the render below so a failed write leaves the
-     page readable on live figures with a retry offered, rather than blank. */
-  let rec = currentQuoteRecord();
-  state.quoteIssueFailed = false;
-  if (rec && !isIssued(rec) && rec.status === 'Pending') {
-    try {
-      await issueQuotationFor(cf, rec);
-      rec = currentQuoteRecord();
-    } catch (e) {
-      console.error('Failed to issue quotation:', e);
-      state.quoteIssueFailed = true;
-    }
-  }
+  /* Saving the record and issuing the quotation used to both fire silently
+     on open. They are now two separate, deliberate presses — see
+     saveForecastRecord() and issueQuotationNow(). The gap between them is
+     what gives a saved request a life of its own before it hardens into a
+     priced document: while it sits there un-issued it can still be edited or
+     deleted from Forecast History, which is impossible once a price has
+     gone to the client. */
+  const rec = currentQuoteRecord();
 
   const f = quoteFigures(cf, rec);
   if (f.issued) cf.clientDate = f.clientDate;
@@ -996,26 +1009,43 @@ function renderQuotationDoc(cf, rec) {
     }
   }
 
-  /* Only two ways to be here now that issuing is automatic: the write failed,
-     or this is a record whose decision was recorded without a quotation ever
-     being issued. Each gets its own message — one is actionable, one isn't. */
+  /* Three states before a quotation exists, and they are genuinely different
+     situations rather than shades of the same one: nothing saved at all, a
+     saved request awaiting a price, and a save that went through but whose
+     issue attempt failed. Each carries its own next action. */
+  if (!rec) {
+    el.className = 'quote-doc quote-doc-draft';
+    el.innerHTML =
+      `<div class="qd-row">
+         <div class="qd-title">This forecast has not been saved yet</div>
+         <span class="qd-badge qd-badge-draft">Unsaved</span>
+       </div>
+       <p class="qd-note">Nothing has been written to Forecast History. The figures below follow the
+         latest forecast and will keep moving with it. Saving files this request under
+         ${cf.company} so it can be found, edited or removed later.</p>
+       <button type="button" class="btn-primary qd-action" onclick="saveForecastRecord()">
+         Save Forecast Record
+       </button>`;
+    return;
+  }
+
   if (!isIssued(rec)) {
     el.className = 'quote-doc quote-doc-draft';
-    el.innerHTML = state.quoteIssueFailed
-      ? `<div class="qd-row">
-           <div class="qd-title">Quotation could not be generated</div>
-           <span class="qd-badge qd-badge-draft">Not issued</span>
-         </div>
-         <p class="qd-note">Nothing has been fixed for this client yet — the figures below still follow
-           the latest forecast. Check your connection and
-           <button type="button" class="rev-link" onclick="renderClientQuote()">try again</button>.</p>`
-      : `<div class="qd-row">
-           <div class="qd-title">No quotation was issued for this record</div>
-           <span class="qd-badge qd-badge-draft">Draft</span>
-         </div>
-         <p class="qd-note">Figures below follow the latest forecast and will keep changing with it.
-           A quotation is issued — reference, validity period and fixed price for
-           ${QUOTE_VALIDITY_HOURS} hours — whenever a still-pending request is opened here.</p>`;
+    el.innerHTML =
+      `<div class="qd-row">
+         <div class="qd-title">${state.quoteIssueFailed
+            ? 'Quotation could not be generated'
+            : 'Saved — no quotation issued yet'}</div>
+         <span class="qd-badge qd-badge-draft">${state.quoteIssueFailed ? 'Not issued' : 'Draft'}</span>
+       </div>
+       <p class="qd-note">${state.quoteIssueFailed
+          ? 'The request is saved, but no price has been fixed for this client. Check your connection and try again.'
+          : `The request is saved and still fully editable from Forecast History. Issuing stamps a
+             reference, fixes the price for ${QUOTE_VALIDITY_HOURS} hours and closes the record to
+             further edits — so it is the point of no return, not a formality.`}</p>
+       <button type="button" class="btn-primary qd-action" onclick="issueQuotationNow()">
+         ${state.quoteIssueFailed ? 'Try Again' : 'Generate Quotation'}
+       </button>`;
     return;
   }
 
@@ -1048,9 +1078,9 @@ function renderQuotationDoc(cf, rec) {
 /* Issues the open preview: stamps the reference and validity window and
    freezes the price, the quoted date, and the forecast run behind them.
 
-   Throws rather than alerting on failure — the callers are renders, and a
-   render that can't issue still has a page to draw (see renderClientQuote,
-   which surfaces the retry). */
+   Throws rather than alerting on failure, leaving its callers to decide how
+   loudly to complain — issueQuotationNow() re-renders into the retry state,
+   requoteForDate() and regenerateQuotation() surface their own messages. */
 async function issueQuotationFor(cf, rec) {
   if (!cf || !rec || isIssued(rec)) return;   /* already locked — never re-price */
 
@@ -1074,6 +1104,58 @@ async function issueQuotationFor(cf, rec) {
     quotedPrice: clientFee * cf.containers * MARKUP,
     forecastGeneratedAt: FORECAST_META.generatedAt,
   });
+}
+
+/* ===== CREATE =====
+   Writes the forecast currently on screen into quote_requests as a Pending,
+   un-issued request. This is the C of the CRUD set and the only place a
+   record is born from the normal workflow.
+
+   It stops at saving. No price is fixed here, which is the whole point: the
+   record spends its first life editable and deletable, and only hardens when
+   someone chooses to issue it. */
+async function saveForecastRecord() {
+  const cf = state.currentForecast;
+  if (!cf || cf.pendingId) return;
+
+  try {
+    const saved = await insertHistoryRecord({
+      company: cf.company,
+      pic: cf.pic,
+      route: cf.routeId,
+      isdDate: cf.isdDate,
+      containers: cf.containers,
+      isdFee: cf.isdRow.f,
+      lowDate: cf.lowestRow.date,
+      lowFee: cf.lowestRow.f,
+      clientDate: cf.clientDate || cf.isdDate,
+    });
+    cf.pendingId = saved.id;
+  } catch (e) {
+    console.error('Failed to save the forecast record:', e);
+    alert('Could not save this forecast record. Please check your connection and try again.');
+    return;
+  }
+
+  await renderClientQuote();
+}
+
+/* Issues the saved request, on an explicit press. Failure is recorded on
+   state rather than alerted, so the page redraws into its retry state with
+   the working figures still readable underneath. */
+async function issueQuotationNow() {
+  const cf  = state.currentForecast;
+  const rec = currentQuoteRecord();
+  if (!cf || !rec || isIssued(rec) || rec.status !== 'Pending') return;
+
+  state.quoteIssueFailed = false;
+  try {
+    await issueQuotationFor(cf, rec);
+  } catch (e) {
+    console.error('Failed to issue quotation:', e);
+    state.quoteIssueFailed = true;
+  }
+  await renderClientQuote();
 }
 
 /* Re-quotes an expired quotation from the latest forecast as a brand-new
@@ -1120,7 +1202,10 @@ async function regenerateQuotation() {
     return;
   }
 
-  await renderClientQuote();
+  /* Re-quoting is one continuous act from the user's side — they asked for a
+     fresh price, not for a draft to then issue by hand — so the new record is
+     issued straight away rather than left sitting in the draft state. */
+  await issueQuotationNow();
 }
 
 /* ===== CLIENT DATE CALENDAR PICKER =====
@@ -1240,8 +1325,9 @@ async function requoteForDate(iso) {
     return;
   }
 
-  /* The fresh record is Pending and un-issued, so the render issues it. */
-  await renderClientQuote();
+  /* Same reasoning as regenerateQuotation(): the user confirmed a re-quote
+     for a new date, so it is issued immediately rather than left as a draft. */
+  await issueQuotationNow();
 }
 
 document.addEventListener('click', e => {
@@ -1599,12 +1685,24 @@ function applyHistoryFilters() {
     const pillCss = h.status === 'Confirmed' ? 'pill-confirmed'
                   : h.status === 'Cancelled'  ? 'pill-cancelled'
                   : 'pill-pending';
-    const actions = h.status === 'Pending'
-      ? `<div style="display:flex;gap:6px;">
-           <button class="btn-view" onclick="viewHistory('${h.id}')">View</button>
-           <button class="btn-cancel" onclick="cancelHistory('${h.id}')">Cancel</button>
-         </div>`
-      : `<button class="btn-view" onclick="viewHistory('${h.id}')">View</button>`;
+    /* What a row still permits depends on how far it has travelled, and the
+       three stages are deliberately different:
+         un-issued + Pending — nothing has been promised to anyone: editable,
+                               cancellable, deletable.
+         issued   + Pending  — a price is out with the client. Its terms are
+                               frozen (schema.sql's lock trigger), but the
+                               request can still be withdrawn or cancelled.
+         decided             — Confirmed or Cancelled. This is the record of
+                               something that happened; read-only, permanently.
+       The buttons only mirror rules the database enforces on its own. */
+    const editable  = h.status === 'Pending' && !h.issuedAt;
+    const openReq   = h.status === 'Pending';
+    const actions = `<div class="row-actions">
+        <button class="btn-view" onclick="viewHistory('${h.id}')">View</button>
+        ${editable ? `<button class="btn-edit" onclick="openEditModal('${h.id}')">Edit</button>` : ''}
+        ${openReq  ? `<button class="btn-cancel" onclick="cancelHistory('${h.id}')">Cancel</button>` : ''}
+        ${openReq  ? `<button class="btn-delete" onclick="deleteHistory('${h.id}')">Delete</button>` : ''}
+      </div>`;
     return `<tr>
       <td><div class="td-date-main">${h.ts.split('\n')[0]}</div><div class="td-date-time">${h.ts.split('\n')[1]}</div>
         ${h.quoteRef ? `<div class="td-quote-ref">${h.quoteRef}</div>` : ''}</td>
@@ -1686,6 +1784,134 @@ async function cancelHistory(id) {
     btn.style.opacity = '0.45';
     btn.textContent = 'Quote Cancelled';
   }
+}
+
+/* ===== UPDATE =====
+   Edits a saved request in place. Only reachable while the record is still
+   Pending and un-issued: once a price has gone to the client, the database
+   rejects changes to these very fields (schema.sql's lock trigger), so
+   offering the form at all would be offering something that cannot work. */
+function openEditModal(id) {
+  const h = HISTORY_DATA.find(x => String(x.id) === String(id));
+  if (!h || h.status !== 'Pending' || h.issuedAt) return;
+
+  state.editingId = h.id;
+  document.getElementById('edit-company').value    = h.company;
+  document.getElementById('edit-pic').value        = h.pic;
+  document.getElementById('edit-containers').value = h.containers;
+
+  const isdEl = document.getElementById('edit-isd');
+  isdEl.value = h.isdDate;
+  if (FORECAST_DATA.length) {
+    isdEl.min = FORECAST_DATA[0].date;
+    isdEl.max = FORECAST_DATA[FORECAST_DATA.length - 1].date;
+  }
+
+  document.getElementById('edit-error').classList.add('hidden');
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.add('hidden');
+  state.editingId = null;
+}
+
+async function saveEditRecord(e) {
+  if (e) e.preventDefault();
+  const id = state.editingId;
+  const h  = HISTORY_DATA.find(x => String(x.id) === String(id));
+  if (!h) return;
+
+  const err  = document.getElementById('edit-error');
+  const show = msg => { err.textContent = msg; err.classList.remove('hidden'); };
+
+  const company    = document.getElementById('edit-company').value.trim();
+  const pic        = document.getElementById('edit-pic').value.trim();
+  const containers = parseInt(document.getElementById('edit-containers').value, 10);
+  const isdDate    = document.getElementById('edit-isd').value;
+
+  /* Validated here as well as by the input attributes, because the attributes
+     only guard typing — they say nothing about what this function receives. */
+  if (!company) return show('Company name is required.');
+  if (!pic)     return show('Person in Charge (PIC) is required.');
+  if (!Number.isInteger(containers) || containers < 1 || containers > 500) {
+    return show('Number of containers must be a whole number between 1 and 500.');
+  }
+  if (!isdDate) return show('Intended Ship Date is required.');
+
+  const minDate = FORECAST_DATA[0]?.date;
+  const maxDate = FORECAST_DATA[FORECAST_DATA.length - 1]?.date;
+  if (minDate && (isdDate < minDate || isdDate > maxDate)) {
+    return show(`Intended Ship Date must be between ${fmtDate(minDate)} and ${fmtDate(maxDate)}.`);
+  }
+
+  const patch = { company, pic, containers, isdDate };
+
+  /* A moved ship date invalidates the fee columns stored beside it, so they
+     are recomputed from the current forecast rather than left describing a
+     date the record no longer refers to. */
+  if (isdDate !== h.isdDate) {
+    const data   = scaledData(h.route);
+    const isdRow = data.find(d => d.date === isdDate) ||
+      data.reduce((best, d) =>
+        Math.abs(new Date(d.date) - new Date(isdDate)) <
+        Math.abs(new Date(best.date) - new Date(isdDate)) ? d : best, data[0]);
+    const i   = data.indexOf(isdRow);
+    const win = data.slice(Math.max(0, i - 5), Math.min(data.length - 1, i + 5) + 1);
+    const low = win.reduce((mn, d) => d.f < mn.f ? d : mn, win[0]);
+
+    patch.isdFee     = isdRow.f;
+    patch.lowDate    = low.date;
+    patch.lowFee     = low.f;
+    patch.clientDate = isdRow.date;
+  }
+
+  const btn = document.getElementById('edit-save-btn');
+  btn.disabled = true;
+  try {
+    await updateHistoryRecord(id, patch);
+  } catch (ex) {
+    console.error('Failed to update record:', ex);
+    btn.disabled = false;
+    return show('Could not save changes. Please check your connection and try again.');
+  }
+  btn.disabled = false;
+
+  closeEditModal();
+  applyHistoryFilters();
+}
+
+/* ===== DELETE =====
+   The only operation here that destroys data, so it asks first and names
+   what is about to go. The database has the final say (schema.sql's delete
+   policy and guard) — a refusal there is reported rather than swallowed. */
+async function deleteHistory(id) {
+  const h = HISTORY_DATA.find(x => String(x.id) === String(id));
+  if (!h) return;
+
+  const warning = h.quoteRef
+    ? `Delete quotation ${h.quoteRef} for ${h.company}?\n\n` +
+      `A price was already issued to this client. Deleting removes that record entirely.\n\nThis cannot be undone.`
+    : `Delete the saved forecast record for ${h.company}?\n\nThis cannot be undone.`;
+  if (!confirm(warning)) return;
+
+  try {
+    await deleteHistoryRecord(h.id);
+  } catch (e) {
+    console.error('Failed to delete record:', e);
+    alert(e.blocked
+      ? 'This record can no longer be deleted — a client decision has been recorded against it.'
+      : 'Could not delete this record. Please check your connection and try again.');
+    return;
+  }
+
+  /* The Client Quote page may still be holding the row that just vanished.
+     Clearing the id lets that page fall back to its unsaved state instead of
+     rendering against a record the database no longer has. */
+  if (state.currentForecast && String(state.currentForecast.pendingId) === String(id)) {
+    state.currentForecast.pendingId = null;
+  }
+  applyHistoryFilters();
 }
 
 ['filter-status'].forEach(id => {
