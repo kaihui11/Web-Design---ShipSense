@@ -122,6 +122,36 @@ otherwise.
 | Sample quote records | one per lifecycle stage | ✅ 3 Pending, 1 Confirmed, 1 Cancelled |
 | `contact_messages` reachable | table exists | ✅ HTTP 200 |
 
+### Pipeline ingest via GitHub Actions ✅
+
+Run 2026-08-13 from `main` using **Run workflow**, exercising the full path in the architecture
+diagram: `.pkl` → GitHub Actions → `pkl_to_json.py` → Supabase REST API → tables.
+
+| Check | Expected | Result |
+|---|---|---|
+| Workflow outcome | job succeeds | ✅ `ingest` green, 28s, no errors |
+| Snapshot rows after | still 1 — same run day patched, not appended | ✅ 1 |
+| Snapshot id | unchanged | ✅ `id=1` |
+| `created_at` | unchanged, proving UPDATE not INSERT | ✅ 2026-08-12 12:43:48 |
+| Forecast payload | 90 rows, 2026-08-10 → 2026-12-11 | ✅ intact |
+| Historical rows | 2,149 — upserted on the date key | ✅ 2,149 |
+
+**What this demonstrates:** the ingest is *idempotent*. Re-running it against a bundle already
+loaded updates the existing snapshot in place rather than accumulating duplicate rows the frontend
+would never serve — `find_existing_forecast_id()`
+([`pkl_to_json.py:155`](../scripts/pkl_to_json.py#L155)) matches by run **day**, mirroring
+`dedupeRuns()` in the frontend. A pipeline that quietly doubled its data on every re-run would be a
+harder defect to notice than one that failed outright.
+
+**A defect this run exposed.** The first attempt failed with exit code 1. The workflow installed
+`pandas joblib` — what the *script* imports — but the *pickle* also needs `xgboost`, because the
+bundle stores the trained fee/oil/fx regressors next to the forecast and `joblib.load()` must
+rebuild them first. `load_bundle()` stubs missing `shipsense-*` modules on demand but deliberately
+re-raises for third-party ones ([`pkl_to_json.py:92`](../scripts/pkl_to_json.py#L92)), since a
+stubbed `xgboost` would deserialise the models into hollow objects instead of failing. Confirmed by
+walking the pickle's opcode stream without executing it — it references `builtins`, `joblib`,
+`numpy`, `pandas` and `xgboost`. Adding `xgboost` to the install step fixed it.
+
 ---
 
 ## 5. Responsive design testing
