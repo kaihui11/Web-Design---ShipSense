@@ -570,6 +570,13 @@ function applyIsdBounds() {
   isdEl.max = maxDate;
   if (!isdEl.value || isdEl.value < minDate) isdEl.value = minDate;
   else if (isdEl.value > maxDate)            isdEl.value = maxDate;
+
+  /* The hint states the same range the input enforces, from the same source.
+     It used to be typed into the HTML, which meant it kept confidently
+     naming a window the model had long since moved past — the one part of
+     the form a user reads before typing, and the one part nothing updated. */
+  const hint = document.getElementById('isd-hint');
+  if (hint) hint.textContent = `Select the intended ship date (${fmtDate(minDate)} – ${fmtDate(maxDate)}).`;
 }
 
 /* ===== NEW FORECAST ===== */

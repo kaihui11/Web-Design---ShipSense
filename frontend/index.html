@@ -328,9 +328,13 @@
             <label class="field-label">Intended Ship Date (ISD)<span class="required-mark">*</span></label>
             <div class="input-wrap">
               <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <input type="date" id="input-isd" class="text-input" min="2026-06-06" max="2026-09-03" required />
+              <input type="date" id="input-isd" class="text-input" required />
             </div>
-            <p class="field-hint">Select the intended ship date (06 Jun 2026 – 03 Sep 2026).</p>
+            <!-- Bounds and the range in this hint are both written by
+                 applyIsdBounds() from the loaded forecast. Hard-coding either
+                 leaves the form quietly advertising a range the model no
+                 longer covers once a new bundle lands. -->
+            <p class="field-hint" id="isd-hint">Select the intended ship date.</p>
           </div>
 
           <!-- Number of Containers -->
