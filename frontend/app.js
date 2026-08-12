@@ -20,8 +20,8 @@ let SNAPSHOT_RUNS = [];
 let SNAPSHOT_RUNS_LOADED = false;
 
 /* Supabase project — see supabase/README.md for setup. */
-const SUPABASE_URL = 'https://nhsouavfdyfjylhvjexd.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_yO95slTwkVdn-A2aUbrndw_nY3owKhv';
+const SUPABASE_URL = 'https://uioqmeulbvsnqfvtdmzt.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_LzOfDzr4YZ22RUkclX3zVQ_fa37cW-P';
 
 /* Route config — this deployment only supports the NE→USEC lane */
 const ROUTES = {
