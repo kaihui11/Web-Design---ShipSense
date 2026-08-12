@@ -58,8 +58,9 @@ User opens the app
         │
         ▼
 [ Page 4: Client Quote Preview ]  ←── landed on automatically
-  Quotation issued on arrival: reference, validity window, locked price
   See quoted price (fee + 20% markup)
+  1. "Save Forecast Record"  → writes the Pending row (CREATE)
+  2. "Generate Quotation"    → reference, validity window, locked price
   Select client's preferred date
   Record decision (Confirmed / Pending)
   Export PDF if needed
@@ -68,7 +69,7 @@ User opens the app
         │       ±5 day rate grid, selected vs. cheapest date, saving,
         │       day-on-day forecast revision — all internal, never quoted
         │
-        ▼  (auto-saved to history on first open)
+        ▼  (appears in history once saved)
 [ Page 5: Forecast History ]  ←── accessible any time from sidebar
   View, filter, cancel past records
 
@@ -160,7 +161,7 @@ At the bottom: a prominent **"Forecast Estimated Shipping Fee"** button.
 4. User enters how many containers they need.
 5. User fills in the client's company name and their own name (used for records).
 6. User clicks the blue forecast button.
-7. App runs the forecast calculation and navigates straight to **Client Quote Preview**, where the quotation is issued on arrival. Naming a company and a PIC is already the decision to quote them, so nothing further is asked for. **Forecast Result** holds the internal working behind the number and stays one click away in the sidebar.
+7. App runs the forecast calculation and navigates straight to **Client Quote Preview**. Nothing is written or priced on arrival: the page offers **Save Forecast Record** first, and only once saved does **Generate Quotation** appear. The two are separate presses because they are separate commitments — a saved record can still be edited or deleted from Forecast History, while an issued quotation is a price the client has been given and is locked from that moment. **Forecast Result** holds the internal working behind the number and stays one click away in the sidebar.
 
 ### Logic
 
@@ -594,7 +595,8 @@ HISTORY_DATA:
 | ML route | North Europe → US East Coast only | New Forecast (locked), Executive Dashboard |
 | Login/signup email restriction | must end with `@goodfortune.com` | Login |
 | Signup password rule | password ≥ 8 chars AND matches confirm field | Login |
-| History auto-save timing | On first open of Client Quote Preview | Client Quote Preview |
+| Record created | On pressing "Save Forecast Record" | Client Quote Preview |
+| Quotation issued (price locked) | On pressing "Generate Quotation" | Client Quote Preview |
 | Scenario elasticity (assumed, not fitted) | 1.8 | Market Impact |
 | Scenario slider range | the exchange rate's own 90-day forecast range (Low/Base/High) | Market Impact |
 

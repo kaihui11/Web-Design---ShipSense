@@ -86,7 +86,7 @@ Public read-only via the anon key; only `scripts/pkl_to_json.py` (service_role) 
 
 ## `quote_requests` table (Supabase)
 
-One row per client quote a staff member generates from the New Forecast page (`frontend/app.js`). Unlike `snapshots`/`historical_data`, this is **not** populated by the ingest pipeline — it's written directly by the frontend using the anon key, both on insert (auto-saved as `Pending` the first time a Client Quote page is opened) and on update (when a staff member records the client's decision, or cancels).
+One row per client quote a staff member generates from the New Forecast page (`frontend/app.js`). Unlike `snapshots`/`historical_data`, this is **not** populated by the ingest pipeline — it's written directly by the frontend using the anon key: inserted as `Pending` when **Save Forecast Record** is pressed, updated when the quotation is issued, when details are edited, or when a decision is recorded, and deleted while the request is still Pending.
 
 | Column | camelCase field in `app.js` | Notes |
 |---|---|---|
@@ -107,6 +107,46 @@ One row per client quote a staff member generates from the New Forecast page (`f
 | `forecast_generated_at` | `forecastGeneratedAt` | `snapshots.generated_at` of the run the price was taken from |
 | `created_at` / `updated_at` | `ts` (derived) | `ts` is formatted client-side from `created_at`, not stored separately |
 
-The last five columns are null while a quote is still a working preview, and are written together the moment the Client Quote preview opens on a still-pending record. From then on a database trigger rejects any change to them or to the figures behind them — a newer forecast run can't move a price a client has already been given. Re-quoting inserts a new row (see `docs/business-logic.md`).
+The last five columns are null while a request is saved but un-issued, and are written together when **Generate Quotation** is pressed (`issueQuotationNow()` → `issueQuotationFor()`). Saving a record and issuing a price are two separate acts: the gap between them is the window in which a request can still be edited or deleted. From the issue onwards a database trigger rejects any change to those columns or to the figures behind them — a newer forecast run cannot move a price a client has already been given. Re-quoting inserts a new row (see `docs/business-logic.md`).
 
-Login is now backed by real Supabase Auth (see `docs/business-logic.md`), but other REST calls still use the public anon key rather than the signed-in user's session token, so RLS on this table allows any holder of the anon key to read/insert/update all rows. This is real business data (company names, fees), so tighten these policies to require `auth.uid()` once app.js's Supabase calls are switched to the authenticated session token.
+**Row lifecycle and what each stage permits** — enforced by RLS plus two triggers in `schema.sql`, not by the UI:
+
+| Stage | Read | Edit | Cancel | Delete |
+|---|:--:|:--:|:--:|:--:|
+| Pending, un-issued | ✅ | ✅ | ✅ | ✅ |
+| Pending, issued | ✅ | — (lock trigger) | ✅ | ✅ |
+| Confirmed / Cancelled | ✅ | — | — | — (delete guard) |
+
+Login is backed by real Supabase Auth (see `docs/business-logic.md`), but other REST calls still use the public anon key rather than the signed-in user's session token, so RLS on this table allows any holder of the anon key to read, insert, update and — within the rules above — delete rows. This is real business data (company names, fees), so tighten these policies to require `auth.uid()` once app.js's Supabase calls are switched to the authenticated session token.
+
+---
+
+## `contact_messages` table (Supabase)
+
+Enquiries submitted from the public Contact page (`frontend/contact.html` → `site.js`). Written with
+the anon key by visitors who are not logged in, which is why this table is shaped differently from
+the other three.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `bigint identity` | Primary key |
+| `full_name` | `text not null` | 2–80 characters |
+| `email` | `text not null` | ≤120 chars, must match a basic address shape |
+| `company` | `text` | Optional |
+| `phone` | `text` | Optional, ≤32 chars |
+| `topic` | `text not null` | One of `quote`, `shipment`, `platform`, `partnership`, `other` |
+| `message` | `text not null` | 20–1000 characters |
+| `consent_given` | `boolean not null` | Constrained to `true` — a row without consent cannot exist |
+| `created_at` | `timestamptz` | Defaults to `now()` |
+
+**Insert-only, and deliberately not readable.** There is no select, update or delete policy. The
+anon key ships publicly in `frontend/supabase-config.js`, so granting it SELECT would hand the whole
+enquiry inbox — names, emails, phone numbers — to anyone who viewed the page source. Staff read
+these in the Supabase dashboard, which authenticates as `service_role` and bypasses RLS.
+
+One consequence worth knowing: an insert here cannot use `Prefer: return=representation`, because
+returning the new row needs the select permission that is deliberately absent. `site.js` sends
+`return=minimal` for that reason.
+
+Every browser-side rule in `site.js`'s validator map is declared again as a CHECK constraint,
+because a bot that never loads the page can POST straight to PostgREST with the public key.
