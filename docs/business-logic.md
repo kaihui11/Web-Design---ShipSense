@@ -37,16 +37,19 @@ What is locked is the issued document, never the client's choice:
 - Once the client's decision is recorded (Confirmed/Cancelled), re-quoting is refused — that record is closed, and a different date needs a new forecast.
 
 - **Saving and issuing are two separate presses.** Both used to fire silently when the Client Quote page opened. They are now distinct acts:
-  1. **Save Forecast Record** (`saveForecastRecord()`) inserts the Pending, un-issued row. Nothing is priced.
+  1. **Save Forecast** on the Forecast Result page inserts the Pending, un-issued row. Nothing is priced. Pressing **Prepare Client Quote** on an unsaved forecast reaches the same place through a confirm dialog (*"This forecast must be saved before preparing a quotation. Save and continue?"*) rather than being refused — see `prepareClientQuote()`/`saveAndContinue()`. All three entry points, including the fallback button inside the preview's draft panel, funnel into one `persistForecastRecord()`.
   2. **Generate Quotation** (`issueQuotationNow()` → `issueQuotationFor()`) stamps `quote_ref`, `issued_at`, `valid_until`, `quoted_fee`, `quoted_price` and `forecast_generated_at` in a single write, and re-stamps `isd_fee`/`low_date`/`low_fee` to the run the price actually came from.
 
   The gap between them is not ceremony — it is the window in which the record is still the analyst's own. A saved-but-un-issued request can be edited or deleted from Forecast History; the moment a price is issued, the lock trigger closes both doors. Re-quote paths (`regenerateQuotation()`, `requoteForDate()`) skip the gap and issue immediately, because the user has already asked for a new price rather than a new draft.
+- **The preview shows the price before it is issued.** The draft panel carries the same three-column shape as an issued quotation — quoted date, quantity, total — but labelled *Estimated Price* under a `Draft` badge, against *Quoted Price* under a reference and an expiry. Withholding the figure until issue would mean pressing the irreversible button to find out what it does.
 - Issuing is deliberately kept outside the render body: if the write fails the page still draws on live figures, the quotation document shows *Quotation could not be generated* with a retry, and nothing has been fixed for the client.
 - **Validity**: `QUOTE_VALIDITY_HOURS = 48`, counted from the issue timestamp.
 - **Reference**: `SSQ-YYYYMMDD-####` — issue date in the user's timezone plus the zero-padded `quote_requests.id`, which is what makes it unique (`quoteRefFor()`). A partial unique index enforces this; a direct PostgREST write that omits the reference gets a UTC-dated one from the schema trigger.
 - **The lock is permanent, not just for the validity period.** A newer forecast run never rewrites an issued quotation, and expiry does not unfreeze it — an expired quote is still the record of what the client was told. `schema.sql`'s `enforce_quote_status_transition()` trigger rejects any change to the issued terms, so the lock holds against direct API writes too, not just the disabled UI.
 - **After expiry**, the preview keeps showing the issued price with an `Expired` badge and offers **Generate New Quotation** (`regenerateQuotation()`), which inserts a *new* Pending record priced from the latest forecast and gets its own reference. It carries the client's chosen date across rather than jumping to whichever date is now cheapest — re-quoting re-prices the same shipment, it doesn't move it. The expired record is left untouched.
 - **Record Client Choice** and **Export Quote (PDF)** are disabled until a quotation is issued — there is no decision to record, and no document to print, before then. Recording a decision stays available after expiry so a client's answer isn't lost to a late data entry.
+- **An unavailable action says why.** A hint above the two buttons names what is missing ("…need an issued quotation… Use **Generate Quotation** above first") instead of leaving greyed controls to be puzzled over, and a disabled primary is drawn grey rather than staying full blue at reduced opacity.
+- **Once a decision exists, Record Client Choice leaves.** It used to remain on screen as a disabled button reading *Choice Recorded* — a button pretending to be a status, directly above a status line already saying the same thing. A finished action is removed and the hint states the record is closed.
 
 ### What the client never sees
 
@@ -87,7 +90,7 @@ Earlier drafts of this doc described a Risk Level (Low/Medium/High/Extreme) and 
 
 The Forecast History table is where a saved record can be changed or removed. What each row still permits depends on how far it has travelled, and the three stages are genuinely different situations rather than degrees of the same one:
 
-| Stage | View | Edit | Cancel | Delete |
+| Stage | View | Edit | Mark Cancelled | Delete |
 |---|:--:|:--:|:--:|:--:|
 | Pending, un-issued | ✅ | ✅ | ✅ | ✅ |
 | Pending, issued | ✅ | — | ✅ | ✅ |
@@ -95,7 +98,8 @@ The Forecast History table is where a saved record can be changed or removed. Wh
 
 - **Edit** (`openEditModal()` / `saveEditRecord()`) changes company, PIC, containers and intended ship date. It is offered only on un-issued rows because the schema's lock trigger rejects changes to exactly those fields once a price has been issued — showing the form on a locked row would be offering something that cannot work. Moving the ship date recomputes `isd_fee`, `low_date` and `low_fee` from the current forecast, so the stored fees never describe a date the record no longer refers to.
 - **Delete** (`deleteHistory()` → `deleteHistoryRecord()`) removes the row outright. Permitted while the request is still Pending — including after a quotation has been issued, which is the case of withdrawing a quote the client has not answered. Once Confirmed or Cancelled, the row records a decision that actually happened and is permanent.
-- **Cancel and Delete are different acts, not two names for one.** Cancelling records that the client said no — an outcome worth keeping. Deleting says the request should never have existed. That is why cancelling is available on rows that can also be deleted.
+- **Cancel and Delete are different acts, not two names for one.** Cancelling records that the client said no — an outcome worth keeping. Deleting says the request should never have existed. That is why cancelling is available on rows that can also be deleted. The button is worded **Mark as cancelled by client** rather than "Cancel", which beside a Delete button read as a dialog's dismiss control instead of the business decision it records.
+- **Both ask first, in the app's own dialog.** `openConfirm()` drives one shared modal for the two irreversible row actions. It names the record — company, date, and for an issued quotation its reference and price — and runs the action from inside itself, so a refusal from the database is reported in the box the user was deciding in rather than as a detached alert. It replaced `window.confirm()`, which cannot be styled, cannot mark up the record it is asking about, and looks like a browser security warning.
 - Enforcement is in the database, not the buttons: `supabase/schema.sql` carries a `"Delete pending requests"` RLS policy plus an `enforce_quote_delete_rules()` trigger, so the same rules hold against a direct PostgREST call. A policy that matches no row deletes nothing and still returns 200, so `deleteHistoryRecord()` requests `return=representation` and treats an empty response as a refusal rather than a success.
 
 ---

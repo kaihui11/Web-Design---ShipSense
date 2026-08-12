@@ -1,12 +1,14 @@
 -- ShipSense Supabase (Postgres) schema
 --
--- Three tables, three different shapes on purpose:
---   snapshots       — ML forecast blob (JSONB). Replaced wholesale on
+-- Four tables, four different shapes on purpose:
+--   snapshots        — ML forecast blob (JSONB). Replaced wholesale on
 --                      each ingest, never queried by field — a blob fits.
---   quote_requests  — client quotes staff generate. Needs per-row
+--   quote_requests   — client quotes staff generate. Needs per-row
 --                      updates/filtering/sorting — real columns, not JSONB.
---   historical_data — real daily macro actuals from the ML notebook.
+--   historical_data  — real daily macro actuals from the ML notebook.
 --                      One row per day, queried by date range.
+--   contact_messages — enquiries from the public Contact page. Write-only
+--                      from the browser: insert allowed, read is not.
 
 -- snapshots: one row per ingested forecast snapshot. The frontend
 -- contract (see docs/data-schema.md) is stored verbatim as JSONB and
@@ -327,3 +329,103 @@ create policy "Public read access"
     on historical_data
     for select
     using (true);
+
+-- ---------------------------------------------------------------------
+-- contact_messages: enquiries submitted from the public Contact page
+-- (frontend/contact.html + frontend/site.js). Unlike every other table
+-- here, the writer is a stranger on the open internet rather than a
+-- member of staff, and that changes two things.
+--
+-- First, the direction of access is reversed. The tables above are
+-- public-read; this one is public-*write* and not readable at all with
+-- the anon key — see the policies below. Second, nothing client-side can
+-- be trusted, so every rule site.js applies in the browser is declared
+-- again here as a constraint. A bot that never loads the page can POST
+-- straight to PostgREST with the (already-public) anon key; these
+-- constraints are what actually stops it storing junk.
+create table if not exists contact_messages (
+    id            bigint generated always as identity primary key,
+    full_name     text        not null,
+    email         text        not null,
+    company       text,                        -- optional on the form
+    phone         text,                        -- optional on the form
+    topic         text        not null,        -- enquiry type, see check below
+    message       text        not null,
+    -- The form requires an explicit tick before it will submit. Storing
+    -- the answer rather than assuming it means the record carries its own
+    -- evidence that permission was given to hold these details.
+    consent_given boolean     not null default false,
+    created_at    timestamptz not null default now()
+);
+
+create index if not exists idx_contact_messages_created
+    on contact_messages (created_at desc);
+
+-- Field validity — the server-side half of the rules in site.js's
+-- VALIDATORS map. ADD CONSTRAINT has no IF NOT EXISTS, so each is guarded
+-- by a pg_constraint lookup to keep this file re-runnable.
+do $$
+begin
+    if not exists (select 1 from pg_constraint where conname = 'contact_messages_name_length') then
+        alter table contact_messages add constraint contact_messages_name_length
+            check (char_length(full_name) between 2 and 80);
+    end if;
+
+    -- Deliberately as loose as the browser check: the only address that
+    -- truly validates is one that accepts a reply. This catches shapes
+    -- that cannot possibly be an address, nothing more.
+    if not exists (select 1 from pg_constraint where conname = 'contact_messages_email_shape') then
+        alter table contact_messages add constraint contact_messages_email_shape
+            check (
+                char_length(email) <= 120
+                and email ~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]{2,}$'
+            );
+    end if;
+
+    if not exists (select 1 from pg_constraint where conname = 'contact_messages_optional_lengths') then
+        alter table contact_messages add constraint contact_messages_optional_lengths
+            check (
+                (company is null or char_length(company) <= 80)
+                and (phone is null or char_length(phone) <= 32)
+            );
+    end if;
+
+    if not exists (select 1 from pg_constraint where conname = 'contact_messages_topic_known') then
+        alter table contact_messages add constraint contact_messages_topic_known
+            check (topic in ('quote', 'shipment', 'platform', 'partnership', 'other'));
+    end if;
+
+    -- The 20-character floor is not arbitrary: an enquiry too short to
+    -- act on wastes a reply, and it is the cheapest filter against the
+    -- one-word submissions automated form-fillers produce.
+    if not exists (select 1 from pg_constraint where conname = 'contact_messages_message_length') then
+        alter table contact_messages add constraint contact_messages_message_length
+            check (char_length(message) between 20 and 1000);
+    end if;
+
+    -- A stored message without consent would be a record we were told not
+    -- to keep, so the row simply cannot exist.
+    if not exists (select 1 from pg_constraint where conname = 'contact_messages_consent_required') then
+        alter table contact_messages add constraint contact_messages_consent_required
+            check (consent_given);
+    end if;
+end $$;
+
+alter table contact_messages enable row level security;
+
+-- Insert only, and note what is *not* here: no select policy, no update,
+-- no delete. The anon key is public by design (it ships in
+-- frontend/supabase-config.js), so any policy granting it SELECT would
+-- hand the entire enquiry inbox — names, emails, phone numbers — to
+-- anyone who opened the page source. Staff read these in the Supabase
+-- dashboard, which authenticates as service_role and bypasses RLS.
+--
+-- One consequence worth knowing: an insert here cannot use PostgREST's
+-- `Prefer: return=representation`, because returning the new row would
+-- require the select permission that is deliberately absent. site.js
+-- sends `return=minimal` for exactly this reason.
+drop policy if exists "Public insert access" on contact_messages;
+create policy "Public insert access"
+    on contact_messages
+    for insert
+    with check (true);

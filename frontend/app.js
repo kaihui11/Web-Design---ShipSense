@@ -19,9 +19,11 @@ let PREV_FORECAST_META  = { generatedAt: null };
 let SNAPSHOT_RUNS = [];
 let SNAPSHOT_RUNS_LOADED = false;
 
-/* Supabase project — see supabase/README.md for setup. */
-const SUPABASE_URL = 'https://uioqmeulbvsnqfvtdmzt.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_LzOfDzr4YZ22RUkclX3zVQ_fa37cW-P';
+/* Supabase project — SUPABASE_URL / SUPABASE_ANON_KEY come from
+   supabase-config.js, which app.html loads before this file. They are
+   declared there rather than here because the public Contact page needs
+   the same two values and does not load app.js. See supabase/README.md
+   for setup. */
 
 /* Route config — this deployment only supports the NE→USEC lane */
 const ROUTES = {
@@ -685,6 +687,10 @@ function renderForecastResult() {
     document.getElementById('saving-val').textContent = fmt(saving);
     document.getElementById('saving-pct').textContent = `${savingPct}% less`;
   }
+
+  /* Re-read on every visit: the record may have been saved from the gate
+     dialog, or this may be an existing one reopened from Forecast History. */
+  syncSaveForecastButton();
 }
 
 /* ===== FORECAST REVISION (latest run vs. immediately previous run) =====
@@ -901,12 +907,16 @@ async function renderClientQuote() {
   document.getElementById('cq-qty').textContent   = cf.containers + ' FEU';
 
   /* Saving the record and issuing the quotation used to both fire silently
-     on open. They are now two separate, deliberate presses — see
-     saveForecastRecord() and issueQuotationNow(). The gap between them is
-     what gives a saved request a life of its own before it hardens into a
-     priced document: while it sits there un-issued it can still be edited or
-     deleted from Forecast History, which is impossible once a price has
-     gone to the client. */
+     on open. They are now two separate, deliberate acts, and by the time
+     this page renders the first of them has already happened: the record is
+     created back on the Forecast Result page, either by Save Forecast or by
+     the gate that catches Prepare Client Quote on an unsaved forecast (see
+     prepareClientQuote). Issuing stays here, on its own press.
+
+     The gap between the two is what gives a saved request a life of its own
+     before it hardens into a priced document: while it sits there un-issued
+     it can still be edited or deleted from Forecast History, which is
+     impossible once a price has gone to the client. */
   const rec = currentQuoteRecord();
 
   const f = quoteFigures(cf, rec);
@@ -976,28 +986,46 @@ async function renderClientQuote() {
                        : 'status-pending';
 
   /* Button states. A decision can only be recorded against a quotation the
-     client was actually given, so Record/Export wait for the issue. */
+     client was actually given, so Record/Export wait for the issue.
+
+     Two things this deliberately does not do any more. It does not leave a
+     disabled button on screen with no reason attached — the hint below says
+     which one is missing. And it does not turn Record Client Choice into a
+     disabled label reading "Choice Recorded" once a decision exists: that was
+     a button pretending to be a status, directly above a status line already
+     saying the same thing. A finished action leaves. */
   const expired  = isExpired(rec);
   const regenBtn = document.getElementById('regen-btn');
   const btn      = document.getElementById('record-btn');
   const expBtn   = document.getElementById('export-btn');
+  const hint     = document.getElementById('quote-actions-hint');
 
   const canRegen = expired && currentStatus === 'Pending';
   regenBtn.classList.toggle('hidden', !canRegen);
   regenBtn.disabled = !canRegen;
 
-  if (currentStatus === 'Pending') {
+  const awaitingDecision = currentStatus === 'Pending';
+  btn.classList.toggle('hidden', !awaitingDecision);
+  if (awaitingDecision) {
     btn.disabled = !f.issued;
-    btn.style.opacity = f.issued ? '' : '0.65';
     btn.innerHTML = `<i data-lucide="clipboard-check" style="width:16px;height:16px;"></i> Record Client Choice`;
-  } else {
-    btn.disabled = true;
-    btn.style.opacity = '0.65';
-    btn.textContent = currentStatus === 'Confirmed' ? 'Choice Recorded' : 'Quote Cancelled';
   }
 
   expBtn.disabled = !f.issued;
-  expBtn.style.opacity = f.issued ? '' : '0.65';
+
+  if (!f.issued) {
+    hint.innerHTML = `Recording a decision and exporting the PDF need an issued quotation —
+                      there is no price the client has been given yet. Use
+                      <strong>Generate Quotation</strong> above first.`;
+    hint.classList.remove('hidden');
+  } else if (!awaitingDecision) {
+    hint.innerHTML = currentStatus === 'Confirmed'
+      ? 'The client confirmed this quotation. The record is closed and its terms are final.'
+      : 'This request was cancelled. The record stays as the account of what happened.';
+    hint.classList.remove('hidden');
+  } else {
+    hint.classList.add('hidden');
+  }
 
   renderClientTotals(f);
   reInitLucide();
@@ -1057,7 +1085,13 @@ function renderQuotationDoc(cf, rec) {
   /* Three states before a quotation exists, and they are genuinely different
      situations rather than shades of the same one: nothing saved at all, a
      saved request awaiting a price, and a save that went through but whose
-     issue attempt failed. Each carries its own next action. */
+     issue attempt failed. Each carries its own next action.
+
+     The first is now a backstop rather than a step of the normal flow —
+     prepareClientQuote() saves before it opens this page, from either door.
+     It stays because state.currentForecast can be replaced by code that does
+     not go through that gate, and an unsaved preview must still explain
+     itself rather than silently offering a price with nothing behind it. */
   if (!rec) {
     el.className = 'quote-doc quote-doc-draft';
     el.innerHTML =
@@ -1075,19 +1109,34 @@ function renderQuotationDoc(cf, rec) {
   }
 
   if (!isIssued(rec)) {
+    /* The estimate is shown here, in the same three-column shape an issued
+       quotation uses, so the number the client would be given is on screen
+       from the moment the preview opens. The labels are what separate them:
+       "Estimated Price" against a Draft badge, versus "Quoted Price" against
+       a reference and an expiry. Withholding the figure until issue would
+       mean pressing the irreversible button to find out what it does. */
+    const draft = quoteFigures(cf, rec);
+
     el.className = 'quote-doc quote-doc-draft';
     el.innerHTML =
       `<div class="qd-row">
          <div class="qd-title">${state.quoteIssueFailed
             ? 'Quotation could not be generated'
-            : 'Saved — no quotation issued yet'}</div>
+            : 'Estimated quotation — not issued yet'}</div>
          <span class="qd-badge qd-badge-draft">${state.quoteIssueFailed ? 'Not issued' : 'Draft'}</span>
+       </div>
+       <div class="qd-grid">
+         <div><div class="qd-label">Quoting For</div><div class="qd-val">${fmtDate(draft.clientDate)}</div></div>
+         <div><div class="qd-label">Containers</div><div class="qd-val">${draft.qty} FEU</div></div>
+         <div><div class="qd-label">Estimated Price</div><div class="qd-val qd-price">${fmt(draft.clientTotal)}</div></div>
        </div>
        <p class="qd-note">${state.quoteIssueFailed
           ? 'The request is saved, but no price has been fixed for this client. Check your connection and try again.'
-          : `The request is saved and still fully editable from Forecast History. Issuing stamps a
-             reference, fixes the price for ${QUOTE_VALIDITY_HOURS} hours and closes the record to
-             further edits — so it is the point of no return, not a formality.`}</p>
+          : `This figure follows the forecast run of ${fmtTs(draft.forecastAt)} and will move with the next
+             one — it is an estimate, not a price the client can hold you to. The request is saved and still
+             fully editable from Forecast History. Issuing stamps a reference, fixes the price for
+             ${QUOTE_VALIDITY_HOURS} hours and closes the record to further edits — so it is the point of no
+             return, not a formality.`}</p>
        <button type="button" class="btn-primary qd-action" onclick="issueQuotationNow()">
          ${state.quoteIssueFailed ? 'Try Again' : 'Generate Quotation'}
        </button>`;
@@ -1158,10 +1207,18 @@ async function issueQuotationFor(cf, rec) {
 
    It stops at saving. No price is fixed here, which is the whole point: the
    record spends its first life editable and deletable, and only hardens when
-   someone chooses to issue it. */
-async function saveForecastRecord() {
+   someone chooses to issue it.
+
+   Three buttons now reach this — Save Forecast on the Forecast Result page,
+   Save and Continue in the gate dialog, and the fallback Save inside the
+   preview's draft panel — so the write itself lives here on its own and each
+   caller decides what to say and where to go afterwards. Returns whether a
+   record exists at the end, which is not the same as "an insert happened":
+   an already-saved forecast is a success with nothing to do. */
+async function persistForecastRecord() {
   const cf = state.currentForecast;
-  if (!cf || cf.pendingId) return;
+  if (!cf) return false;
+  if (cf.pendingId) return true;
 
   try {
     const saved = await insertHistoryRecord({
@@ -1176,13 +1233,111 @@ async function saveForecastRecord() {
       clientDate: cf.clientDate || cf.isdDate,
     });
     cf.pendingId = saved.id;
+    return true;
   } catch (e) {
     console.error('Failed to save the forecast record:', e);
+    return false;
+  }
+}
+
+/* Save from inside the Client Quote Preview's draft panel. */
+async function saveForecastRecord() {
+  const cf = state.currentForecast;
+  if (!cf || cf.pendingId) return;
+
+  if (!await persistForecastRecord()) {
     alert('Could not save this forecast record. Please check your connection and try again.');
     return;
   }
-
   await renderClientQuote();
+}
+
+/* Save from the Forecast Result page. Stays on the page: this button is the
+   Create step on its own, not a way through to pricing. */
+async function saveForecastFromResult() {
+  const cf  = state.currentForecast;
+  const btn = document.getElementById('save-forecast-btn');
+  if (!cf || cf.pendingId || !btn) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const ok = await persistForecastRecord();
+  syncSaveForecastButton();
+  if (!ok) {
+    alert('Could not save this forecast record. Please check your connection and try again.');
+  }
+}
+
+/* ===== SAVE-BEFORE-QUOTING GATE =====
+   A quotation is a document about a record, so there has to be a record
+   first. Rather than disabling "Prepare Client Quote" until the forecast is
+   saved — which leaves the user staring at a dead button with no stated
+   reason — the press is honoured by offering the missing step. */
+function prepareClientQuote() {
+  const cf = state.currentForecast;
+
+  /* Nothing generated yet: behave exactly as the link always has and let
+     the preview show its own empty state. */
+  if (!cf) { navigateTo('client-quote'); return; }
+
+  if (cf.pendingId) { navigateTo('client-quote'); return; }
+
+  document.getElementById('save-gate-company').textContent = cf.company;
+  document.getElementById('save-gate-error').classList.add('hidden');
+  const btn = document.getElementById('save-gate-btn');
+  btn.disabled = false;
+  btn.textContent = 'Save and Continue';
+  document.getElementById('save-gate-modal').classList.remove('hidden');
+}
+
+function closeSaveGateModal() {
+  document.getElementById('save-gate-modal').classList.add('hidden');
+}
+
+async function saveAndContinue() {
+  const btn = document.getElementById('save-gate-btn');
+  const err = document.getElementById('save-gate-error');
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  err.classList.add('hidden');
+
+  if (!await persistForecastRecord()) {
+    /* Reported inside the dialog rather than as an alert, so the choice the
+       user was making is still on screen behind the reason it failed. */
+    err.textContent = 'Could not save this forecast. Check your connection and try again.';
+    err.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Save and Continue';
+    return;
+  }
+
+  closeSaveGateModal();
+  syncSaveForecastButton();
+  navigateTo('client-quote');
+}
+
+/* The Save Forecast button is the only thing on the Forecast Result page
+   that knows whether this forecast exists in history yet, so it has to say
+   so — otherwise pressing it twice looks like it did nothing. */
+function syncSaveForecastButton() {
+  const btn  = document.getElementById('save-forecast-btn');
+  const note = document.getElementById('save-forecast-note');
+  if (!btn) return;
+
+  const saved = !!state.currentForecast?.pendingId;
+  btn.disabled = saved;
+  btn.innerHTML = saved
+    ? `<i data-lucide="check" style="width:15px;height:15px;"></i> Saved to History`
+    : `<i data-lucide="save" style="width:15px;height:15px;"></i> Save Forecast`;
+
+  if (note) {
+    note.textContent = saved
+      ? 'Saved to Forecast History as a Pending request — still editable there until a quotation is issued.'
+      : '';
+  }
+  reInitLucide();
 }
 
 /* Issues the saved request, on an explicit press. Failure is recorded on
@@ -1699,6 +1854,106 @@ function renderRevisionChart(container, series) {
   });
 }
 
+/* ===== CONFIRMATION DIALOG =====
+   One dialog, shared by every irreversible action. The caller supplies the
+   words and the work; this handles opening, the busy state, and reporting a
+   failure inside the dialog rather than dropping an alert on top of it.
+
+   The action runs here rather than after the dialog closes, so a refusal from
+   the database is shown in the same box the user was deciding in — with the
+   record still named above it. */
+let confirmPendingAction = null;
+
+const CONFIRM_ICONS = {
+  danger:  '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
+  warning: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+};
+
+function openConfirm({ title, body, confirmLabel, dismissLabel = 'Keep it', tone = 'danger', onConfirm }) {
+  confirmPendingAction = onConfirm;
+
+  document.getElementById('confirm-icon').className = `confirm-icon confirm-icon-${tone}`;
+  document.getElementById('confirm-icon').innerHTML =
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+          stroke-linecap="round" stroke-linejoin="round">${CONFIRM_ICONS[tone]}</svg>`;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-body').innerHTML    = body;
+  document.getElementById('confirm-error').classList.add('hidden');
+
+  const dismiss = document.getElementById('confirm-dismiss-btn');
+  dismiss.textContent = dismissLabel;
+  dismiss.disabled = false;
+
+  const ok = document.getElementById('confirm-ok-btn');
+  ok.textContent = confirmLabel;
+  ok.disabled = false;
+  ok.className = `btn-primary${tone === 'danger' ? ' btn-danger' : ''}`;
+  ok.dataset.idleLabel = confirmLabel;
+
+  document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirm-modal').classList.add('hidden');
+  confirmPendingAction = null;
+}
+
+async function runConfirmAction() {
+  if (!confirmPendingAction) return;
+
+  const ok      = document.getElementById('confirm-ok-btn');
+  const dismiss = document.getElementById('confirm-dismiss-btn');
+  const err     = document.getElementById('confirm-error');
+
+  ok.disabled = true;
+  dismiss.disabled = true;
+  ok.textContent = 'Working…';
+  err.classList.add('hidden');
+
+  try {
+    await confirmPendingAction();
+    closeConfirmModal();
+  } catch (e) {
+    console.error('Confirmed action failed:', e);
+    err.textContent = e.userMessage || 'That did not go through. Please check your connection and try again.';
+    err.classList.remove('hidden');
+    ok.disabled = false;
+    dismiss.disabled = false;
+    ok.textContent = ok.dataset.idleLabel;
+  }
+}
+
+/* ===== ROW ACTIONS =====
+   Four worded buttons did not fit the Action column, so they wrapped — and
+   because each row permits a different set, they wrapped differently on every
+   row. Delete ended up in a new place each time, which is the worst possible
+   habit to build next to a destructive control.
+
+   One worded button for the common action and three icons for the rest fits a
+   single line. The part that makes it safe is the empty slot: a disallowed
+   action still occupies its width, so Edit, Cancel and Delete stay in the
+   same three positions on every row of the table regardless of what each row
+   allows. Icons carry title + aria-label, since a picture on its own is not a
+   name.
+
+   Rendered as inline SVG rather than lucide placeholders: this table redraws
+   on every keystroke in the filter bar, and those redraws do not re-run
+   lucide.createIcons(). */
+const ROW_ACTION_ICONS = {
+  edit:   '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  cancel: '<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>',
+  delete: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
+};
+
+function rowActionIcon(allowed, kind, label, call) {
+  if (!allowed) return '<span class="row-icon-slot" aria-hidden="true"></span>';
+  return `<button type="button" class="row-icon row-icon-${kind}" title="${label}"
+            aria-label="${label}" onclick="${call}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                 stroke-linecap="round" stroke-linejoin="round">${ROW_ACTION_ICONS[kind]}</svg>
+          </button>`;
+}
+
 function applyHistoryFilters() {
   const dateFrom = document.getElementById('filter-date-from').value;
   const company  = document.getElementById('filter-company').value.toLowerCase();
@@ -1744,9 +1999,9 @@ function applyHistoryFilters() {
     const openReq   = h.status === 'Pending';
     const actions = `<div class="row-actions">
         <button class="btn-view" onclick="viewHistory('${h.id}')">View</button>
-        ${editable ? `<button class="btn-edit" onclick="openEditModal('${h.id}')">Edit</button>` : ''}
-        ${openReq  ? `<button class="btn-cancel" onclick="cancelHistory('${h.id}')">Cancel</button>` : ''}
-        ${openReq  ? `<button class="btn-delete" onclick="deleteHistory('${h.id}')">Delete</button>` : ''}
+        ${rowActionIcon(editable, 'edit',   'Edit this request',            `openEditModal('${h.id}')`)}
+        ${rowActionIcon(openReq,  'cancel', 'Mark as cancelled by client',  `cancelHistory('${h.id}')`)}
+        ${rowActionIcon(openReq,  'delete', 'Delete this record',           `deleteHistory('${h.id}')`)}
       </div>`;
     return `<tr>
       <td><div class="td-date-main">${h.ts.split('\n')[0]}</div><div class="td-date-time">${h.ts.split('\n')[1]}</div>
@@ -1814,21 +2069,34 @@ function viewHistory(id) {
   navigateTo('client-quote');
 }
 
-async function cancelHistory(id) {
+/* Records that the client cancelled — a business decision, not a way of
+   dismissing the row, which is why the button says "Mark as cancelled by
+   client" rather than "Cancel". The record stays; only its status moves, and
+   it moves permanently. */
+function cancelHistory(id) {
   const h = HISTORY_DATA.find(x => String(x.id) === String(id));
   if (!h || h.status !== 'Pending') return;
-  if (!confirm(`Cancel this forecast for ${h.company}?\nThis cannot be undone.`)) return;
-  await updateHistoryRecord(h.id, { status: 'Cancelled', decision: null });
-  applyHistoryFilters();
-  /* If the currently open quote belongs to this record, reflect cancelled state */
-  if (state.currentForecast && String(state.currentForecast.pendingId) === String(id)) {
-    document.getElementById('decision-status-text').textContent = 'Cancelled';
-    document.getElementById('decision-status-text').className   = 'status-cancelled';
-    const btn = document.getElementById('record-btn');
-    btn.disabled = true;
-    btn.style.opacity = '0.45';
-    btn.textContent = 'Quote Cancelled';
-  }
+
+  openConfirm({
+    tone: 'warning',
+    title: 'Mark this request as cancelled?',
+    body: `This records that <strong>${h.company}</strong> cancelled the request for
+           ${fmtDate(h.isdDate)}. The record stays in Forecast History as the account of
+           what happened, but its status is final — it cannot be moved back to Pending,
+           and the request can no longer be edited or quoted.`,
+    confirmLabel: 'Mark as cancelled',
+    dismissLabel: 'Leave it pending',
+    onConfirm: async () => {
+      await updateHistoryRecord(h.id, { status: 'Cancelled', decision: null });
+      applyHistoryFilters();
+      /* If the open preview is this record, redraw it from the updated row
+         rather than hand-patching the button and status line — one render
+         path means the two can never disagree. */
+      if (state.currentForecast && String(state.currentForecast.pendingId) === String(id)) {
+        await renderClientQuote();
+      }
+    },
+  });
 }
 
 /* ===== UPDATE =====
@@ -1930,33 +2198,50 @@ async function saveEditRecord(e) {
    The only operation here that destroys data, so it asks first and names
    what is about to go. The database has the final say (schema.sql's delete
    policy and guard) — a refusal there is reported rather than swallowed. */
-async function deleteHistory(id) {
+function deleteHistory(id) {
   const h = HISTORY_DATA.find(x => String(x.id) === String(id));
   if (!h) return;
 
-  const warning = h.quoteRef
-    ? `Delete quotation ${h.quoteRef} for ${h.company}?\n\n` +
-      `A price was already issued to this client. Deleting removes that record entirely.\n\nThis cannot be undone.`
-    : `Delete the saved forecast record for ${h.company}?\n\nThis cannot be undone.`;
-  if (!confirm(warning)) return;
+  /* An issued quotation is a price the client has already been given, so
+     deleting one is a heavier act than discarding a draft. The dialog says
+     which of the two this is instead of asking the same question either way. */
+  const body = h.quoteRef
+    ? `Quotation <strong>${h.quoteRef}</strong> was issued to <strong>${h.company}</strong> at
+       ${fmt(h.quotedPrice)}. Deleting removes every trace of it from Forecast History —
+       the reference, the price and the record that it was ever quoted. This cannot be undone.`
+    : `The saved forecast for <strong>${h.company}</strong> (${fmtDate(h.isdDate)},
+       ${h.containers} FEU) will be removed from Forecast History. No price was ever issued
+       to this client, so nothing they have seen is affected. This cannot be undone.`;
 
-  try {
-    await deleteHistoryRecord(h.id);
-  } catch (e) {
-    console.error('Failed to delete record:', e);
-    alert(e.blocked
-      ? 'This record can no longer be deleted — a client decision has been recorded against it.'
-      : 'Could not delete this record. Please check your connection and try again.');
-    return;
-  }
+  openConfirm({
+    tone: 'danger',
+    title: h.quoteRef ? 'Delete this issued quotation?' : 'Delete this saved forecast?',
+    body,
+    confirmLabel: 'Delete permanently',
+    dismissLabel: 'Keep it',
+    onConfirm: async () => {
+      try {
+        await deleteHistoryRecord(h.id);
+      } catch (e) {
+        /* The database has the final say (schema.sql's delete policy and
+           guard). Reword its refusal for the dialog rather than letting the
+           raw failure through. */
+        e.userMessage = e.blocked
+          ? 'This record can no longer be deleted — a client decision has been recorded against it.'
+          : 'Could not delete this record. Please check your connection and try again.';
+        throw e;
+      }
 
-  /* The Client Quote page may still be holding the row that just vanished.
-     Clearing the id lets that page fall back to its unsaved state instead of
-     rendering against a record the database no longer has. */
-  if (state.currentForecast && String(state.currentForecast.pendingId) === String(id)) {
-    state.currentForecast.pendingId = null;
-  }
-  applyHistoryFilters();
+      /* The Client Quote page may still be holding the row that just
+         vanished. Clearing the id lets that page fall back to its unsaved
+         state instead of rendering against a record the database no longer
+         has. */
+      if (state.currentForecast && String(state.currentForecast.pendingId) === String(id)) {
+        state.currentForecast.pendingId = null;
+      }
+      applyHistoryFilters();
+    },
+  });
 }
 
 ['filter-status'].forEach(id => {
