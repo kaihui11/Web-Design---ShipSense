@@ -32,7 +32,14 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pandas joblib
+        # xgboost is not used by this script directly — it is needed to
+        # *unpickle* the bundle. shipsense_website_bundle.pkl carries the
+        # trained fee/oil/fx regressors alongside the forecast, so joblib.load
+        # has to import xgboost to rebuild them before the plain DataFrames
+        # become reachable. load_bundle() stubs missing shipsense-* modules but
+        # deliberately re-raises for third-party ones, since a silently stubbed
+        # xgboost would deserialise the models into hollow objects.
+        run: pip install pandas joblib xgboost
 
       - name: Find pkl file
         id: find
