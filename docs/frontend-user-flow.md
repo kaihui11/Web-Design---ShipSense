@@ -27,7 +27,8 @@ ShipSense is an **internal logistics cost-forecasting web application** built fo
           │
           ▼
 [Frontend — Static SPA]
-  index.html + style.css + app.js
+  app.html + style.css + app.js
+  (index/about/contact.html are the public pages; they load none of this)
   Loads the latest forecast snapshot from Supabase on page load
   Stores forecast history in Supabase's quote_requests table
           │
@@ -90,7 +91,7 @@ A split-screen login page:
 
 ### User Flow
 
-1. User opens `index.html` in a browser.
+1. User opens `app.html` in a browser — usually via **Sign In** in the public site's header.
 2. The app immediately fetches the latest forecast snapshot from Supabase in the background (populating the 90-day rate data). **Every visit starts here** — sessions are not persisted, so there is no auto-login and no way to land on the workspace without entering credentials. The Login button stays disabled until the forecast data has loaded.
 3. A first-time user clicks "Create one" to switch to the sign-up form, enters their name, `@goodfortune.com` email, and password (8+ characters, confirmed), and clicks **Create account**. Depending on the project's email-confirmation setting, this either logs them straight in or asks them to confirm via email first.
 4. A returning user types their `@goodfortune.com` email and password and clicks **Login**.
@@ -224,7 +225,10 @@ A results page with three main sections:
 
 **Action buttons:**
 - **"Edit Forecast Input"** → goes back to New Forecast (preserves nothing — user re-enters)
-- **"Prepare Client Quote"** → goes to Client Quote Preview
+- **"Save Forecast"** (`saveForecastFromResult()`) → writes the request to Forecast History as a Pending, un-issued row and stays on this page. This is the Create step on its own; nothing is priced. Once saved the button reads *Saved to History* and is disabled, with a line underneath confirming the record is still editable.
+- **"Prepare Client Quote"** (`prepareClientQuote()`) → goes to Client Quote Preview. If the forecast has not been saved yet it does **not** navigate: a dialog asks *"This forecast must be saved before preparing a quotation. Save and continue?"*, and **Save and Continue** performs the save then opens the preview. The sidebar's Client Quote Preview link runs the same check, so the page has no unguarded door.
+
+A quotation is a document about a record, so the record has to exist first. The gate honours the press by offering the missing step rather than disabling the button and leaving the reason unstated.
 
 ### Logic
 
@@ -287,8 +291,9 @@ Side-by-side comparison of ISD vs Lowest Nearby Date:
 - A calendar picker restricted to dates present in the 90-day forecast range (`initClientDateCalendar`/`renderClientDateCalendar`) — dates outside the forecast render disabled. **It is never locked**: the shipping date is the client's decision, so it stays usable before and after a quotation is issued. It opens on the client's requested ISD, with the lowest nearby date marked as an option
 - Shows: Estimated Shipping Fee, 20% Markup, **Client Quotation Price** (live update as the user picks a date; frozen once issued)
 - **"Generate New Quotation"** button → only appears once an issued quote has expired
-- **"Record Client Choice"** button → opens a modal (disabled until issued)
+- **"Record Client Choice"** button → opens a modal. Disabled until the quotation is issued, and removed entirely once a decision has been recorded
 - **"Export Quote (PDF)"** button → prints the issued quotation (disabled until issued)
+- **Action hint** above the two buttons, present only when something is unavailable or the record is closed — it names the reason rather than leaving a greyed button unexplained
 - **Decision Status** indicator showing: Pending / Confirmed / Cancelled
 
 ### User Flow
@@ -373,7 +378,7 @@ A full-width data table showing all past forecast records, with filter controls 
 | Fee Comparison | ISD rate vs. Lowest rate (per FEU) |
 | Client Decision | Confirmed date + quote total, or "–" if pending |
 | Status | Pill badge: Pending (yellow) / Confirmed (green) / Cancelled (red) |
-| Action | "View" always shown; "Cancel" shown only for Pending records |
+| Action | A **View** button plus three icon actions — Edit (pencil), Mark as cancelled by client (slashed circle), Delete (bin). Each icon carries a `title` and `aria-label`. An action the row does not permit renders as an empty slot of the same width (`rowActionIcon()`), so all three keep the same position on every row — four worded buttons previously wrapped, and wrapped differently per row, moving Delete around beneath the pointer. Icons are grey at rest and take their own colour on hover. |
 
 ### User Flow
 

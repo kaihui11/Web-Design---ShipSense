@@ -148,6 +148,7 @@ input:focus, select:focus { outline: none; }
 
 /* Right panel */
 .login-right {
+  position: relative;
   width: 460px;
   flex-shrink: 0;
   background: #ffffff;
@@ -158,6 +159,24 @@ input:focus, select:focus { outline: none; }
   box-shadow: -4px 0 40px rgba(0,0,0,0.08);
 }
 .login-card { width: 100%; }
+
+/* Way back out to the public site. Positioned out of the flex flow rather
+   than added to it, so the sign-in card stays optically centred in the
+   panel instead of being pushed down by a link above it. */
+.login-back-link {
+  position: absolute;
+  top: 22px;
+  left: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  transition: color 0.15s;
+}
+.login-back-link:hover { color: #2563eb; }
+.login-back-link svg { width: 15px; height: 15px; }
 
 .login-title {
   font-size: 28px;
@@ -444,6 +463,24 @@ input:focus, select:focus { outline: none; }
   border: none;
 }
 .btn-primary:hover  { background: #1d4ed8; }
+
+/* A disabled primary used to keep its full blue and only lose 0.65 opacity
+   inline, which still read as "press me". Unavailable should look
+   unavailable — the reason it is unavailable is stated next to it. */
+.btn-primary:disabled,
+.btn-primary:disabled:hover {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* The confirm button on a destructive dialog. Red is reserved for the one
+   press that actually destroys something, so it appears here and on nothing
+   else in the app. */
+.btn-danger,
+.btn-primary.btn-danger { background: #dc2626; }
+.btn-danger:hover,
+.btn-primary.btn-danger:hover { background: #b91c1c; }
 .btn-primary:active { transform: scale(0.98); }
 .btn-full { width: 100%; }
 .btn-forecast { font-size: 15px; padding: 13px 22px; margin-top: 6px; }
@@ -908,6 +945,27 @@ input:focus, select:focus { outline: none; }
   padding-top: 4px;
 }
 
+/* A disabled action here means "already done", not "unavailable", so it is
+   greyed rather than hidden — the row keeps its shape and the button keeps
+   reporting the state it reached. */
+.btn-secondary:disabled {
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  cursor: default;
+}
+.btn-secondary:disabled:hover { background: #f8fafc; }
+
+/* Confirmation line under the action row — sits with the buttons rather
+   than in the card above, because it describes what the press just did. */
+.action-note {
+  text-align: right;
+  font-size: 12.5px;
+  color: #64748b;
+  padding-top: 8px;
+}
+.action-note:empty { display: none; }
+
 /* ============================================================
    CLIENT QUOTE — KPI CARDS
    ============================================================ */
@@ -1088,6 +1146,20 @@ input:focus, select:focus { outline: none; }
   margin-top: 12px;
   justify-content: center;
 }
+
+/* Explains an unavailable action, so it sits above the buttons it is talking
+   about rather than below them where it would read as a footnote. */
+.side-hint {
+  margin-top: 16px;
+  padding: 11px 13px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #64748b;
+}
+.side-hint strong { color: #475569; font-weight: 600; }
 .status-pending   { color: #d97706; font-weight: 600; }
 .status-confirmed { color: #059669; font-weight: 600; }
 
@@ -1217,46 +1289,44 @@ input:focus, select:focus { outline: none; }
   cursor: pointer;
 }
 .btn-view:hover { background: #eff6ff; }
-.btn-cancel {
-  background: #fff;
-  color: #dc2626;
-  border: 1.5px solid #dc2626;
-  padding: 5px 14px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: background 0.12s;
-  cursor: pointer;
+/* One worded button and three icons, on a single line that never wraps.
+   Four worded buttons did not fit, and because each row permits a different
+   set they wrapped differently row to row — putting Delete somewhere new
+   each time. See rowActionIcon() in app.js for the empty-slot trick that
+   keeps the three icons in fixed positions. */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: nowrap;
 }
-.btn-cancel:hover { background: #fef2f2; }
-.btn-edit {
-  background: #fff;
-  color: #d97706;
-  border: 1.5px solid #d97706;
-  padding: 5px 14px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: background 0.12s;
-  cursor: pointer;
-}
-.btn-edit:hover { background: #fffbeb; }
-.btn-delete {
-  background: #dc2626;
-  color: #fff;
-  border: 1.5px solid #dc2626;
-  padding: 5px 14px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: background 0.12s;
-  cursor: pointer;
-}
-.btn-delete:hover { background: #b91c1c; }
+.row-actions .btn-view { margin-right: 5px; }
 
-/* Wraps every row's action buttons. Wrapping rather than overflowing is what
-   keeps the narrow Action column usable once four buttons live in it. */
-.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.row-icon,
+.row-icon-slot {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+.row-icon-slot { display: inline-block; }
+
+/* Grey at rest so the row reads as data rather than as a row of warnings;
+   each icon takes its own colour only when it is about to be used. */
+.row-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #94a3b8;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.row-icon svg { width: 15px; height: 15px; }
+.row-icon:focus-visible { outline: 2px solid #2563eb; outline-offset: 1px; }
+
+.row-icon-edit:hover   { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+.row-icon-cancel:hover { background: #fff7ed; color: #ea580c; border-color: #fed7aa; }
+.row-icon-delete:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
 
 /* Inputs that stand on their own rather than inside an .input-wrap — the
    wrapper normally carries the border and the icon's 40px of left padding,
@@ -1623,9 +1693,39 @@ table.ss-table td.label-lowest { color:var(--green); }
   color: #64748b;
   margin-bottom: 20px;
 }
+/* The question a dialog asks and the detail behind it are not the same
+   weight. The first line is the decision; this is the reassurance under it. */
+.modal-desc + .modal-desc-sub {
+  margin-top: -12px;
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+.modal-desc-sub strong { color: #64748b; font-weight: 600; }
 /* Form modals hold four fields rather than two choices, so they get more
    width and a scroll cap for short viewports. */
 .modal-box-form { width: 460px; max-height: 90vh; overflow-y: auto; }
+
+/* Confirmation dialogs are read, not filled in, so they centre on the
+   question and carry no header row — there is nothing to go back to, only a
+   decision to make. */
+.modal-box-confirm { width: 420px; max-width: 94vw; text-align: center; }
+.modal-box-confirm .modal-title { font-size: 17px; margin-bottom: 10px; }
+.modal-box-confirm .modal-desc  { text-align: left; line-height: 1.6; }
+.modal-box-confirm .modal-desc strong { color: #334155; font-weight: 600; }
+.modal-box-confirm .modal-actions { justify-content: center; }
+
+.confirm-icon {
+  width: 48px;
+  height: 48px;
+  margin: 4px auto 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.confirm-icon svg { width: 22px; height: 22px; }
+.confirm-icon-danger  { background: #fef2f2; color: #dc2626; }
+.confirm-icon-warning { background: #fff7ed; color: #ea580c; }
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -1805,9 +1905,12 @@ body.nav-open { overflow: hidden; }
   .login-left  { min-height: 340px; }
   .login-right {
     width: 100%;
-    padding: 32px 20px;
+    /* Extra top padding is the room the absolutely-positioned back link
+       occupies once the panel is no longer full height. */
+    padding: 60px 20px 32px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
   }
+  .login-back-link { top: 20px; left: 20px; }
   .login-left-content { padding: 28px 24px; }
   .login-hero h1 { font-size: 27px; }
   .login-hero p  { font-size: 13.5px; max-width: none; }
@@ -1887,11 +1990,16 @@ body.nav-open { overflow: hidden; }
    all. 40-44px is the size a fingertip actually hits reliably. */
 @media (pointer: coarse) {
   .nav-item { padding: 12px; font-size: 14.5px; }
-  .btn-view, .btn-edit, .btn-cancel, .btn-delete {
+  .btn-view {
     min-height: 40px;
     padding: 8px 16px;
     font-size: 13px;
   }
+  /* The icon actions grow with the finger rather than staying at their
+     desktop 30px, and the empty slots grow with them or the columns would
+     stop lining up. */
+  .row-icon, .row-icon-slot { width: 40px; height: 40px; }
+  .row-icon svg { width: 17px; height: 17px; }
   .text-input, .filter-input, .filter-select, .styled-select { min-height: 44px; }
   .btn-primary, .btn-secondary { min-height: 44px; }
   .exec-tab, .ss-gran-btn { min-height: 40px; }
@@ -1904,11 +2012,870 @@ body.nav-open { overflow: hidden; }
 }
 
 /* ============================================================
+   PUBLIC SITE  —  index.html / about.html / contact.html
+
+   The pre-login marketing pages. They share this stylesheet with the app
+   rather than carrying their own so the two halves of the product cannot
+   drift apart: same Inter stack, same navy-to-blue palette, same 8px
+   radii, same 1.5px slate borders.
+
+   Everything below is namespaced (.site-*, .hero-*, .cf-*) or scoped to
+   body.public-page, so none of it can reach the app's screens.
+   ============================================================ */
+
+.public-page { background: #ffffff; }
+
+.site-container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── Header ── */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e2e8f0;
+}
+/* The border alone reads as a seam on an unscrolled page; the shadow is
+   only meaningful once there is content passing underneath. */
+.site-header.is-scrolled { box-shadow: 0 4px 18px rgba(15, 23, 42, 0.07); }
+
+.site-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 72px;
+}
+
+.site-brand { display: flex; align-items: center; gap: 11px; }
+.site-brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+.site-brand-name { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+.site-brand-tag  { font-size: 11px; color: #64748b; font-weight: 500; }
+
+.site-nav { display: flex; align-items: center; gap: 4px; }
+
+.site-nav-link {
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #475569;
+  transition: background 0.15s, color 0.15s;
+}
+.site-nav-link:hover { background: #f1f5f9; color: #1e293b; }
+.site-nav-link.is-active { color: #1d4ed8; font-weight: 600; }
+
+.site-nav-cta {
+  margin-left: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14.5px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.site-nav-cta:hover { background: #1d4ed8; }
+
+.site-nav-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  color: #334155;
+}
+.site-nav-toggle svg { width: 22px; height: 22px; }
+.site-nav-toggle:hover { background: #f8fafc; }
+
+/* ── Buttons ── */
+.btn-hero-primary,
+.btn-hero-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.btn-hero-primary { background: #2563eb; color: #ffffff; }
+.btn-hero-primary:hover { background: #1d4ed8; }
+.btn-hero-primary svg { width: 17px; height: 17px; }
+.btn-hero-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+
+.btn-hero-ghost {
+  background: transparent;
+  color: #1e293b;
+  border: 1.5px solid #cbd5e1;
+}
+.btn-hero-ghost:hover { border-color: #94a3b8; background: #f8fafc; }
+
+.btn-full { width: 100%; }
+
+/* Hero buttons sit on the navy panel, where slate borders disappear. */
+.hero .btn-hero-ghost { color: #e2e8f0; border-color: rgba(226, 232, 240, 0.35); }
+.hero .btn-hero-ghost:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(226, 232, 240, 0.6); }
+.cta-band .btn-hero-ghost { color: #e2e8f0; border-color: rgba(226, 232, 240, 0.35); }
+.cta-band .btn-hero-ghost:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(226, 232, 240, 0.6); }
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 14.5px;
+}
+.link-arrow svg { width: 16px; height: 16px; transition: transform 0.15s; }
+.link-arrow:hover svg { transform: translateX(3px); }
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0b1530 0%, #0f1e4a 45%, #1a3080 100%);
+  color: #ffffff;
+  padding: 96px 0 104px;
+}
+/* Offset down and out rather than pinned to the corner: at top:0 the arcs
+   land in the header's shadow and read as a stray line. Placed here the
+   route sweeps across the panel behind the headline, which is the effect
+   wanted — but only at an opacity where it stays behind it. Anything
+   brighter and the line competes with the words it runs under. */
+.hero-worldmap {
+  position: absolute;
+  top: 40px;
+  right: -70px;
+  width: 70%;
+  height: auto;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 1; max-width: 760px; }
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  color: #bfdbfe;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.hero-eyebrow-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.22);
+}
+
+.hero-title {
+  margin-top: 26px;
+  font-size: 54px;
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -1.4px;
+}
+.hero-sub {
+  margin-top: 22px;
+  max-width: 610px;
+  font-size: 17px;
+  line-height: 1.65;
+  color: #cbd5e1;
+}
+.hero-actions { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 13px; }
+.hero-note { margin-top: 20px; font-size: 13px; color: #94a3b8; }
+.hero-note strong { color: #cbd5e1; font-weight: 600; }
+
+/* ── Stat band ── */
+.stat-band {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 34px 0 30px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.stat-cell { text-align: center; }
+.stat-value {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #60a5fa;
+}
+.stat-unit { font-size: 22px; margin-left: 1px; }
+.stat-label {
+  margin-top: 5px;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+.stat-foot {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ── Generic section ── */
+.site-section { padding: 84px 0; }
+.site-section-alt { background: #f8fafc; border-block: 1px solid #eef2f7; }
+
+.section-head { max-width: 700px; margin-bottom: 46px; }
+.section-eyebrow {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: #2563eb;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: 33px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+  color: #0f172a;
+}
+.section-sub {
+  margin-top: 15px;
+  font-size: 16px;
+  line-height: 1.65;
+  color: #64748b;
+}
+
+/* ── Cards ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+.card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+.site-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 28px 26px;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.site-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  transform: translateY(-2px);
+}
+.site-card h3 {
+  margin-top: 18px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.site-card p {
+  margin-top: 10px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #64748b;
+}
+.site-card-flat { background: #ffffff; }
+.site-card-flat h3 { margin-top: 0; display: flex; align-items: baseline; gap: 11px; }
+.rule-num {
+  font-size: 13px;
+  font-weight: 800;
+  color: #93c5fd;
+  letter-spacing: 0.5px;
+}
+
+.site-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.site-card-icon svg { width: 22px; height: 22px; }
+.icon-blue   { background: #eff6ff; color: #2563eb; }
+.icon-green  { background: #ecfdf5; color: #059669; }
+.icon-purple { background: #f5f3ff; color: #7c3aed; }
+.icon-orange { background: #fff7ed; color: #d97706; }
+.icon-teal   { background: #ecfeff; color: #0891b2; }
+.icon-slate  { background: #f1f5f9; color: #475569; }
+
+/* ── Steps ── */
+.step-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  list-style: none;
+}
+.step {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 30px 26px 28px;
+}
+.step-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #1e3a8a;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step h3 { margin-top: 18px; font-size: 17px; font-weight: 700; color: #0f172a; }
+.step p  { margin-top: 10px; font-size: 14.5px; line-height: 1.65; color: #64748b; }
+
+/* ── Lane ── */
+.lane-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+.lane-copy .section-title { margin-bottom: 18px; }
+.lane-copy p {
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+.lane-copy strong { color: #1e293b; font-weight: 600; }
+
+.lane-card {
+  background: linear-gradient(160deg, #0b1530 0%, #14285e 100%);
+  border-radius: 16px;
+  padding: 34px 32px;
+  color: #ffffff;
+}
+.lane-port { display: flex; align-items: center; gap: 14px; }
+.lane-port-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #60a5fa;
+  box-shadow: 0 0 0 5px rgba(96, 165, 250, 0.2);
+  flex-shrink: 0;
+}
+.lane-port-dot-end { background: #4ade80; box-shadow: 0 0 0 5px rgba(74, 222, 128, 0.2); }
+.lane-port-name { font-size: 19px; font-weight: 700; }
+.lane-port-sub  { font-size: 12.5px; color: #94a3b8; margin-top: 2px; }
+
+/* The dotted run between the two ports, with the vessel mark sitting on
+   it. Height is fixed rather than derived so the ship stays centred. */
+.lane-line {
+  position: relative;
+  height: 62px;
+  margin: 8px 0 8px 6px;
+  border-left: 2px dashed rgba(148, 163, 184, 0.4);
+}
+.lane-ship {
+  position: absolute;
+  top: 50%;
+  left: -17px;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #1e3a8a;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #93c5fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lane-ship svg { width: 18px; height: 18px; }
+
+.lane-meta {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px 20px;
+}
+.lane-meta dt { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.7px; color: #64748b; }
+.lane-meta dd { font-size: 14.5px; font-weight: 600; color: #e2e8f0; margin-top: 4px; }
+
+/* ── CTA band ── */
+.cta-band {
+  background: linear-gradient(120deg, #1e3a8a 0%, #2563eb 100%);
+  color: #ffffff;
+  padding: 58px 0;
+}
+.cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 34px;
+  flex-wrap: wrap;
+}
+.cta-inner h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.3; max-width: 640px; }
+.cta-inner p  { margin-top: 9px; font-size: 15px; color: #bfdbfe; }
+.cta-actions  { display: flex; gap: 12px; flex-wrap: wrap; }
+.cta-band .btn-hero-primary { background: #ffffff; color: #1d4ed8; }
+.cta-band .btn-hero-primary:hover { background: #eff6ff; }
+
+/* ── Page hero (About / Contact) ── */
+.page-hero {
+  background: linear-gradient(160deg, #0b1530 0%, #14285e 100%);
+  color: #ffffff;
+  padding: 58px 0 66px;
+}
+.page-hero h1 {
+  margin-top: 18px;
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  max-width: 780px;
+}
+.page-hero p {
+  margin-top: 18px;
+  max-width: 640px;
+  font-size: 16.5px;
+  line-height: 1.65;
+  color: #cbd5e1;
+}
+.crumbs { display: flex; align-items: center; gap: 9px; font-size: 13px; color: #94a3b8; }
+.crumbs a { color: #93c5fd; }
+.crumbs a:hover { text-decoration: underline; }
+
+/* ── About: prose + aside ── */
+.prose-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: start;
+}
+.prose-main .section-title { margin-bottom: 20px; }
+.prose-main p {
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: #475569;
+  margin-bottom: 17px;
+}
+.prose-main em { color: #1e293b; font-style: italic; }
+
+.prose-aside {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 26px 24px;
+  position: sticky;
+  top: 96px;
+}
+.prose-aside h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.9px; color: #64748b; }
+.aside-list { margin-top: 18px; display: grid; gap: 15px; }
+.aside-list dt { font-size: 12.5px; color: #94a3b8; }
+.aside-list dd { font-size: 14.5px; font-weight: 600; color: #1e293b; margin-top: 2px; }
+
+/* ── About: accuracy table ── */
+.table-wrap {
+  margin-top: 40px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow-x: auto;
+}
+.site-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+.site-table caption {
+  caption-side: bottom;
+  padding: 14px 22px 18px;
+  font-size: 12.5px;
+  color: #94a3b8;
+  text-align: left;
+  line-height: 1.55;
+}
+.site-table thead th {
+  background: #f8fafc;
+  padding: 13px 22px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+}
+.site-table thead th:first-child { text-align: left; }
+.site-table tbody th {
+  padding: 15px 22px;
+  text-align: left;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #1e293b;
+}
+.site-table tbody td {
+  padding: 15px 22px;
+  text-align: right;
+  font-size: 14.5px;
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+}
+.site-table tbody tr + tr th,
+.site-table tbody tr + tr td { border-top: 1px solid #eef2f7; }
+
+/* ── About: honest limits ── */
+.limit-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px 40px; }
+.limit { display: flex; gap: 16px; align-items: flex-start; }
+.limit-mark {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.limit-mark svg { width: 16px; height: 16px; }
+.limit h3 { font-size: 16px; font-weight: 700; color: #0f172a; }
+.limit p  { margin-top: 8px; font-size: 14.5px; line-height: 1.65; color: #64748b; }
+
+/* ── Contact ── */
+.contact-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 48px;
+  align-items: start;
+}
+.contact-aside { display: grid; gap: 18px; }
+
+.contact-info-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px 22px;
+}
+.contact-info-card h3 { margin-top: 15px; font-size: 15px; font-weight: 700; color: #0f172a; }
+.contact-info-card p  { margin-top: 8px; font-size: 14.5px; line-height: 1.6; color: #475569; }
+.contact-info-card a  { color: #2563eb; font-weight: 500; }
+.contact-info-card a:hover { text-decoration: underline; }
+.contact-info-note { font-size: 12.5px; color: #94a3b8; }
+
+.contact-staff-note {
+  display: flex;
+  gap: 13px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+.contact-staff-note svg { width: 19px; height: 19px; color: #2563eb; flex-shrink: 0; margin-top: 2px; }
+.contact-staff-note strong { font-size: 14px; color: #1e3a8a; }
+.contact-staff-note p { margin-top: 4px; font-size: 13.5px; line-height: 1.6; color: #1e40af; }
+.contact-staff-note a { color: #1d4ed8; font-weight: 600; text-decoration: underline; }
+
+.contact-form-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 34px 32px;
+  box-shadow: 0 10px 34px rgba(15, 23, 42, 0.05);
+  /* Anything scrolled to the top of the viewport lands under the 72px
+     sticky header. This is the offset site.js relies on when it scrolls
+     the card up to reveal the sent-message confirmation. */
+  scroll-margin-top: 92px;
+}
+.contact-form-title { font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.4px; }
+.contact-form-sub   { margin: 7px 0 26px; font-size: 14px; color: #64748b; }
+.contact-form-sub .required-mark { color: #dc2626; }
+
+.cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+
+/* Native select arrows differ per platform and none of them match the
+   1.5px slate inputs beside them, so the control is redrawn. */
+select.text-input-plain {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  background-size: 17px;
+  padding-right: 40px;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+.cf-textarea { width: 100%; resize: vertical; min-height: 132px; line-height: 1.6; }
+.contact-form-card .text-input-plain { width: 100%; }
+
+/* An invalid field is marked by more than colour — the message under it
+   carries the same information for anyone who cannot see the red. */
+.text-input.is-invalid { border-color: #dc2626; background: #fffbfb; }
+.text-input.is-invalid:focus { border-color: #dc2626; }
+
+.cf-error {
+  margin-top: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #dc2626;
+  line-height: 1.45;
+}
+
+.cf-meta { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.cf-meta .cf-error { flex: 1; }
+.cf-count {
+  margin-top: 7px;
+  font-size: 12px;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.cf-count.is-over { color: #dc2626; font-weight: 600; }
+
+.cf-check { display: flex; align-items: flex-start; gap: 11px; cursor: pointer; }
+.cf-check input {
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+  accent-color: #2563eb;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.cf-check span { font-size: 13.5px; line-height: 1.55; color: #475569; }
+.cf-check input.is-invalid { outline: 2px solid #dc2626; outline-offset: 2px; }
+
+/* Honeypot: off-screen rather than display:none, because some bots skip
+   fields they can tell are hidden. It stays out of the tab order via
+   tabindex="-1" and out of the accessibility tree via aria-hidden. */
+.cf-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.cf-form-error {
+  margin-bottom: 16px;
+  padding: 12px 15px;
+  border-radius: 9px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.cf-form-error a { color: #b91c1c; font-weight: 600; text-decoration: underline; }
+
+.cf-success { text-align: center; padding: 22px 0 10px; }
+.cf-success:focus { outline: none; }
+.cf-success-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #ecfdf5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cf-success-icon svg { width: 27px; height: 27px; }
+.cf-success h3 { margin-top: 18px; font-size: 20px; font-weight: 700; color: #0f172a; }
+.cf-success p  { margin: 10px auto 22px; max-width: 380px; font-size: 14.5px; line-height: 1.65; color: #64748b; }
+
+/* ── Footer ── */
+.site-footer {
+  background: #0b1530;
+  color: #cbd5e1;
+  padding: 56px 0 26px;
+}
+.site-footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 44px;
+  padding-bottom: 38px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+.site-footer-brand > p {
+  margin-top: 18px;
+  max-width: 380px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #94a3b8;
+}
+.site-footer .site-brand-tag { color: #64748b; }
+
+.site-footer-col h4 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+.site-footer-col a {
+  display: block;
+  font-size: 14px;
+  color: #94a3b8;
+  padding: 5px 0;
+  transition: color 0.15s;
+}
+.site-footer-col a:hover { color: #ffffff; }
+.site-footer-col p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: #94a3b8;
+  margin-bottom: 14px;
+}
+.site-footer-col p a { display: inline; padding: 0; }
+
+.site-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 22px;
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+/* ── Public site: responsive ──
+   Three moves, at the widths each layout actually breaks: the nav becomes
+   a drop-down panel, the two-column layouts stack, and the type comes
+   down a step.
+   ============================================================ */
+
+@media (max-width: 1000px) {
+  .lane-layout,
+  .prose-layout,
+  .contact-layout { grid-template-columns: 1fr; gap: 36px; }
+  .prose-aside { position: static; }
+  .card-grid,
+  .card-grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .limit-list { gap: 24px 30px; }
+}
+
+/* Nav collapses here: below this the four items plus the wordmark no
+   longer fit on one line without crowding the logo. */
+@media (max-width: 900px) {
+  .site-nav-toggle { display: inline-flex; }
+  .site-nav {
+    display: none;
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 12px 24px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
+  }
+  .site-nav.open { display: flex; }
+  .site-header-inner { position: relative; }
+  .site-nav-link { padding: 13px 12px; font-size: 15px; }
+  .site-nav-cta { margin: 8px 0 0; padding: 13px 20px; text-align: center; }
+
+  .hero { padding: 72px 0 80px; }
+  .hero-title { font-size: 42px; letter-spacing: -1px; }
+  .hero-worldmap { opacity: 0.4; width: 90%; }
+  .site-section { padding: 64px 0; }
+  .section-title { font-size: 28px; }
+  .page-hero h1 { font-size: 33px; }
+}
+
+@media (max-width: 768px) {
+  .site-container { padding: 0 18px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 26px 16px; }
+  .step-list { grid-template-columns: 1fr; }
+  .limit-list { grid-template-columns: 1fr; }
+  .card-grid,
+  .card-grid-2,
+  .card-grid-3 { grid-template-columns: 1fr; }
+  .cta-inner { flex-direction: column; align-items: flex-start; }
+  .site-footer-grid { grid-template-columns: 1fr; gap: 34px; }
+  .contact-form-card { padding: 26px 22px; }
+}
+
+@media (max-width: 560px) {
+  .hero { padding: 56px 0 64px; }
+  .hero-title { font-size: 33px; letter-spacing: -0.7px; }
+  .hero-sub { font-size: 15.5px; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions a { width: 100%; }
+  .page-hero { padding: 44px 0 50px; }
+  .page-hero h1 { font-size: 27px; }
+  .page-hero p { font-size: 15px; }
+  .section-title { font-size: 24px; }
+  .stat-value { font-size: 30px; }
+  .cf-row { grid-template-columns: 1fr; }
+  .cta-actions { width: 100%; flex-direction: column; }
+  .cta-actions a { width: 100%; }
+  .site-brand-tag { display: none; }
+  .lane-card { padding: 26px 22px; }
+  .lane-meta { grid-template-columns: 1fr; gap: 14px; }
+}
+
+/* Touch targets, keyed off the pointer the same way the app's are. */
+@media (pointer: coarse) {
+  .site-nav-link, .site-nav-cta { min-height: 44px; display: flex; align-items: center; }
+  .site-nav-cta { justify-content: center; }
+  .btn-hero-primary, .btn-hero-ghost { min-height: 46px; }
+  .contact-form-card .text-input { min-height: 46px; }
+  .cf-check input { width: 20px; height: 20px; }
+}
+
+/* ============================================================
    PRINT
    ============================================================ */
 @media print {
   body > *               { display: none !important; }
   #print-overlay         { display: block !important; }
+}
+
+/* The rule above exists for the app's quotation print overlay, which is
+   the only thing in app.html worth putting on paper. On the public pages
+   there is no overlay to reveal, so it would hand the printer a blank
+   sheet. Higher specificity than `body > *`, so it wins regardless of
+   order. */
+@media print {
+  body.public-page > * { display: revert !important; }
+  body.public-page .site-header,
+  body.public-page .site-nav-toggle,
+  body.public-page .cta-band,
+  body.public-page .hero-worldmap { display: none !important; }
+  body.public-page .hero,
+  body.public-page .page-hero,
+  body.public-page .stat-band,
+  body.public-page .lane-card,
+  body.public-page .site-footer {
+    background: #ffffff !important;
+    color: #1e293b !important;
+  }
 }
 #print-overlay {
   padding: 30px;
