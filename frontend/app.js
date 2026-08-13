@@ -6,18 +6,9 @@
    =================================================================== */
 let FORECAST_DATA = [];
 
-/* The immediately previous forecast run, kept so the Forecast Result page can
-   show how the latest run revised the fee for the same ISD. Empty when only
-   one run has ever been ingested. FORECAST_META/PREV_FORECAST_META carry
-   each run's generated_at so the UI can date the revision. */
-let PREV_FORECAST_DATA  = [];
-let FORECAST_META       = { generatedAt: null };
-let PREV_FORECAST_META  = { generatedAt: null };
-
-/* Every distinct forecast run, loaded lazily by the Forecast Revisions tab.
-   Newest first; each entry is { id, generatedAt, forecast }. */
-let SNAPSHOT_RUNS = [];
-let SNAPSHOT_RUNS_LOADED = false;
+/* Carries the run's generated_at, so a quotation can be stamped with the
+   forecast it was priced from. */
+let FORECAST_META = { generatedAt: null };
 
 /* Supabase project — SUPABASE_URL / SUPABASE_ANON_KEY come from
    supabase-config.js, which index.html loads before this file. They are
@@ -164,7 +155,7 @@ async function deleteHistoryRecord(id) {
 }
 
 /* ===== APP STATE ===== */
-const state = { user: null, currentForecast: null, revIsdSeeded: null };
+const state = { user: null, currentForecast: null };
 
 /* ===== HELPERS ===== */
 function fmt(n)         { return 'USD ' + Math.round(n).toLocaleString(); }
@@ -191,42 +182,15 @@ function fmtDateTime(ts) {
          d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
 }
 
-/* Human-facing label for a forecast run, derived from the date its bundle was
-   generated: 8 Aug 2026 -> PKL080826. Runs are identified by date rather than
-   by the snapshots row id because the row id is an internal detail and means
-   nothing to whoever is explaining a revision to a client. */
-function pklId(ts) {
-  if (!ts) return '–';
-  const d = new Date(ts);
-  const p = n => String(n).padStart(2, '0');
-  return `PKL${p(d.getDate())}${p(d.getMonth() + 1)}${String(d.getFullYear()).slice(-2)}`;
-}
-
 const snapshotHeaders = () => ({
   apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
 });
-
-/* One row per run day is now enforced at ingest — pkl_to_json.py updates the
-   day's existing snapshot instead of appending. This stays for the rows
-   written before that, when the workflow re-ran on any .pkl push and the same
-   bundle could land several times; those re-ingests would otherwise show up
-   as phantom "revisions" with a zero change. Collapse each generated_at day
-   to its newest row. Input must be newest-first; output keeps that order. */
-function dedupeRuns(rows) {
-  const seen = new Set();
-  return rows.filter(r => {
-    const day = String(r.generated_at).slice(0, 10);
-    if (seen.has(day)) return false;
-    seen.add(day);
-    return true;
-  });
-}
 
 async function fetchSnapshotIndex() {
   const url = `${SUPABASE_URL}/rest/v1/snapshots?kind=eq.forecast&select=id,generated_at&order=id.desc`;
   const res = await fetch(url, { headers: snapshotHeaders() });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return dedupeRuns(await res.json());
+  return res.json();
 }
 
 /* Payloads are ~90 rows each, so they're fetched by id only once the caller
@@ -241,14 +205,6 @@ async function fetchSnapshotRuns(ids) {
     generatedAt: r.generated_at ?? r.payload?.generated_at,
     forecast: r.payload?.forecast ?? [],
   }));
-}
-
-async function loadAllRuns() {
-  if (SNAPSHOT_RUNS_LOADED) return SNAPSHOT_RUNS;
-  const index = await fetchSnapshotIndex();
-  SNAPSHOT_RUNS = await fetchSnapshotRuns(index.map(r => r.id));
-  SNAPSHOT_RUNS_LOADED = true;
-  return SNAPSHOT_RUNS;
 }
 
 function reInitLucide() {
@@ -690,9 +646,6 @@ function renderForecastResult() {
   document.getElementById('low-date').textContent = fmtDate(cf.lowestRow.date);
   document.getElementById('low-fee').textContent  = fmt(lowTotal);
 
-  cf.revision = buildRevision(cf);
-  renderRevision(cf.revision);
-
   const saving    = isdTotal - lowTotal;
   const savingPct = ((saving / isdTotal) * 100).toFixed(1);
   if (saving <= 0) {
@@ -706,136 +659,6 @@ function renderForecastResult() {
   /* Re-read on every visit: the record may have been saved from the gate
      dialog, or this may be an existing one reopened from Forecast History. */
   syncSaveForecastButton();
-}
-
-/* ===== FORECAST REVISION (latest run vs. immediately previous run) =====
-   Compares like for like: same route, same intended ship date, latest
-   snapshot against the one before it. Deliberately NOT compared against the
-   lowest nearby date, another ISD, or another request — those are different
-   questions and are answered elsewhere on this page. */
-function buildRevision(cf) {
-  if (!PREV_FORECAST_DATA.length) return null;
-
-  /* Same route (same scale) and same date. If the previous run's horizon
-     didn't reach this ISD there is nothing to compare against. */
-  const prevRow = scaledData(cf.routeId, PREV_FORECAST_DATA).find(d => d.date === cf.isdDate);
-  if (!prevRow) return null;
-
-  const perFeu = cf.isdRow.f - prevRow.f;
-  const total  = perFeu * cf.containers;
-
-  return {
-    prevFee: prevRow.f,
-    latestFee: cf.isdRow.f,
-    perFeu,
-    pct: (perFeu / prevRow.f) * 100,
-    total,
-    latestAt: FORECAST_META.generatedAt,
-    prevAt: PREV_FORECAST_META.generatedAt,
-    /* Rounded, so sub-dollar drift on the displayed total reads as "no change"
-       rather than an arrow pointing at an invisible difference. */
-    dir: Math.round(total) === 0 ? 'flat' : (total > 0 ? 'up' : 'down'),
-  };
-}
-
-function renderRevision(rev) {
-  const el = document.getElementById('sel-revision');
-  if (!el) return;
-
-  if (!rev) {
-    el.innerHTML = '<div class="rev-line rev-flat">First available forecast</div>';
-    return;
-  }
-
-  const arrow = { up: '&uarr;', down: '&darr;', flat: '&mdash;' }[rev.dir];
-  const body  = rev.dir === 'flat'
-    ? 'No change vs previous forecast'
-    : `${fmt(Math.abs(rev.total))} (${rev.perFeu > 0 ? '+' : '−'}${Math.abs(rev.pct).toFixed(2)}%) vs previous forecast`;
-
-  el.innerHTML =
-    `<div class="rev-line rev-${rev.dir}"><span class="rev-arrow">${arrow}</span> ${body}</div>
-     <div class="rev-meta">Updated ${fmtTs(rev.latestAt)} &middot;
-       <button type="button" class="rev-link" onclick="openRevisionModal()">View details</button>
-     </div>`;
-}
-
-/* USD with cents — the per-FEU difference is where the change actually
-   originates, so rounding it to whole dollars here would make the headline
-   figures look like they don't reconcile. */
-function fmt2(n) {
-  return 'USD ' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function openRevisionModal() {
-  const cf  = state.currentForecast;
-  const rev = cf?.revision;
-  if (!rev) return;
-
-  const qty  = cf.containers;
-  const sign = rev.perFeu > 0 ? '+' : (rev.perFeu < 0 ? '−' : '');
-  const word = rev.dir === 'up' ? 'Increase' : rev.dir === 'down' ? 'Decrease' : 'Change';
-
-  const tr = (label, prev, latest) =>
-    `<tr><td>${label}</td><td>${prev}</td><td class="rev-latest-col">${latest}</td></tr>`;
-
-  document.getElementById('revision-modal-body').innerHTML = `
-    <table class="rev-table">
-      <thead><tr><th>Comparison</th><th>Previous</th><th>Latest</th></tr></thead>
-      <tbody>
-        ${tr('Forecast generated', pklId(rev.prevAt), pklId(rev.latestAt))}
-        ${tr('', `<span class="rev-subtle">${fmtTs(rev.prevAt)}</span>`, `<span class="rev-subtle">${fmtTs(rev.latestAt)}</span>`)}
-        ${tr('Fee per FEU', fmt(rev.prevFee), fmt(rev.latestFee))}
-        ${tr(`Total for ${qty} FEU`, fmt(rev.prevFee * qty), fmt(rev.latestFee * qty))}
-      </tbody>
-    </table>
-
-    <div class="rev-summary">
-      <div class="rev-row">
-        <span>${word} per FEU</span>
-        <span class="rev-${rev.dir}">${sign}${fmt2(rev.perFeu)} (${sign}${Math.abs(rev.pct).toFixed(2)}%)</span>
-      </div>
-      <div class="rev-row">
-        <span>Total impact for ${qty} FEU</span>
-        <span class="rev-${rev.dir} rev-total">${sign}${fmt(Math.abs(rev.total))}</span>
-      </div>
-    </div>
-
-    <p class="rev-explain">This prediction was revised after a newer market-data update became available.</p>
-
-    <button type="button" class="btn-secondary btn-full" onclick="openRevisionFullHistory()">
-      <i data-lucide="history" style="width:15px;height:15px;"></i>
-      View Full History
-    </button>`;
-
-  document.getElementById('revision-modal').classList.remove('hidden');
-  reInitLucide();
-}
-
-/* Jumps from the modal into the Forecast Revisions tab, pre-filtered to the
-   same route and shipment date so the full run-by-run trail is one click
-   away from the two-run summary. */
-async function openRevisionFullHistory() {
-  const cf = state.currentForecast;
-  closeRevisionModal();
-
-  /* Filters are set before navigating: the inputs live in the DOM whether or
-     not the page is visible, and navigateTo re-renders whichever history tab
-     is showing — so seeding them first avoids a throwaway render on the
-     previous selection. */
-  if (cf) {
-    const routeEl = document.getElementById('rev-route');
-    const isdEl   = document.getElementById('rev-isd');
-    if (routeEl) routeEl.value = cf.routeId;
-    if (isdEl)   isdEl.value   = cf.isdDate;
-    state.revIsdSeeded = cf.isdDate;
-  }
-
-  await navigateTo('history');
-  switchHistoryTab('revisions');
-}
-
-function closeRevisionModal() {
-  document.getElementById('revision-modal').classList.add('hidden');
 }
 
 /* ===== CLIENT QUOTE =====
@@ -863,9 +686,7 @@ function closeRevisionModal() {
    decision; the lowest nearby date is shown as information, never applied
    on their behalf.
 
-   Nothing on this page or in the exported PDF is internal-only: the
-   previous forecast, the day-on-day revision, and the run-by-run history
-   deliberately stay on the Forecast Result page and the History view. */
+   Nothing on this page or in the exported PDF is internal-only. */
 const MARKUP = 1.20;
 const QUOTE_VALIDITY_HOURS = 48;
 
@@ -1700,237 +1521,6 @@ function exportQuotePDF() {
 /* ===== FORECAST HISTORY ===== */
 function renderHistory() {
   applyHistoryFilters();
-  /* Returning to this page keeps whichever tab was last open, so refresh the
-     revisions view too rather than leaving it on a stale render. */
-  const revPanel = document.getElementById('hist-tab-panel-revisions');
-  if (revPanel && !revPanel.classList.contains('hidden')) {
-    seedRevisionFilters();
-    renderRevisionHistory();
-  }
-}
-
-/* ===== FORECAST REVISIONS TAB =====
-   Tracks how the prediction for one fixed shipment date moved across every
-   forecast run, which is the run-by-run view behind the two-run summary on
-   the Forecast Result page. */
-function switchHistoryTab(tab) {
-  document.querySelectorAll('.exec-tab[data-hist-tab]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.histTab === tab);
-  });
-  document.querySelectorAll('.hist-tab-panel').forEach(panel => {
-    panel.classList.toggle('hidden', panel.id !== `hist-tab-panel-${tab}`);
-  });
-  if (tab === 'revisions') {
-    seedRevisionFilters();
-    renderRevisionHistory();
-  }
-}
-
-/* Opens the Revisions tab on the date the user is already working with —
-   the ISD of the forecast or quotation currently in hand — instead of on an
-   empty picker with nothing rendered under it.
-
-   A date the user typed themselves always wins, and keeps winning after
-   they navigate away and back. That is why the last seeded value is
-   remembered: it is the one thing that can be safely replaced when the
-   selected forecast moves to a different ISD. */
-function seedRevisionFilters() {
-  const cf = state.currentForecast;
-  if (!cf) return;
-
-  const isdEl = document.getElementById('rev-isd');
-  if (!isdEl) return;
-  if (isdEl.value && isdEl.value !== state.revIsdSeeded) return;
-  if (isdEl.value === cf.isdDate) return;
-
-  isdEl.value = cf.isdDate;
-  state.revIsdSeeded = cf.isdDate;
-  const routeEl = document.getElementById('rev-route');
-  if (routeEl) routeEl.value = cf.routeId;
-}
-
-/* Bumped on every call so a slow run-fetch from an earlier selection can't
-   overwrite the output of a newer one. */
-let revisionRenderToken = 0;
-
-async function renderRevisionHistory() {
-  const box = document.getElementById('rev-hist-body');
-  if (!box) return;
-
-  const token   = ++revisionRenderToken;
-  const routeId = document.getElementById('rev-route')?.value || FIXED_ROUTE;
-  const isoDate = document.getElementById('rev-isd')?.value;
-
-  const note = msg => `<div class="table-card rev-empty">${msg}</div>`;
-
-  if (!isoDate) {
-    box.innerHTML = note('Select an intended shipment date to see how its prediction has changed across forecast runs.');
-    return;
-  }
-
-  box.innerHTML = note('Loading forecast runs…');
-  let runs;
-  try {
-    runs = await loadAllRuns();
-  } catch (e) {
-    console.error('Failed to load forecast runs:', e);
-    if (token === revisionRenderToken) box.innerHTML = note('Could not load forecast runs from Supabase.');
-    return;
-  }
-  if (token !== revisionRenderToken) return;
-
-  /* Oldest first — a revision trail reads forward in time. A run only
-     appears if its horizon actually covered this date. */
-  const scale  = ROUTES[routeId]?.scale ?? 1;
-  const series = runs.slice().reverse().reduce((acc, run) => {
-    const row = run.forecast.find(d => d.date === isoDate);
-    if (row) acc.push({ generatedAt: run.generatedAt, fee: row.f * scale });
-    return acc;
-  }, []);
-
-  if (!series.length) {
-    box.innerHTML = note(`No forecast run has covered ${fmtDate(isoDate)}. The model forecasts weekdays only, so weekends and dates beyond the 90-day horizon have no prediction.`);
-    return;
-  }
-
-  const rows = series.map((pt, i) => {
-    const prev   = i === 0 ? null : series[i - 1].fee;
-    const change = prev === null ? null : pt.fee - prev;
-    const dir    = change === null ? 'flat'
-                 : Math.round(change) === 0 ? 'flat'
-                 : change > 0 ? 'up' : 'down';
-    const label  = change === null ? '<span class="rev-flat">—</span>'
-                 : dir === 'flat' ? '<span class="rev-flat">No change</span>'
-                 : `<span class="rev-${dir}">${change > 0 ? '+' : '−'}${fmt(Math.abs(change))}</span>`;
-    return `<tr>
-      <td><strong>${pklId(pt.generatedAt)}</strong><div class="rev-subtle">${fmtTs(pt.generatedAt)}</div></td>
-      <td>${fmt(pt.fee)}</td>
-      <td>${label}</td>
-    </tr>`;
-  }).join('');
-
-  /* Two points make a comparison, not a trend — the chart only earns its
-     space once there are three or more runs to plot. */
-  const chart = series.length >= 3
-    ? `<div class="table-card rev-chart-card">
-         <h3 class="section-card-title">Prediction for ${fmtDate(isoDate)} over time</h3>
-         <p class="section-card-sub">How each forecast run has valued this one shipment date &middot; USD / FEU</p>
-         <div id="rev-chart"></div>
-       </div>`
-    : '';
-
-  box.innerHTML = `${chart}
-    <div class="table-card">
-      <table class="hist-table rev-hist-table">
-        <thead><tr>
-          <th>Forecast generated</th>
-          <th>Prediction for ${fmtDateShort(isoDate)}</th>
-          <th>Change</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
-
-  if (series.length >= 3) renderRevisionChart(document.getElementById('rev-chart'), series);
-}
-
-/* Small self-contained line chart — the executive dashboard's chart helpers
-   live inside that file's IIFE and aren't reachable from here, and this one
-   plots a handful of points rather than a 90-day series. */
-function renderRevisionChart(container, series) {
-  if (!container) return;
-
-  const W = 720, H = 260, m = { top: 18, right: 24, bottom: 42, left: 68 };
-  const svgEl = (tag, attrs = {}, parent = null) => {
-    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
-    for (const k in attrs) e.setAttribute(k, attrs[k]);
-    if (parent) parent.appendChild(e);
-    return e;
-  };
-
-  const fees = series.map(p => p.fee);
-  const lo = Math.min(...fees), hi = Math.max(...fees);
-
-  /* Axis ticks land on round hundreds rather than on the data's own min/max,
-     so the gridlines read as 2,200 / 2,300 / 2,400 instead of arbitrary
-     values. Step widens for bigger spreads to keep ~6 gridlines at most. */
-  const step = [100, 200, 250, 500, 1000, 2000].find(s => (hi - lo) / s <= 6) ?? 5000;
-  const yMin = Math.floor(lo / step) * step;
-  const yMaxRaw = Math.ceil(hi / step) * step;
-  const yMax = yMaxRaw === yMin ? yMin + step : yMaxRaw;
-
-  const x = i => m.left + (series.length === 1 ? (W - m.left - m.right) / 2
-                : (i / (series.length - 1)) * (W - m.left - m.right));
-  const y = v => H - m.bottom - ((v - yMin) / (yMax - yMin)) * (H - m.top - m.bottom);
-
-  container.innerHTML = '';
-  container.style.position = 'relative';
-  const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'rev-chart-svg' });
-  container.appendChild(svg);
-
-  for (let v = yMin; v <= yMax; v += step) {
-    const yy = y(v);
-    svgEl('line', { x1: m.left, x2: W - m.right, y1: yy, y2: yy, class: 'ss-gridline' }, svg);
-    svgEl('text', { x: m.left - 10, y: yy + 4, 'text-anchor': 'end', class: 'rev-chart-axis' }, svg)
-      .textContent = v.toLocaleString();
-  }
-
-  svgEl('path', {
-    d: 'M ' + series.map((p, i) => `${x(i)},${y(p.fee)}`).join(' L '),
-    fill: 'none', stroke: '#2563eb', 'stroke-width': 2.4,
-  }, svg);
-
-  series.forEach((p, i) => {
-    svgEl('circle', { cx: x(i), cy: y(p.fee), r: 4.5, fill: '#fff', stroke: '#2563eb', 'stroke-width': 2.5 }, svg);
-    /* End labels are anchored inward so the first and last run IDs don't get
-       clipped by the SVG viewBox. */
-    const anchor = i === 0 ? 'start' : i === series.length - 1 ? 'end' : 'middle';
-    svgEl('text', { x: x(i), y: H - 22, 'text-anchor': anchor, class: 'rev-chart-axis' }, svg)
-      .textContent = pklId(p.generatedAt);
-    svgEl('text', { x: x(i), y: H - 8, 'text-anchor': anchor, class: 'rev-chart-axis rev-chart-axis-soft' }, svg)
-      .textContent = fmtTs(p.generatedAt);
-  });
-
-  /* Hover readout — same crosshair-plus-tooltip behaviour as the executive
-     dashboard's trend chart, so exact values stay off the axis. */
-  const hoverLine = svgEl('line', {
-    class: 'ss-hover-line', x1: 0, x2: 0, y1: m.top, y2: H - m.bottom, style: 'display:none;',
-  }, svg);
-  const dot = svgEl('circle', { r: 6, fill: '#2563eb', stroke: '#fff', 'stroke-width': 2.5, style: 'display:none;' }, svg);
-  const overlay = svgEl('rect', {
-    x: m.left, y: m.top, width: W - m.left - m.right, height: H - m.top - m.bottom,
-    fill: 'transparent', style: 'cursor:crosshair;',
-  }, svg);
-
-  const tooltip = document.createElement('div');
-  tooltip.className = 'ss-chart-tooltip';
-  container.appendChild(tooltip);
-
-  overlay.addEventListener('mousemove', evt => {
-    const rect  = svg.getBoundingClientRect();
-    const svgX  = ((evt.clientX - rect.left) / rect.width) * W;
-    const ratio = (svgX - m.left) / (W - m.left - m.right);
-    const idx   = Math.min(series.length - 1, Math.max(0, Math.round(ratio * (series.length - 1))));
-    const pt    = series[idx];
-
-    hoverLine.setAttribute('x1', x(idx));
-    hoverLine.setAttribute('x2', x(idx));
-    hoverLine.style.display = 'block';
-    dot.setAttribute('cx', x(idx));
-    dot.setAttribute('cy', y(pt.fee));
-    dot.style.display = 'block';
-
-    const cRect = container.getBoundingClientRect();
-    tooltip.style.display = 'block';
-    tooltip.style.left = Math.min(evt.clientX - cRect.left + 12, cRect.width - 160) + 'px';
-    tooltip.style.top  = (evt.clientY - cRect.top - 12) + 'px';
-    tooltip.innerHTML  = `<b>${pklId(pt.generatedAt)} · ${fmtTs(pt.generatedAt)}</b><span>${fmt2(pt.fee)} / FEU</span>`;
-  });
-  overlay.addEventListener('mouseleave', () => {
-    hoverLine.style.display = 'none';
-    dot.style.display = 'none';
-    tooltip.style.display = 'none';
-  });
 }
 
 /* ===== CONFIRMATION DIALOG =====
@@ -2361,21 +1951,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   submitBtn.textContent = 'Loading forecast data…';
 
   try {
-    /* Two newest distinct runs: [0] is the latest, [1] the immediately
-       previous one used for the revision comparison on the Forecast Result
-       page. Each ingest appends a snapshot row, so id order is run order. */
+    /* Newest run only. Each ingest appends a snapshot row, so id order is
+       run order and index[0] is the run the whole app prices from. */
     const index = await fetchSnapshotIndex();
     if (!index.length) throw new Error('no forecast data ingested yet');
-    const runs = await fetchSnapshotRuns(index.slice(0, 2).map(r => r.id));
+    const runs = await fetchSnapshotRuns([index[0].id]);
     if (!runs[0]?.forecast?.length) throw new Error('no forecast data ingested yet');
 
     FORECAST_DATA = runs[0].forecast;
     FORECAST_META = { generatedAt: runs[0].generatedAt };
 
-    if (runs[1]) {
-      PREV_FORECAST_DATA = runs[1].forecast;
-      PREV_FORECAST_META = { generatedAt: runs[1].generatedAt };
-    }
     submitBtn.disabled = false;
     submitBtn.textContent = 'Login';
   } catch (e) {

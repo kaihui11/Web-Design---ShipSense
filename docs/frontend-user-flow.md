@@ -64,8 +64,8 @@ User opens the app
         │
         ▼
 [ Forecast Result ]  ←── landed on automatically
-  ±5 day rate grid, selected vs. cheapest date, saving,
-  day-on-day forecast revision — all internal, never quoted
+  ±5 day rate grid, selected vs. cheapest date, saving
+  — all internal, never quoted
   1. "Save Forecast"             → writes the Pending row (CREATE)
   2. "Generate Client Quotation" → confirm → save (if needed) + issue
         │
@@ -425,14 +425,6 @@ A full-width data table showing all past forecast records, with filter controls 
 4. User clicks **"View"** → navigates to the Client Quote page for that record (reconstructed from the history row), rather than creating a new one.
 5. For Pending records: user can click **"Cancel"** → a confirmation dialog appears → if confirmed, status changes to Cancelled (irreversible).
 
-### Forecast Revisions tab
-
-A second tab beside Quotations, showing how the prediction for one fixed shipment date moved across every forecast run (`renderRevisionHistory()`) — a table of run-by-run changes, plus a line chart once there are three or more runs.
-
-**The date filter fills itself in** (`seedRevisionFilters()`). Opening the tab seeds the route and date from the forecast or quotation currently in hand — the ISD the user just forecast, or the one on the record they opened with "View" — so the trail is already on screen instead of an empty picker with a "select a date" note under it.
-
-A date the user types themselves always wins, and keeps winning across navigation: only the value seeding last wrote is ever replaced, which is what lets the tab follow along when the selected forecast moves to a different ISD.
-
 ### Logic — Data
 
 ```
@@ -546,7 +538,7 @@ Rendered by `frontend/market-impact.js` (`window.MarketImpact.render()`, called 
 
 ### What the user sees
 
-- **Three KPI cards:** Scenario Exchange Rate (USD per 1 EUR), 90-Day Average Shipping Fee under that scenario, and Change vs Forecast (% and USD per FEU). A positive change reads green and a negative one red — market convention. Note this is the *opposite* of the revision arrows on Forecast Result, which read a rising freight cost as bad news for the buyer.
+- **Three KPI cards:** Scenario Exchange Rate (USD per 1 EUR), 90-Day Average Shipping Fee under that scenario, and Change vs Forecast (% and USD per FEU). A positive change reads green and a negative one red — market convention.
 - **Scenario Control card:** the selected rate in large type, a slider spanning the exchange rate's own 90-day forecast range, and `Low / Base / High` presets — the forecast's minimum, average and maximum projected rate. Low and High are therefore values the model actually projects, not hypothetical shocks.
 - **Comparison chart:** the model's 90-day fee forecast (muted blue) against the scenario series (red or green by direction), with a hover crosshair giving both values and the gap for any day.
 
