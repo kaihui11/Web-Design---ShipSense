@@ -53,9 +53,9 @@ GDP/Inflation/GPR/TPU are **not** in `forecast_90d` — the model doesn't foreca
 
 The Forecast tab (`frontend/exec-data.js`, `frontend/app.js`) reads this `snapshots` row directly over PostgREST — it is the only data source for that tab.
 
-**One row per run day.** `pkl_to_json.py` looks for an existing `kind='forecast'` snapshot generated on the same day and `PATCH`es it, inserting only when there is none. Re-ingesting a bundle therefore updates its row instead of appending. The match is by day, not exact timestamp, to mirror `dedupeRuns()` in `app.js` — the frontend only ever serves the newest run per day, so anything finer would persist rows no page can reach.
+**One row per run day.** `pkl_to_json.py` looks for an existing `kind='forecast'` snapshot generated on the same day and `PATCH`es it, inserting only when there is none. Re-ingesting a bundle therefore updates its row instead of appending. The match is by day, not exact timestamp, because the frontend only ever reads the newest snapshot — anything finer would persist rows no page can reach.
 
-Rows written before this behaviour existed are still there (ids 4–9 as of 2026-08-09, covering two run days), which is why `dedupeRuns()` stays in the frontend rather than being retired. Note that these legacy duplicates are not all identical: the 2026-07-30 run was re-exported with different numbers under the same date, so collapsing them discards a genuinely distinct payload — deliberately, since the newest export for a given day is the one that counts.
+The table may still hold more than one row per day from earlier ingests. That costs nothing: every reader orders by `id.desc` and takes the first row — `exec-data.js` with `limit=1`, `app.js` by fetching the index and then the payload of `index[0]` — so only the newest snapshot is ever served.
 
 ---
 
@@ -90,7 +90,7 @@ One row per client quote a staff member generates from the New Forecast page (`f
 
 | Column | camelCase field in `app.js` | Notes |
 |---|---|---|
-| `id` | `id` | Server-generated (`bigint identity`), replacing the old client-generated `genId()` string |
+| `id` | `id` | Server-generated (`bigint identity`) — the quotation reference is built from it, so it has to come from the database rather than the browser |
 | `company` | `company` | |
 | `pic` | `pic` | Free-text "person in charge" — not tied to any login identity (no real auth exists) |
 | `route` | `route` | Route id, e.g. `ne-usec` — see `ROUTES` in `app.js` |

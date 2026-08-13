@@ -70,6 +70,7 @@ shipsense/
 │   ├── frontend-user-flow.md                      — view-by-view logic, page-by-page flow
 │   ├── business-logic.md                          — pricing rules and constants
 │   ├── data-pipeline.md                           — Colab → pkl → GitHub Actions → Supabase
+│   ├── after-receiving-pkl.md                     — checklist for ingesting a freshly-trained .pkl
 │   ├── deployment.md                              — how to deploy and update data
 │   ├── assessment-mapping.md                      — coursework: requirement → file:line index
 │   └── test-plan.md                               — coursework: test cases + executed results
@@ -123,6 +124,7 @@ ML notebook exports a `ShipSenseWebsiteBundle` (`shipsense_website_bundle.pkl`) 
 | [docs/frontend-user-flow.md](docs/frontend-user-flow.md) | View-by-view logic, app flow, Executive Dashboard calculations |
 | [docs/business-logic.md](docs/business-logic.md) | Pricing rules, route scale factors, risk classification, markup |
 | [docs/data-pipeline.md](docs/data-pipeline.md) | How ML output reaches the live frontend |
+| [docs/after-receiving-pkl.md](docs/after-receiving-pkl.md) | Step-by-step checklist for ingesting a newly trained `.pkl` bundle |
 | [docs/deployment.md](docs/deployment.md) | Vercel, Netlify, GitHub Pages deployment |
 | [supabase/README.md](supabase/README.md) | Supabase (Postgres) backend setup — schema, keys, ingestion |
 

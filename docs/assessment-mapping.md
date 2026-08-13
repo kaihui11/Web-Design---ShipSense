@@ -4,7 +4,7 @@
 > requirement in the assessment brief to the exact file and line that satisfies it, so writing a
 > section means opening one file at one line rather than searching nine thousand lines for it.
 >
-> Line numbers are accurate as of the commit that moved Home/About/Contact behind the login. They
+> Line numbers are accurate as of the commit that removed the Forecast Revisions view. They
 > move when code moves — if a reference looks wrong, search for the function name instead, which
 > is stable.
 
@@ -17,16 +17,16 @@ except the login screen itself are reached after signing in — see §5 for why 
 
 | # | Brief component | Where it lives | Notes |
 |---|---|---|---|
-| 1 | Login and Register page — secure user authentication | Login [`index.html:111`](../frontend/index.html#L111) → [`app.js:436`](../frontend/app.js#L436) `handleLogin()`<br>Register [`index.html:154`](../frontend/index.html#L154) → [`app.js:473`](../frontend/app.js#L473) `handleSignup()` | Real Supabase Auth, not a mock check. Register takes name, email, password, confirm-password |
-| 2 | Header / Navigation — consistent across all pages | Sidebar [`index.html:228`](../frontend/index.html#L228), nav [`:246`](../frontend/index.html#L246), top header [`:312`](../frontend/index.html#L312) | One menu, present on every page. Nine destinations in four labelled groups |
-| 3 | Home page — overview of the system | [`index.html:339`](../frontend/index.html#L339) — hero `:342`, stat band `:403`, "what it does" `:431`, "how it works" `:519`, lane `:559` | |
-| 4 | About page — purpose and objectives | [`index.html:628`](../frontend/index.html#L628) — company `:650`, model `:693`, limits `:791`, rules `:865` | `:791` "What ShipSense does not claim" is unusually strong material for the report |
-| 5 | Entry page — form for entering user details | [`index.html:971`](../frontend/index.html#L971) Company Name + Person in Charge | One form serves items 5 and 6 — see the note below |
-| 6 | Monitoring Data Entry page — form for entering data | [`index.html:926`](../frontend/index.html#L926) → [`app.js:600`](../frontend/app.js#L600) `handleForecast()` | Route, Intended Ship Date, container count |
-| 7 | Monitoring Records Display page — table of records | [`index.html:1247`](../frontend/index.html#L1247) → [`app.js:1972`](../frontend/app.js#L1972) `applyHistoryFilters()` | 8-column table + 4 filters |
-| 8 | Monitoring Record Modify page — update and delete | Update: [`index.html:1910`](../frontend/index.html#L1910) modal → [`app.js:2122`](../frontend/app.js#L2122) `openEditModal()` / [`:2147`](../frontend/app.js#L2147) `saveEditRecord()`<br>Delete: [`app.js:2216`](../frontend/app.js#L2216) `deleteHistory()` → [`:147`](../frontend/app.js#L147) `deleteHistoryRecord()` | Both reached from the row they act on, inside Forecast History |
-| 9 | Dashboard page — summary of key indicators | [`index.html:1330`](../frontend/index.html#L1330) → [`exec-dashboard-panels.js:503`](../frontend/exec-dashboard-panels.js#L503) `renderKpis()` | KPIs, trend chart, calendar, daily table |
-| 10 | Contact / Help page — support information | Help [`index.html:1625`](../frontend/index.html#L1625), contact details `:1691`, form `:1768` → [`contact-form.js:190`](../frontend/contact-form.js#L190) submit | Five `<details>` answers plus a form that writes to `contact_messages` |
+| 1 | Login and Register page — secure user authentication | Login [`index.html:111`](../frontend/index.html#L111) → [`app.js:392`](../frontend/app.js#L392) `handleLogin()`<br>Register [`index.html:154`](../frontend/index.html#L154) → [`app.js:429`](../frontend/app.js#L429) `handleSignup()` | Real Supabase Auth, not a mock check. Register takes name, email, password, confirm-password |
+| 2 | Header / Navigation — consistent across all pages | Sidebar [`index.html:228`](../frontend/index.html#L228), nav [`:246`](../frontend/index.html#L246), top header [`:314`](../frontend/index.html#L314) | One menu, present on every page. Nine destinations in four labelled groups |
+| 3 | Home page — overview of the system | [`index.html:341`](../frontend/index.html#L341) — hero `:343`, stat band `:400`, "what it does" `:429`, "how it works" `:517`, lane `:557` | |
+| 4 | About page — purpose and objectives | [`index.html:630`](../frontend/index.html#L630) — company `:648`, model `:691`, limits `:789`, rules `:863` | `:789` "What ShipSense does not claim" is unusually strong material for the report |
+| 5 | Entry page — form for entering user details | [`index.html:978`](../frontend/index.html#L978) Company Name + Person in Charge | One form serves items 5 and 6 — see the note below |
+| 6 | Monitoring Data Entry page — form for entering data | [`index.html:928`](../frontend/index.html#L928) → [`app.js:556`](../frontend/app.js#L556) `handleForecast()` | Route, Intended Ship Date, container count |
+| 7 | Monitoring Records Display page — table of records | [`index.html:1249`](../frontend/index.html#L1249) → [`app.js:1626`](../frontend/app.js#L1626) `applyHistoryFilters()` | 8-column table + 4 filters |
+| 8 | Monitoring Record Modify page — update and delete | Update: [`index.html:1884`](../frontend/index.html#L1884) modal → [`app.js:1776`](../frontend/app.js#L1776) `openEditModal()` / [`:1801`](../frontend/app.js#L1801) `saveEditRecord()`<br>Delete: [`app.js:1870`](../frontend/app.js#L1870) `deleteHistory()` → [`:138`](../frontend/app.js#L138) `deleteHistoryRecord()` | Both reached from the row they act on, inside Forecast History |
+| 9 | Dashboard page — summary of key indicators | [`index.html:1304`](../frontend/index.html#L1304) → [`exec-dashboard-panels.js:503`](../frontend/exec-dashboard-panels.js#L503) `renderKpis()` | KPIs, trend chart, calendar, daily table |
+| 10 | Contact / Help page — support information | Help [`index.html:1587`](../frontend/index.html#L1587), contact details `:1664`, form `:1742` → [`contact-form.js:198`](../frontend/contact-form.js#L198) submit | Five `<details>` answers plus a form that writes to `contact_messages` |
 
 **Items 5 and 6 are one screen.** The brief separates "user details" from "monitoring data", and a
 freight quote needs both before it means anything: a rate with no company against it cannot be
@@ -34,7 +34,7 @@ quoted, and a company with no ship date has nothing to price. Splitting them int
 put a Continue button between two halves of one thought and give the user somewhere to abandon.
 So **New Forecast** collects both, in that order — Route / ISD / containers first, then Company and
 PIC — and `handleForecast()` validates all five fields together
-([`app.js:600`](../frontend/app.js#L600)). Worth stating plainly in the report rather than hoping
+([`app.js:556`](../frontend/app.js#L556)). Worth stating plainly in the report rather than hoping
 nobody notices the count.
 
 **Item 8 is a modal, not a separate route.** Update and delete are opened from the record they
@@ -50,10 +50,10 @@ The brief's CRUD table maps one-to-one onto `quote_requests`:
 
 | Operation | Required behaviour | UI entry point | Function | HTTP |
 |---|---|---|---|---|
-| **Create** | User can add a new record | "Save Forecast Record" on Client Quote | [`app.js:1259`](../frontend/app.js#L1259) `saveForecastRecord()` → [`:73`](../frontend/app.js#L73) `insertHistoryRecord()` | `POST /rest/v1/quote_requests` |
-| **Read** | User can view stored records | Forecast History table | [`app.js:1972`](../frontend/app.js#L1972) `applyHistoryFilters()` → [`:62`](../frontend/app.js#L62) `initHistory()` | `GET /rest/v1/quote_requests` |
-| **Update** | User can edit and save a record | Edit button → modal → Save Changes | [`app.js:2147`](../frontend/app.js#L2147) `saveEditRecord()` → [`:96`](../frontend/app.js#L96) `updateHistoryRecord()` | `PATCH /rest/v1/quote_requests?id=eq.N` |
-| **Delete** | User can delete a record | Delete button → confirm dialog | [`app.js:2216`](../frontend/app.js#L2216) `deleteHistory()` → [`:147`](../frontend/app.js#L147) `deleteHistoryRecord()` | `DELETE /rest/v1/quote_requests?id=eq.N` |
+| **Create** | User can add a new record | "Save Forecast Record" on Client Quote | [`app.js:1092`](../frontend/app.js#L1092) `saveForecastRecord()` → [`:64`](../frontend/app.js#L64) `insertHistoryRecord()` | `POST /rest/v1/quote_requests` |
+| **Read** | User can view stored records | Forecast History table | [`app.js:1626`](../frontend/app.js#L1626) `applyHistoryFilters()` → [`:53`](../frontend/app.js#L53) `initHistory()` | `GET /rest/v1/quote_requests` |
+| **Update** | User can edit and save a record | Edit button → modal → Save Changes | [`app.js:1801`](../frontend/app.js#L1801) `saveEditRecord()` → [`:87`](../frontend/app.js#L87) `updateHistoryRecord()` | `PATCH /rest/v1/quote_requests?id=eq.N` |
+| **Delete** | User can delete a record | Delete button → confirm dialog | [`app.js:1870`](../frontend/app.js#L1870) `deleteHistory()` → [`:138`](../frontend/app.js#L138) `deleteHistoryRecord()` | `DELETE /rest/v1/quote_requests?id=eq.N` |
 
 A second entity, `contact_messages`, demonstrates **Create** from the Contact / Help page
 ([`contact-form.js:181`](../frontend/contact-form.js#L181) `postMessage()`) — useful if the report
@@ -83,19 +83,19 @@ API call. That is the single strongest piece of evidence in the project.
 
 | Required | Implementation | Line |
 |---|---|---|
-| Form validation | `handleForecast()` — 5 required fields + date range | [`app.js:600`](../frontend/app.js#L600) |
-| | `saveEditRecord()` — re-validates on save, not just on type | [`app.js:2147`](../frontend/app.js#L2147) |
-| | `handleSignup()` — domain, length, confirmation match | [`app.js:473`](../frontend/app.js#L473) |
+| Form validation | `handleForecast()` — 5 required fields + date range | [`app.js:556`](../frontend/app.js#L556) |
+| | `saveEditRecord()` — re-validates on save, not just on type | [`app.js:1801`](../frontend/app.js#L1801) |
+| | `handleSignup()` — domain, length, confirmation match | [`app.js:429`](../frontend/app.js#L429) |
 | | `validateField()` — per-field Contact / Help validation | [`contact-form.js:115`](../frontend/contact-form.js#L115) |
-| Navigation menus | `navigateTo()` — the router every page in the system goes through | [`app.js:259`](../frontend/app.js#L259) |
-| | `toggleSidebar()` — the same menu as an off-canvas drawer on narrow screens | [`app.js:323`](../frontend/app.js#L323) |
-| | `scrollToSection()` — Home's "See how it works" in-page jump | [`app.js:306`](../frontend/app.js#L306) |
-| Confirmation prompts | `openConfirm()` — custom modal, replaced native `confirm()` | [`app.js:1887`](../frontend/app.js#L1887) |
-| | used by delete `:2231`, cancel `:2095` | |
+| Navigation menus | `navigateTo()` — the router every page in the system goes through | [`app.js:215`](../frontend/app.js#L215) |
+| | `toggleSidebar()` — the same menu as an off-canvas drawer on narrow screens | [`app.js:279`](../frontend/app.js#L279) |
+| | `scrollToSection()` — Home's "See how it works" in-page jump | [`app.js:262`](../frontend/app.js#L262) |
+| Confirmation prompts | `openConfirm()` — custom modal, replaced native `confirm()` | [`app.js:1541`](../frontend/app.js#L1541) |
+| | used by delete `:1885`, cancel `:1749` | |
 | CRUD functions | see §2 | |
 
 **Worth explaining in the report:** `openConfirm()` writes a *different* warning for a draft than
-for an issued quotation ([`app.js:2223`](../frontend/app.js#L2223)). Asking the same question
+for an issued quotation ([`app.js:1877`](../frontend/app.js#L1877)). Asking the same question
 either way would train the user to click through it.
 
 ---
@@ -104,12 +104,12 @@ either way would train the user to click through it.
 
 | Rule | Value | Where |
 |---|---|---|
-| Client markup | 20% flat | `MARKUP = 1.20` [`app.js:869`](../frontend/app.js#L869) |
-| Quotation validity | 48 hours | `QUOTE_VALIDITY_HOURS` [`app.js:870`](../frontend/app.js#L870) |
-| Allowed sign-up domain | `@goodfortune.com` | [`app.js:366`](../frontend/app.js#L366) |
-| Booking window | ISD ± 5 days | `handleForecast()` [`app.js:600`](../frontend/app.js#L600) |
-| Containers | 1–500, whole numbers | [`app.js:2147`](../frontend/app.js#L2147) + DB check constraint |
-| ISD range | derived from forecast, never hard-coded | `applyIsdBounds()` |
+| Client markup | 20% flat | `MARKUP = 1.20` [`app.js:690`](../frontend/app.js#L690) |
+| Quotation validity | 48 hours | `QUOTE_VALIDITY_HOURS` [`app.js:691`](../frontend/app.js#L691) |
+| Allowed sign-up domain | `@goodfortune.com` | `ALLOWED_EMAIL_DOMAIN` [`app.js:322`](../frontend/app.js#L322) |
+| Booking window | ISD ± 5 days | `handleForecast()` [`app.js:556`](../frontend/app.js#L556) |
+| Containers | 1–500, whole numbers | [`app.js:1801`](../frontend/app.js#L1801) + DB check constraint |
+| ISD range | derived from forecast, never hard-coded | `applyIsdBounds()` [`app.js:537`](../frontend/app.js#L537) |
 
 Full prose version: [`business-logic.md`](business-logic.md).
 
@@ -136,7 +136,7 @@ index.html
 ```
 
 The whole system is a single page whose views are shown and hidden by `navigateTo()`
-([`app.js:259`](../frontend/app.js#L259)) — nine destinations, one menu, no page reloads. Nothing
+([`app.js:215`](../frontend/app.js#L215)) — nine destinations, one menu, no page reloads. Nothing
 but the login screen is reachable without an account.
 
 **Why Home, About and Contact sit behind the login too.** An earlier build had them as three
@@ -166,7 +166,7 @@ Header/Navigation once, and now there is exactly one.
 
 | Report section | Marks | Source |
 |---|---|---|
-| I. Introduction | 10 | [`README.md`](../README.md), About page [`index.html:650`](../frontend/index.html#L650) |
+| I. Introduction | 10 | [`README.md`](../README.md), About page [`index.html:648`](../frontend/index.html#L648) |
 | II. Requirement Analysis | 20 | [`frontend-user-flow.md`](frontend-user-flow.md), [`data-schema.md`](data-schema.md) |
 | III. System Design | 20 | §5 above, [`schema.sql`](../supabase/schema.sql) |
 | IV. Development | 20 | §2, §3, §4 above, [`business-logic.md`](business-logic.md) |

@@ -447,9 +447,9 @@ input:focus, select:focus { outline: none; }
 }
 .btn-primary:hover  { background: #1d4ed8; }
 
-/* A disabled primary used to keep its full blue and only lose 0.65 opacity
-   inline, which still read as "press me". Unavailable should look
-   unavailable — the reason it is unavailable is stated next to it. */
+/* Unavailable should look unavailable. A dimmed-but-still-blue primary reads
+   as "press me"; this goes grey instead, and the reason it is unavailable is
+   stated next to it. */
 .btn-primary:disabled,
 .btn-primary:disabled:hover {
   background: #e2e8f0;
@@ -2672,9 +2672,8 @@ select.text-input-plain {
    PRINT
    ============================================================ */
 /* The quotation print overlay is the only thing in this app worth putting on
-   paper, so printing reveals it and hides everything else. Every other page
-   — including Home, About and Contact, which used to be standalone public
-   pages with their own print treatment — is a screen, not a document. */
+   paper, so printing reveals it and hides everything else. Every other page,
+   Home and About and Contact included, is a screen, not a document. */
 @media print {
   body > *               { display: none !important; }
   #print-overlay         { display: block !important; }

@@ -544,10 +544,10 @@ function applyIsdBounds() {
   if (!isdEl.value || isdEl.value < minDate) isdEl.value = minDate;
   else if (isdEl.value > maxDate)            isdEl.value = maxDate;
 
-  /* The hint states the same range the input enforces, from the same source.
-     It used to be typed into the HTML, which meant it kept confidently
-     naming a window the model had long since moved past — the one part of
-     the form a user reads before typing, and the one part nothing updated. */
+  /* The hint states the same range the input enforces, from the same source,
+     so it cannot go on naming a window the model has moved past. It is the
+     one part of the form a user reads before typing, so a stale range here
+     misleads before any validation gets a chance to. */
   const hint = document.getElementById('isd-hint');
   if (hint) hint.textContent = `Select the intended ship date (${fmtDate(minDate)} – ${fmtDate(maxDate)}).`;
 }
@@ -1894,12 +1894,11 @@ function deleteHistory(id) {
       } catch (e) {
         /* The database has the final say (schema.sql's delete policy and
            guard). Reword its refusal for the dialog rather than letting the
-           raw failure through — and word it from the row's actual state. A
-           refusal used to be reported as "a client decision has been recorded
-           against it" whatever the row was, which is simply untrue of a
-           Pending request: those are deletable, so a refusal on one means the
-           row is not what this page thinks it is (already deleted elsewhere,
-           or decided since the table was loaded). */
+           raw failure through — and word it from the row's actual state,
+           because the two cases mean opposite things. A Confirmed or
+           Cancelled row was refused on the rule. A Pending row is deletable,
+           so a refusal on one means the row is not what this page thinks it
+           is: already deleted elsewhere, or decided since the table loaded. */
         e.userMessage = e.blocked
           ? (h.status === 'Pending'
               ? 'The database refused this deletion. This record is no longer what the page ' +

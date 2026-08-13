@@ -4,11 +4,12 @@
 
    READ THIS BEFORE CHANGING THE MATH.
 
-   This page is an ILLUSTRATION, not a model output. It carried an
-   on-screen banner saying so; that was removed on request, so this
-   comment is now the only place the distinction is recorded — which is
-   the reason it is written out in full rather than summarised. Here is
-   exactly what is and is not known:
+   This page is an ILLUSTRATION, not a model output. The app states that
+   on screen — on Home, on About ("The scenario slider is an
+   illustration") and in the Contact / Help answers — but nowhere on this
+   page itself, and nowhere with the reasoning behind it. Hence the full
+   version here rather than a summary. Here is exactly what is and is
+   not known:
 
    What the ML pipeline actually gives us (see docs/data-schema.md):
    a single central 90-day path for fee, oil and FX. It does NOT give us
@@ -37,18 +38,15 @@
    elasticity would have been much more defensible than an assumed one —
    it would only have looked more official.
 
-   Hence ELASTICITY below is an ASSUMPTION, carried over from the
-   showcase mock-up. Change it freely; just don't let the page start
-   claiming the model said it.
+   Hence ELASTICITY below is an ASSUMPTION, not a fitted value. Change it
+   freely; just don't let the page start claiming the model said it.
 
-   Units: `usdEur` in the forecast payload is EUR per USD (~0.87). This
-   page displays and controls USD per 1 EUR (~1.15), which is the way a
-   freight analyst reads the rate and what the showcase sketch used, so
-   every rate on this page is the reciprocal of the stored value. Note
-   that the Executive Dashboard prints the stored 0.87 under the label
-   "USD/EUR Exchange Rate" (MACRO_META.usdEur in
-   exec-dashboard-panels.js) — that label is wrong for the number beneath
-   it, but correcting it is a separate change to a separate page.
+   Units: `usdEur` in the forecast payload is EUR per USD (~0.87) —
+   "USD/EUR" in base/quote terms, which is how the Executive Dashboard
+   and the About page both label it. This page instead displays and
+   controls USD per 1 EUR (~1.15), the way a freight analyst reads the
+   rate, so every rate on this page is the reciprocal of the stored
+   value. Same underlying number, read the other way round.
    =================================================================== */
 (function () {
   /* Assumed, NOT fitted — see the header comment. Fee moves as
@@ -59,8 +57,8 @@
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const SVGNS = "http://www.w3.org/2000/svg";
   const COLOR_BASE = "#2563eb";
-  /* Market convention, as on the showcase mock-up: the figure is green when
-     the change is positive and red when it is negative. */
+  /* Market convention: the figure is green when the change is positive and
+     red when it is negative. */
   const COLOR_UP = "#059669";
   const COLOR_DOWN = "#dc2626";
 
