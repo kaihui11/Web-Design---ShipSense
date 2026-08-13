@@ -86,7 +86,7 @@ Public read-only via the anon key; only `scripts/pkl_to_json.py` (service_role) 
 
 ## `quote_requests` table (Supabase)
 
-One row per client quote a staff member generates from the New Forecast page (`frontend/app.js`). Unlike `snapshots`/`historical_data`, this is **not** populated by the ingest pipeline — it's written directly by the frontend using the anon key: inserted as `Pending` when **Save Forecast Record** is pressed, updated when the quotation is issued, when details are edited, or when a decision is recorded, and deleted while the request is still Pending.
+One row per client quote a staff member generates from the New Forecast page (`frontend/app.js`). Unlike `snapshots`/`historical_data`, this is **not** populated by the ingest pipeline — it's written directly by the frontend using the anon key: inserted as `Pending` when **Save Forecast** is pressed (or by the first half of **Generate Client Quotation**), updated when the quotation is issued, when details are edited, or when a decision is recorded, and deleted while the request is still Pending.
 
 | Column | camelCase field in `app.js` | Notes |
 |---|---|---|
@@ -107,7 +107,7 @@ One row per client quote a staff member generates from the New Forecast page (`f
 | `forecast_generated_at` | `forecastGeneratedAt` | `snapshots.generated_at` of the run the price was taken from |
 | `created_at` / `updated_at` | `ts` (derived) | `ts` is formatted client-side from `created_at`, not stored separately |
 
-The last five columns are null while a request is saved but un-issued, and are written together when **Generate Quotation** is pressed (`issueQuotationNow()` → `issueQuotationFor()`). Saving a record and issuing a price are two separate acts: the gap between them is the window in which a request can still be edited or deleted. From the issue onwards a database trigger rejects any change to those columns or to the figures behind them — a newer forecast run cannot move a price a client has already been given. Re-quoting inserts a new row (see `docs/business-logic.md`).
+The last five columns are null while a request is saved but un-issued, and are written together when the quotation is issued — normally by confirming **Generate Client Quotation** on the Forecast Result page (`confirmGenerateQuotation()` → `issueQuotationFor()`), or by the preview's fallback button on a record that reached it un-issued (`issueQuotationNow()`). Saving a record and issuing a price remain two separate writes: the gap between them is the window in which a request can still be edited or deleted. From the issue onwards a database trigger rejects any change to those columns or to the figures behind them — a newer forecast run cannot move a price a client has already been given. Re-quoting inserts a new row (see `docs/business-logic.md`).
 
 **Row lifecycle and what each stage permits** — enforced by RLS plus two triggers in `schema.sql`, not by the UI:
 

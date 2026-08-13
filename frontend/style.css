@@ -1709,13 +1709,21 @@ table.ss-table td.label-lowest { color:var(--green); }
   margin-bottom: 20px;
 }
 /* The question a dialog asks and the detail behind it are not the same
-   weight. The first line is the decision; this is the reassurance under it. */
-.modal-desc + .modal-desc-sub {
-  margin-top: -12px;
+   weight. The first line is the decision; this is the reassurance under it.
+   The size and colour apply wherever it sits — the quotation gate puts one
+   under a figures box rather than directly under the question — while the
+   pull-up only applies when it does follow the question directly. */
+.modal-desc-sub {
   font-size: 12.5px;
   color: #94a3b8;
 }
+.modal-desc + .modal-desc-sub { margin-top: -12px; }
 .modal-desc-sub strong { color: #64748b; font-weight: 600; }
+
+/* The figures the quotation gate is about to fix. Reuses the preview's fee
+   box so the numbers being confirmed look like the numbers being quoted. */
+#issue-gate-summary { margin-top: 0; margin-bottom: 20px; }
+#issue-gate-summary strong { color: #0f172a; font-weight: 600; }
 /* Form modals hold four fields rather than two choices, so they get more
    width and a scroll cap for short viewports. */
 .modal-box-form { width: 460px; max-height: 90vh; overflow-y: auto; }
