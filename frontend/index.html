@@ -1047,7 +1047,6 @@
               <div class="metric-date txt-blue" id="sel-date"></div>
               <div class="metric-sublabel">Total Estimated Shipping Fee</div>
               <div class="metric-fee txt-blue" id="sel-fee"></div>
-              <div class="metric-revision" id="sel-revision"></div>
             </div>
           </div>
 
@@ -1253,12 +1252,6 @@
           <p class="page-desc">View and manage historical forecast and quotation records.</p>
         </div>
 
-        <div class="exec-tabs" role="tablist">
-          <button class="exec-tab active" data-hist-tab="quotations" onclick="switchHistoryTab('quotations')">Quotations</button>
-          <button class="exec-tab" data-hist-tab="revisions" onclick="switchHistoryTab('revisions')">Forecast Revisions</button>
-        </div>
-
-        <div id="hist-tab-panel-quotations" class="hist-tab-panel">
         <div class="filter-bar">
           <div class="filter-group">
             <div class="filter-date-wrap">
@@ -1304,28 +1297,6 @@
             </thead>
             <tbody id="history-tbody"></tbody>
           </table>
-        </div>
-        </div>
-
-        <div id="hist-tab-panel-revisions" class="hist-tab-panel hidden">
-          <div class="filter-bar">
-            <div class="filter-group">
-              <div class="filter-select-wrap">
-                <select id="rev-route" class="filter-select" onchange="renderRevisionHistory()">
-                  <option value="ne-usec">North Europe &rarr; US East Coast</option>
-                </select>
-                <svg class="filter-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-              </div>
-            </div>
-            <div class="filter-group">
-              <div class="filter-date-wrap">
-                <input type="date" id="rev-isd" class="filter-input" onchange="renderRevisionHistory()" />
-              </div>
-            </div>
-            <span class="rev-filter-hint">Select a route and intended shipment date to see every prediction made for it.</span>
-          </div>
-
-          <div id="rev-hist-body"></div>
         </div>
       </div>
 
@@ -2000,20 +1971,6 @@
       <button type="button" class="btn-secondary" onclick="closeIssueGateModal()">Cancel</button>
       <button type="button" id="issue-gate-btn" class="btn-primary" onclick="confirmGenerateQuotation()">Generate Quotation</button>
     </div>
-  </div>
-</div>
-
-<!-- Forecast Revision Detail Modal -->
-<div id="revision-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeRevisionModal()">
-  <div class="modal-box" style="width:480px;max-width:94vw;max-height:90vh;overflow-y:auto;">
-    <div class="modal-header">
-      <div class="modal-title">Forecast Revision</div>
-      <button class="modal-close" onclick="closeRevisionModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <p class="modal-desc">How the latest forecast run revised this shipment date.</p>
-    <div id="revision-modal-body"></div>
   </div>
 </div>
 

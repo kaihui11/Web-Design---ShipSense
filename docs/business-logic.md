@@ -57,9 +57,9 @@ What is locked is the issued document, never the client's choice:
 
 ### What the client never sees
 
-The preview and the PDF carry only the quotation itself (reference, issue and validity timestamps, route, company, PIC, quoted date, quantity, price, validity statement). The previous forecast, the day-on-day revision line, the revision chart and the run-by-run forecast history are internal and stay on the Forecast Result page and the History view.
+The preview and the PDF carry only the quotation itself (reference, issue and validity timestamps, route, company, PIC, quoted date, quantity, price, validity statement).
 
-**The forecast run date is one of those internal facts.** The validity statement says the price was struck on the issue date — *"priced on 13 Aug 2026 from the latest available market information"* — not that the market information itself is dated the 7th. Both are true of the same quote, but the second reads to a client as a week-old price when it only means the newest run available that day was the 7th's. `validityStatement()` states the issue date for that reason; the run behind a quotation is still reported exactly, on the Forecast Result page and in Forecast Revisions, where the audience is the analyst.
+**The forecast run date is one of those internal facts.** The validity statement says the price was struck on the issue date — *"priced on 13 Aug 2026 from the latest available market information"* — not that the market information itself is dated the 7th. Both are true of the same quote, but the second reads to a client as a week-old price when it only means the newest run available that day was the 7th's. `validityStatement()` states the issue date for that reason; the run behind a quotation is still reported exactly on the Forecast Result page, where the audience is the analyst.
 
 ---
 

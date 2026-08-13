@@ -848,111 +848,6 @@ input:focus, select:focus { outline: none; }
 .metric-sublabel{ font-size: 12px; color: #64748b; }
 .metric-fee     { font-size: 18px; font-weight: 700; margin-top: 2px; }
 
-/* Forecast revision line — latest run vs. immediately previous run, shown
-   inside the Selected ISD card rather than as a card of its own. */
-.metric-revision { margin-top: 8px; }
-.rev-line {
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-}
-.rev-arrow { font-weight: 700; }
-.rev-up    { color: #dc2626; }
-.rev-down  { color: #059669; }
-.rev-flat  { color: #64748b; }
-.rev-meta {
-  font-size: 11px;
-  color: #94a3b8;
-  margin-top: 2px;
-}
-.rev-link {
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  color: #2563eb;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.rev-link:hover { color: #1d4ed8; }
-
-/* Revision detail modal — Previous vs. Latest table */
-.rev-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 14px;
-}
-.rev-table th {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: #64748b;
-  text-align: left;
-  padding: 6px 10px;
-  border-bottom: 1px solid #e2e8f0;
-}
-.rev-table th:not(:first-child),
-.rev-table td:not(:first-child) { text-align: right; }
-.rev-table td {
-  font-size: 13px;
-  padding: 7px 10px;
-  color: #0f172a;
-  font-weight: 600;
-}
-.rev-table td:first-child { color: #475569; font-weight: 500; }
-.rev-table tbody tr:not(:last-child) td { border-bottom: 1px solid #f1f5f9; }
-.rev-latest-col { background: #f8fafc; }
-.rev-subtle { font-size: 11px; color: #94a3b8; font-weight: 500; }
-
-.rev-summary {
-  background: #f8fafc;
-  border-radius: 8px;
-  padding: 6px 12px;
-  margin-bottom: 12px;
-}
-.rev-explain {
-  font-size: 12px;
-  color: #64748b;
-  line-height: 1.5;
-  margin: 0 0 14px;
-}
-
-/* Forecast Revisions tab */
-.rev-filter-hint {
-  font-size: 12px;
-  color: #94a3b8;
-  align-self: center;
-}
-.rev-empty {
-  padding: 22px;
-  font-size: 13px;
-  color: #64748b;
-  line-height: 1.6;
-}
-.rev-chart-card { padding: 20px; margin-bottom: 16px; }
-.rev-chart-svg { width: 100%; height: auto; display: block; margin-top: 12px; }
-.rev-chart-axis { font-size: 10.5px; fill: #64748b; font-weight: 600; }
-.rev-chart-axis-soft { fill: #94a3b8; font-weight: 500; }
-.rev-hist-table td { font-weight: 600; }
-
-/* Revision detail modal rows */
-.rev-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  font-size: 13px;
-  padding: 7px 0;
-  color: #475569;
-}
-.rev-row > span:last-child { font-weight: 600; color: #0f172a; text-align: right; }
-.rev-row > span:last-child.rev-up   { color: #dc2626; }
-.rev-row > span:last-child.rev-down { color: #059669; }
-.rev-row > span:last-child.rev-flat { color: #64748b; }
-.rev-total { font-size: 15px; }
-.rev-divider { height: 1px; background: #e2e8f0; margin: 6px 0; }
-
 .action-row {
   display: flex;
   justify-content: flex-end;
@@ -1901,7 +1796,6 @@ body.nav-open { overflow: hidden; }
   /* Wide tables start scrolling here rather than compressing further. */
   .quote-card { overflow-x: auto; }
   .hist-table { min-width: 900px; }
-  .rev-hist-table { min-width: 520px; }
 }
 
 /* The dashboard's own cols-3 rule collapses straight from three columns to
@@ -1971,7 +1865,6 @@ body.nav-open { overflow: hidden; }
 
   /* See note 3 — restoring apparent size, not enlarging the labels. */
   .ss-axis, .ss-axis text { font-size: 15px; }
-  .rev-chart-axis { font-size: 15px; }
 }
 
 /* ── Phone ── */
@@ -2000,7 +1893,6 @@ body.nav-open { overflow: hidden; }
   .hist-table { min-width: 760px; }
 
   .ss-axis, .ss-axis text { font-size: 19px; }
-  .rev-chart-axis { font-size: 18px; }
   .ss-kpi-value { font-size: 20px; }
 
   .qd-grid { grid-template-columns: 1fr; }

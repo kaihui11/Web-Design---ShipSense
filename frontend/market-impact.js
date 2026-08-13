@@ -60,9 +60,7 @@
   const SVGNS = "http://www.w3.org/2000/svg";
   const COLOR_BASE = "#2563eb";
   /* Market convention, as on the showcase mock-up: the figure is green when
-     the change is positive and red when it is negative. Note this is the
-     opposite of the forecast-revision arrows in app.js (.rev-up is red),
-     which read a rising freight cost as bad news for the buyer. */
+     the change is positive and red when it is negative. */
   const COLOR_UP = "#059669";
   const COLOR_DOWN = "#dc2626";
 
@@ -162,9 +160,9 @@
     const simAvg = mean(sim);
     const pct = ((simAvg - model.baseFee) / model.baseFee) * 100;
     const perFeu = simAvg - model.baseFee;
-    /* Judged on the rounded figure, as app.js's revision arrows are: a
-       difference too small to appear in either number on screen should
-       read as no change, not as an arrow pointing at nothing. */
+    /* Judged on the rounded figure: a difference too small to appear in
+       either number on screen should read as no change, not as an arrow
+       pointing at nothing. */
     const dir = Math.round(perFeu) === 0 ? "flat" : perFeu > 0 ? "up" : "down";
     const color = dir === "up" ? COLOR_UP : dir === "down" ? COLOR_DOWN : COLOR_BASE;
 
