@@ -12,12 +12,14 @@ handing it around to solve a one-off setup problem is how it ends up
 somewhere it shouldn't be. Generating SQL keeps the key out of the loop
 entirely.
 
-The output covers all three tables:
-    snapshots       one forecast snapshot (the JSONB payload, verbatim)
-    historical_data every historical day, upserted on `date`
-    quote_requests  a handful of sample records, one per lifecycle stage, so
-                    a fresh install has something to show on the Forecast
-                    History page rather than an empty table
+The output covers all four tables:
+    snapshots        one forecast snapshot (the JSONB payload, verbatim)
+    historical_data  every historical day, upserted on `date`
+    quote_requests   a handful of sample records, one per lifecycle stage, so
+                     a fresh install has something to show on the Forecast
+                     History page rather than an empty table
+    contact_messages two sample enquiries, so the insert-only inbox is not
+                     empty in the Supabase dashboard either
 
 Usage:
     python scripts/pkl_to_seed_sql.py shipsense_website_bundle.pkl
@@ -41,6 +43,25 @@ OUT_PATH = ROOT / "supabase" / "seed.sql"
 
 MARKUP = 1.20
 QUOTE_VALIDITY_HOURS = 48
+
+# Sample contact_messages rows. Unlike the quote records these derive
+# nothing from the bundle, so they are a constant rather than a builder.
+# One carries a client company and one leaves it blank, which is the
+# distinction the column exists to record: `company` is the customer the
+# enquiry is about, not the sender's employer (the form is behind the
+# staff login, so that would be Good Fortune every time).
+CONTACT_MESSAGES = [
+    dict(name="Ahmad Rizal", email="ahmad.rizal@goodfortune.com",
+         company="Global Marine Sdn Bhd", phone="+60 12 345 6789", topic="quote",
+         message="Global Marine are asking whether the 10 FEU booking can move a"
+                 " week later than the ISD we forecast. Can the desk confirm the"
+                 " rate still holds if they sail on 24 August?"),
+    dict(name="Siti Nurhaliza", email="siti.nurhaliza@goodfortune.com",
+         company=None, phone=None, topic="platform",
+         message="The Executive Dashboard KPI cards look a day behind the Forecast"
+                 " History table after this morning's run. Nothing urgent, but worth"
+                 " a look before the Monday review."),
+]
 
 
 def sql_str(value) -> str:
@@ -149,7 +170,8 @@ def render(bundle) -> str:
         "-- Safe to re-run: the forecast snapshot for a given run day is",
         "-- replaced rather than duplicated (mirroring pkl_to_json.py),",
         "-- historical days upsert on their primary key, and the sample",
-        "-- quote records are only inserted when that table is empty.",
+        "-- quote and contact records are only inserted when their table",
+        "-- is empty.",
         "",
         "begin;",
         "",
@@ -221,6 +243,30 @@ def render(bundle) -> str:
             )
         lines.append(",\n".join(rows) + ";")
         lines += ["end if;", "end $$;", ""]
+
+    lines += [
+        "-- ── contact_messages (sample records) ────────────────────────",
+        "-- Two enquiries, so the inbox in the Supabase dashboard is not",
+        "-- empty on a fresh install and shows what `company` now holds:",
+        "-- the client the enquiry is about, blank when there isn't one.",
+        "-- The senders are staff, because the form sits behind the login.",
+        "--",
+        "-- The guard reads the table, which the anon key cannot do (no",
+        "-- select policy). That is fine here: seed.sql is run from the",
+        "-- SQL editor, which authenticates as service_role.",
+        "do $$",
+        "begin",
+        "if not exists (select 1 from contact_messages) then",
+        "  insert into contact_messages (full_name, email, company, phone, topic, message, consent_given) values",
+    ]
+    lines.append(",\n".join(
+        "    (" + ", ".join([
+            sql_str(m["name"]), sql_str(m["email"]), sql_str(m["company"]),
+            sql_str(m["phone"]), sql_str(m["topic"]),
+        ]) + ",\n     " + sql_str(m["message"]) + ", true)"
+        for m in CONTACT_MESSAGES
+    ) + ";")
+    lines += ["end if;", "end $$;", ""]
 
     lines += ["commit;", ""]
     return "\n".join(lines)

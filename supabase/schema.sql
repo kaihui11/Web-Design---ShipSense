@@ -347,6 +347,11 @@ create table if not exists contact_messages (
     id            bigint generated always as identity primary key,
     full_name     text        not null,
     email         text        not null,
+    -- The client the enquiry is about, not the sender's employer: the form
+    -- sits behind a staff login, so the sender's company is always Good
+    -- Fortune. Free text, and deliberately not a foreign key to
+    -- quote_requests.company — an enquiry often arrives before any quote for
+    -- that customer exists, and a constraint here would refuse it.
     company       text,                        -- optional on the form
     phone         text,                        -- optional on the form
     topic         text        not null,        -- enquiry type, see check below

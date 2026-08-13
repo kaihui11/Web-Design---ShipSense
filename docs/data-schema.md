@@ -123,16 +123,16 @@ Login is backed by real Supabase Auth (see `docs/business-logic.md`), but other 
 
 ## `contact_messages` table (Supabase)
 
-Enquiries submitted from the Contact / Help page (`frontend/index.html` → `contact-form.js`). Written with
-the anon key by visitors who are not logged in, which is why this table is shaped differently from
-the other three.
+Enquiries submitted from the Contact / Help page (`frontend/index.html` → `contact-form.js`). The page
+sits behind the staff login, but the insert still goes out under the public anon key, which is why
+this table is shaped differently from the other three: it is public-*write* and not readable at all.
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `bigint identity` | Primary key |
 | `full_name` | `text not null` | 2–80 characters |
 | `email` | `text not null` | ≤120 chars, must match a basic address shape |
-| `company` | `text` | Optional |
+| `company` | `text` | Optional. The **client** the enquiry is about, not the sender's employer — every sender is Good Fortune staff. Free text, not a foreign key to `quote_requests.company`: an enquiry often arrives before any quote for that customer exists |
 | `phone` | `text` | Optional, ≤32 chars |
 | `topic` | `text not null` | One of `quote`, `shipment`, `platform`, `partnership`, `other` |
 | `message` | `text not null` | 20–1000 characters |

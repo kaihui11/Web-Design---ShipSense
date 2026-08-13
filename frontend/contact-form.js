@@ -51,6 +51,12 @@
       return '';
     },
 
+    /* The client the enquiry is about, not the sender's employer — the page
+       is behind a staff login, so the sender is always Good Fortune. Length
+       only: it is a free-text customer name, matched against nothing, so any
+       stricter rule would just reject a real company that spells itself
+       unusually. Left optional because plenty of enquiries ("platform",
+       "other") are about no client at all. */
     'cf-company': v => {
       if (v.length > 80) return 'Please keep this under 80 characters.';
       return '';
