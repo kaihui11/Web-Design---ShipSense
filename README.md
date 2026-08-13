@@ -2,6 +2,8 @@
 
 An ML-powered internal tool for logistics teams. Forecasts ocean freight shipping fees 90 days ahead, identifies the cheapest nearby booking window, and generates client quotations.
 
+**Live:** https://web-design-ship-sense.vercel.app — deployed from `main` on every push (see [docs/deployment.md](docs/deployment.md)).
+
 ---
 
 ## Quick Start
