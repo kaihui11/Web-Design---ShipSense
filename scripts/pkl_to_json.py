@@ -155,12 +155,11 @@ def _snapshot_headers() -> dict:
 def find_existing_forecast_id(generated_at: str):
     """Newest forecast snapshot generated on the same day, if any.
 
-    Matched by day rather than exact timestamp to mirror the frontend, which
-    collapses runs per `generated_at` day (`dedupeRuns` in app.js). Matching
-    the exact timestamp instead would let two same-day exports with different
-    clock times both persist, and the newer one would silently hide the older
-    — a row that exists, is served by no page, and confuses the next person
-    to read the table.
+    Matched by day rather than exact timestamp. Matching the exact timestamp
+    instead would let two same-day exports with different clock times both
+    persist, and the newer one would silently hide the older — a row that
+    exists, is served by no page, and confuses the next person to read the
+    table.
     """
     import urllib.parse
     import urllib.request

@@ -50,7 +50,7 @@
   const MACRO_META = {
     fee:                  { label: "Shipping Fee",                  color: "#2563eb", unit: "usd0",  unitDesc: "USD" },
     wti:                  { label: "Crude Oil (WTI)",                color: "#9B59F6", unit: "usd2",  unitDesc: "USD per barrel" },
-    usdEur:               { label: "USD/EUR Exchange Rate",          color: "#16B8C4", unit: "rate4", unitDesc: "USD per 1 EUR" },
+    usdEur:               { label: "USD/EUR Exchange Rate",          color: "#16B8C4", unit: "rate4", unitDesc: "EUR per 1 USD" },
     gdpOrigin:            { label: "Origin GDP Growth",              color: "#059669", unit: "pct2",  unitDesc: "North Europe, year-over-year, %" },
     gdpDestination:       { label: "Destination GDP Growth",         color: "#0d9488", unit: "pct2",  unitDesc: "US, year-over-year, %" },
     inflationOrigin:      { label: "Origin Inflation Rate",          color: "#d97706", unit: "pct2",  unitDesc: "North Europe, year-over-year, %" },

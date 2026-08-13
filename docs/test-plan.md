@@ -143,9 +143,9 @@ diagram: `.pkl` → GitHub Actions → `pkl_to_json.py` → Supabase REST API �
 **What this demonstrates:** the ingest is *idempotent*. Re-running it against a bundle already
 loaded updates the existing snapshot in place rather than accumulating duplicate rows the frontend
 would never serve — `find_existing_forecast_id()`
-([`pkl_to_json.py:155`](../scripts/pkl_to_json.py#L155)) matches by run **day**, mirroring
-`dedupeRuns()` in the frontend. A pipeline that quietly doubled its data on every re-run would be a
-harder defect to notice than one that failed outright.
+([`pkl_to_json.py:155`](../scripts/pkl_to_json.py#L155)) matches by run **day**, so a second export
+on the same date updates the row rather than adding one. A pipeline that quietly doubled its data on
+every re-run would be a harder defect to notice than one that failed outright.
 
 **A defect this run exposed.** The first attempt failed with exit code 1. The workflow installed
 `pandas joblib` — what the *script* imports — but the *pickle* also needs `xgboost`, because the

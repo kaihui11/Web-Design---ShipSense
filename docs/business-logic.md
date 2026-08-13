@@ -24,7 +24,7 @@ The Client Quote Preview has two states:
 
 | State | What it shows | What can change |
 |---|---|---|
-| **Working** (not yet issued) | Figures recomputed from the latest forecast on every render | Client date picker moves the price freely. Only reached now when the issuing write failed, or on a legacy record whose decision was recorded without a quotation |
+| **Working** (not yet issued) | Figures recomputed from the latest forecast on every render | Client date picker moves the price freely. Reached when the issuing write failed, or when a Pending row is reopened from Forecast History through the sidebar link |
 | **Issued** | The frozen values stored on the `quote_requests` row | The document itself is fixed — but the date picker stays open, and moving it issues a *new* quotation (below) |
 
 ### The shipping date belongs to the client
@@ -36,7 +36,7 @@ What is locked is the issued document, never the client's choice:
 - The confirmation step exists so that browsing dates can't quietly mint a trail of references.
 - Once the client's decision is recorded (Confirmed/Cancelled), re-quoting is refused — that record is closed, and a different date needs a new forecast.
 
-- **Saving and issuing are two separate writes, asked for on the Forecast Result page.** Both used to fire silently when the Client Quote page opened; issuing then moved to its own button on the preview, which meant asking for the quotation twice. The two acts are still distinct in the database, but the user reaches them from one page:
+- **Saving and issuing are two separate writes, asked for on the Forecast Result page.** They stay distinct in the database, but the user reaches both from one page — neither fires on its own when the Client Quote page opens, and neither is asked for twice:
   1. **Save Forecast** inserts the Pending, un-issued row. Nothing is priced, and the page stays put — this button is the Create step on its own.
   2. **Generate Client Quotation** (`prepareClientQuote()` → `confirmGenerateQuotation()`) is the whole quoting act: it confirms, saves the row if the forecast was never saved, issues, and only then opens the preview — which therefore opens on a stamped reference rather than on another button. The issue itself (`issueQuotationFor()`) stamps `quote_ref`, `issued_at`, `valid_until`, `quoted_fee`, `quoted_price` and `forecast_generated_at` in a single write, and re-stamps `isd_fee`/`low_date`/`low_fee` to the run the price actually came from.
 
@@ -52,8 +52,8 @@ What is locked is the issued document, never the client's choice:
 - **After expiry**, the preview keeps showing the issued price with an `Expired` badge and offers **Generate New Quotation** (`regenerateQuotation()`), which inserts a *new* Pending record priced from the latest forecast and gets its own reference. It carries the client's chosen date across rather than jumping to whichever date is now cheapest — re-quoting re-prices the same shipment, it doesn't move it. The expired record is left untouched.
 - **Record Client Choice** and **Export Quote (PDF)** are disabled until a quotation is issued — there is no decision to record, and no document to print, before then. Recording a decision stays available after expiry so a client's answer isn't lost to a late data entry.
 - **An unavailable action says why.** A hint above the two buttons names what is missing ("…need an issued quotation… Use **Generate Quotation** above first") instead of leaving greyed controls to be puzzled over, and a disabled primary is drawn grey rather than staying full blue at reduced opacity.
-- **Once a decision exists, Record Client Choice leaves.** It used to remain on screen as a disabled button reading *Choice Recorded* — a button pretending to be a status, directly above a status line already saying the same thing. A finished action is removed and the hint states the record is closed.
-- **Recording a decision redraws the page rather than patching the button.** `confirmRecordChoice()` writes the status and calls `renderClientQuote()`. The version that dimmed the button to `opacity: 0.65` by hand left that inline style on the element for the rest of the session, so the *next* quotation's Record Client Choice opened already faded — a live action that looked spent before anyone had pressed it. One render path owns the button's appearance now.
+- **Once a decision exists, Record Client Choice leaves.** It is removed rather than left on screen as a disabled *Choice Recorded* button — that would be a button pretending to be a status, directly above a status line already saying the same thing. The hint states the record is closed instead.
+- **Recording a decision redraws the page rather than patching the button.** `confirmRecordChoice()` writes the status and calls `renderClientQuote()`, so one render path owns the button's appearance. Dimming the element by hand instead would leave the inline style on it for the rest of the session, and the *next* quotation's Record Client Choice would open already faded — a live action looking spent before anyone had pressed it.
 
 ### What the client never sees
 
