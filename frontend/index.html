@@ -263,10 +263,12 @@
         <i data-lucide="trending-up" class="nav-lucide"></i>
         <span>Forecast Result</span>
       </a>
-      <!-- Same gate as the button on the Forecast Result page: the preview is
-           one page with two doors, and an unsaved forecast should be stopped
-           at either of them rather than only the one. -->
-      <a href="#" class="nav-item" data-view="client-quote" onclick="prepareClientQuote();return false;">
+      <!-- Plain navigation, unlike the button on the Forecast Result page.
+           That button now issues the quotation, and a menu link must never
+           do something irreversible on the way to a page. An unsaved or
+           un-issued forecast reached through here is met by the preview's
+           own panel, which offers the missing step. -->
+      <a href="#" class="nav-item" data-view="client-quote" onclick="navigateTo('client-quote');return false;">
         <i data-lucide="file-text" class="nav-lucide"></i>
         <span>Client Quote Preview</span>
       </a>
@@ -1074,11 +1076,12 @@
           </div>
         </div>
 
-        <!-- Two deliberate steps, in the order the work actually happens.
-             Save writes the request to Forecast History and nothing more;
-             Prepare Client Quote moves on to pricing it. Pressing Prepare
-             without saving does not skip the first step — it offers to do
-             it (see prepareClientQuote in app.js). -->
+        <!-- Two ways forward, and they are not two halves of one step. Save
+             writes the request to Forecast History and stops there, leaving it
+             editable. Generate Client Quotation is the whole quoting act:
+             it saves first if nothing has been saved, issues the quotation,
+             and opens the preview on the stamped document. Because that is
+             irreversible it asks first (see prepareClientQuote in app.js). -->
         <div class="action-row">
           <button class="btn-secondary" onclick="navigateTo('new-forecast')">
             <i data-lucide="edit-2" style="width:15px;height:15px;"></i>
@@ -1088,9 +1091,9 @@
             <i data-lucide="save" style="width:15px;height:15px;"></i>
             Save Forecast
           </button>
-          <button class="btn-primary" onclick="prepareClientQuote()">
+          <button class="btn-primary" id="generate-quote-btn" onclick="prepareClientQuote()">
             <i data-lucide="file-text" style="width:15px;height:15px;"></i>
-            Prepare Client Quote
+            Generate Client Quotation
           </button>
         </div>
         <p class="action-note" id="save-forecast-note"></p>
@@ -1966,31 +1969,36 @@
   </div>
 </div>
 
-<!-- Save-before-quoting gate. Shown when "Prepare Client Quote" is pressed on
-     a forecast that has never been written to Forecast History. It is a
-     prompt rather than a refusal: the only thing standing between here and
-     the preview is a save, so the dialog offers to do it. -->
-<div id="save-gate-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeSaveGateModal()">
+<!-- Quotation gate. Shown when "Generate Client Quotation" is pressed on the
+     Forecast Result page. Issuing fixes the price and closes the record to
+     edits, so the dialog names the figure about to be fixed rather than
+     asking an abstract "are you sure?". Filled by prepareClientQuote(). -->
+<div id="issue-gate-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeIssueGateModal()">
   <div class="modal-box" style="width:460px;max-width:94vw;">
     <div class="modal-header">
-      <div class="modal-title">Save this forecast first</div>
-      <button class="modal-close" onclick="closeSaveGateModal()">
+      <div class="modal-title">Generate the client quotation?</div>
+      <button class="modal-close" onclick="closeIssueGateModal()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <p class="modal-desc">
-      This forecast must be saved before preparing a quotation. Save and continue?
-    </p>
-    <p class="modal-desc modal-desc-sub">
-      Saving files the request under <strong id="save-gate-company"></strong> in Forecast
-      History, where it stays editable. No price is fixed and nothing is sent to the client.
+      This issues a quotation for <strong id="issue-gate-company"></strong>, stamping it with a
+      reference and fixing the price below. Once issued the record can no longer be edited or
+      deleted — so it is the point of no return, not a formality.
     </p>
 
-    <div id="save-gate-error" class="login-error hidden"></div>
+    <div class="fee-detail-box" id="issue-gate-summary"></div>
+
+    <p class="modal-desc modal-desc-sub hidden" id="issue-gate-save-note">
+      This forecast has not been saved yet — generating the quotation files it in Forecast
+      History first.
+    </p>
+
+    <div id="issue-gate-error" class="login-error hidden"></div>
 
     <div class="modal-actions">
-      <button type="button" class="btn-secondary" onclick="closeSaveGateModal()">Cancel</button>
-      <button type="button" id="save-gate-btn" class="btn-primary" onclick="saveAndContinue()">Save and Continue</button>
+      <button type="button" class="btn-secondary" onclick="closeIssueGateModal()">Cancel</button>
+      <button type="button" id="issue-gate-btn" class="btn-primary" onclick="confirmGenerateQuotation()">Generate Quotation</button>
     </div>
   </div>
 </div>

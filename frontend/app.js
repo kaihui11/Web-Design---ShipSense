@@ -652,7 +652,7 @@ function handleForecast() {
 
   /* The forecast figures come first. The user reviews the day grid and the
      lowest nearby fee here, then commits to a quote from this page via
-     "Prepare Client Quote". */
+     "Generate Client Quotation". */
   navigateTo('forecast-result');
 }
 
@@ -910,6 +910,7 @@ function quoteFigures(cf, rec) {
        number on the client's document, not a formula's current output. */
     clientTotal: issued ? rec.quotedPrice : clientFee * qty * MARKUP,
     forecastAt: issued ? rec.forecastGeneratedAt : FORECAST_META.generatedAt,
+    issuedAt: issued ? rec.issuedAt : null,
   };
 }
 
@@ -921,16 +922,17 @@ async function renderClientQuote() {
   document.getElementById('cq-isd').textContent   = fmtDate(cf.isdDate);
   document.getElementById('cq-qty').textContent   = cf.containers + ' FEU';
 
-  /* Saving the record and issuing the quotation used to both fire silently
-     on open. They are now two separate, deliberate acts, and by the time
-     this page renders the first of them has already happened: the record is
-     created back on the Forecast Result page, either by Save Forecast or by
-     the gate that catches Prepare Client Quote on an unsaved forecast (see
-     prepareClientQuote). Issuing stays here, on its own press.
+  /* Both deliberate acts — saving the record and issuing the quotation — have
+     normally already happened by the time this page renders: the confirmed
+     press of Generate Client Quotation back on the Forecast Result page does
+     the save (if the forecast was never saved) and the issue together, so the
+     preview opens on a stamped reference rather than on a button asking for
+     the thing the user just asked for (see prepareClientQuote).
 
-     The gap between the two is what gives a saved request a life of its own
-     before it hardens into a priced document: while it sits there un-issued
-     it can still be edited or deleted from Forecast History, which is
+     The un-issued states below are still reachable and still matter — a
+     Pending row reopened from Forecast History, or an issue that failed — and
+     they are the ones that carry a life of their own: while a request sits
+     un-issued it can be edited or deleted from Forecast History, which is
      impossible once a price has gone to the client. */
   const rec = currentQuoteRecord();
 
@@ -1075,11 +1077,19 @@ function updateClientQuote(selDate) {
    duration, not repeated as a date, because Valid Until sits directly above
    with the same timestamp. What's left is genuinely new: the shipping date
    being quoted (the client's choice, so it moves with the date picker) and
-   the forecast run the price came from (fixed until a newer run lands). */
+   the date the price was struck.
+
+   That date is the issue date, not the forecast run behind it. The run date
+   is an internal fact — a quotation issued on the 13th naming market
+   information "of 7 Aug" reads to a client as a week-old price, when what it
+   actually means is that the latest run available on the 13th was the 7th's.
+   The sentence therefore states when the price was set and leaves the vintage
+   of the underlying run to the internal pages, which report it exactly. */
 function validityStatement(f) {
-  return `For shipment on ${fmtDate(f.clientDate)}, priced from market information of ` +
-         `${fmtTs(f.forecastAt)} and held for ${QUOTE_VALIDITY_HOURS} hours from issue. ` +
-         `Rates may be revised after that.`;
+  const pricedOn = f.issuedAt || f.forecastAt;
+  return `For shipment on ${fmtDate(f.clientDate)}, priced on ${fmtTs(pricedOn)} ` +
+         `from the latest available market information and held for ` +
+         `${QUOTE_VALIDITY_HOURS} hours from issue. Rates may be revised after that.`;
 }
 
 function renderQuotationDoc(cf, rec) {
@@ -1102,11 +1112,13 @@ function renderQuotationDoc(cf, rec) {
      saved request awaiting a price, and a save that went through but whose
      issue attempt failed. Each carries its own next action.
 
-     The first is now a backstop rather than a step of the normal flow —
-     prepareClientQuote() saves before it opens this page, from either door.
-     It stays because state.currentForecast can be replaced by code that does
-     not go through that gate, and an unsaved preview must still explain
-     itself rather than silently offering a price with nothing behind it. */
+     Neither of the first two is part of the normal flow any more — a
+     confirmed Generate Client Quotation saves and issues in one press, so a
+     forecast that came through it arrives here already issued. They are
+     reached from the side doors instead: the sidebar's Client Quote Preview
+     link on a forecast nobody has saved, and a Pending row reopened from
+     Forecast History. Each must still explain itself rather than silently
+     offering a price with nothing behind it. */
   if (!rec) {
     el.className = 'quote-doc quote-doc-draft';
     el.innerHTML =
@@ -1284,73 +1296,126 @@ async function saveForecastFromResult() {
   }
 }
 
-/* ===== SAVE-BEFORE-QUOTING GATE =====
-   A quotation is a document about a record, so there has to be a record
-   first. Rather than disabling "Prepare Client Quote" until the forecast is
-   saved — which leaves the user staring at a dead button with no stated
-   reason — the press is honoured by offering the missing step. */
+/* ===== GENERATE CLIENT QUOTATION =====
+   "Generate Client Quotation" on the Forecast Result page is the whole act,
+   not a page change: it saves the request if it has never been saved, issues
+   the quotation, and only then opens the preview. That is why the preview now
+   opens on a stamped reference instead of on a second button that had to be
+   pressed to produce one — the user had already asked for the quotation on
+   the previous page.
+
+   Issuing is irreversible: the price is fixed, and the record closes to edits
+   and deletion. So the press is confirmed first, with the figure about to be
+   fixed named in the dialog. The confirm replaces the old save-before-quoting
+   gate rather than adding to it — still one press and one decision, and an
+   unsaved forecast is saved by the same yes rather than sent back for a
+   separate Save Forecast. */
 function prepareClientQuote() {
   const cf = state.currentForecast;
 
-  /* Nothing generated yet: behave exactly as the link always has and let
-     the preview show its own empty state. */
+  /* Nothing forecast yet: behave exactly as the link always has and let the
+     preview show its own empty state. */
   if (!cf) { navigateTo('client-quote'); return; }
 
-  if (cf.pendingId) { navigateTo('client-quote'); return; }
+  /* Already issued — there is nothing left to generate, so the press just
+     reopens the document it produced. */
+  if (isIssued(currentQuoteRecord())) { navigateTo('client-quote'); return; }
 
-  document.getElementById('save-gate-company').textContent = cf.company;
-  document.getElementById('save-gate-error').classList.add('hidden');
-  const btn = document.getElementById('save-gate-btn');
+  const f = quoteFigures(cf, null);
+  document.getElementById('issue-gate-company').textContent = cf.company;
+  document.getElementById('issue-gate-summary').innerHTML =
+    `<div class="fee-detail-row"><span>Quoting for</span><strong>${fmtDate(f.clientDate)}</strong></div>
+     <div class="fee-detail-row"><span>Containers</span><strong>${f.qty} FEU</strong></div>
+     <div class="fee-detail-row"><span>Client quotation price</span><strong>${fmt(f.clientTotal)}</strong></div>
+     <div class="fee-detail-row"><span>Held for</span><strong>${QUOTE_VALIDITY_HOURS} hours from issue</strong></div>`;
+
+  /* Only shown when there is genuinely a save to mention. */
+  document.getElementById('issue-gate-save-note').classList.toggle('hidden', !!cf.pendingId);
+
+  document.getElementById('issue-gate-error').classList.add('hidden');
+  const btn = document.getElementById('issue-gate-btn');
   btn.disabled = false;
-  btn.textContent = 'Save and Continue';
-  document.getElementById('save-gate-modal').classList.remove('hidden');
+  btn.textContent = 'Generate Quotation';
+  document.getElementById('issue-gate-modal').classList.remove('hidden');
 }
 
-function closeSaveGateModal() {
-  document.getElementById('save-gate-modal').classList.add('hidden');
+function closeIssueGateModal() {
+  document.getElementById('issue-gate-modal').classList.add('hidden');
 }
 
-async function saveAndContinue() {
-  const btn = document.getElementById('save-gate-btn');
-  const err = document.getElementById('save-gate-error');
+/* Save (if needed) and issue, then open the preview. Both failures are
+   reported inside the dialog rather than as an alert, so the decision the
+   user was making is still on screen behind the reason it failed — and a
+   failed issue leaves a saved, still-editable record rather than a half-made
+   document. */
+async function confirmGenerateQuotation() {
+  const cf  = state.currentForecast;
+  const btn = document.getElementById('issue-gate-btn');
+  const err = document.getElementById('issue-gate-error');
+  if (!cf) return;
 
   btn.disabled = true;
-  btn.textContent = 'Saving…';
+  btn.textContent = 'Generating…';
   err.classList.add('hidden');
 
-  if (!await persistForecastRecord()) {
-    /* Reported inside the dialog rather than as an alert, so the choice the
-       user was making is still on screen behind the reason it failed. */
-    err.textContent = 'Could not save this forecast. Check your connection and try again.';
+  const fail = msg => {
+    err.textContent = msg;
     err.classList.remove('hidden');
     btn.disabled = false;
-    btn.textContent = 'Save and Continue';
+    btn.textContent = 'Generate Quotation';
+  };
+
+  /* A quotation is a document about a record, so there has to be a record. */
+  if (!await persistForecastRecord()) {
+    fail('Could not save this forecast. Check your connection and try again.');
+    return;
+  }
+  syncSaveForecastButton();
+
+  state.quoteIssueFailed = false;
+  try {
+    await issueQuotationFor(cf, currentQuoteRecord());
+  } catch (e) {
+    console.error('Failed to issue quotation:', e);
+    fail('The forecast is saved, but the quotation could not be generated. ' +
+         'Check your connection and try again.');
     return;
   }
 
-  closeSaveGateModal();
-  syncSaveForecastButton();
+  closeIssueGateModal();
   navigateTo('client-quote');
 }
 
-/* The Save Forecast button is the only thing on the Forecast Result page
-   that knows whether this forecast exists in history yet, so it has to say
-   so — otherwise pressing it twice looks like it did nothing. */
+/* The two action buttons on the Forecast Result page are the only things
+   there that know how far this forecast has got, so they have to say so —
+   otherwise pressing Save twice looks like it did nothing, and Generate goes
+   on offering to produce a quotation that already exists. */
 function syncSaveForecastButton() {
   const btn  = document.getElementById('save-forecast-btn');
   const note = document.getElementById('save-forecast-note');
+  const qBtn = document.getElementById('generate-quote-btn');
   if (!btn) return;
 
-  const saved = !!state.currentForecast?.pendingId;
+  const saved  = !!state.currentForecast?.pendingId;
+  const rec    = currentQuoteRecord();
+  const issued = isIssued(rec);
+
   btn.disabled = saved;
   btn.innerHTML = saved
     ? `<i data-lucide="check" style="width:15px;height:15px;"></i> Saved to History`
     : `<i data-lucide="save" style="width:15px;height:15px;"></i> Save Forecast`;
 
+  if (qBtn) {
+    qBtn.innerHTML = `<i data-lucide="file-text" style="width:15px;height:15px;"></i> ` +
+      (issued ? 'View Client Quotation' : 'Generate Client Quotation');
+  }
+
   if (note) {
-    note.textContent = saved
-      ? 'Saved to Forecast History as a Pending request — still editable there until a quotation is issued.'
-      : '';
+    note.textContent = issued
+      ? `Quotation ${rec.quoteRef} has been issued — its price is fixed and the record is closed to edits.`
+      : saved
+        ? 'Saved to Forecast History as a Pending request — still editable there until a quotation is issued.'
+        : 'Generating the client quotation saves this request first, then fixes its price for the client.';
   }
   reInitLucide();
 }
@@ -1564,23 +1629,22 @@ async function confirmRecordChoice(status) {
   const cf = state.currentForecast;
   if (!cf) return;
 
-  /* Update the auto-saved Pending record in-place */
+  /* Updates the saved record in place — the decision belongs to the
+     quotation that was issued, not to a new row. */
   await updateHistoryRecord(cf.pendingId, {
     clientDate: cf.clientDate,
     status,
     decision: status === 'Confirmed' ? cf.clientDate : null,
   });
 
-  const isConfirmed = status === 'Confirmed';
-  const statusEl = document.getElementById('decision-status-text');
-  statusEl.textContent = status;
-  statusEl.className   = isConfirmed ? 'status-confirmed' : 'status-pending';
-
-  const btn = document.getElementById('record-btn');
-  btn.disabled = true;
-  btn.style.opacity = '0.65';
-  btn.textContent = 'Choice Recorded';
-  reInitLucide();
+  /* Redrawn from the updated record rather than patched by hand. The old
+     version dimmed the button to 0.65 and relabelled it "Choice Recorded" —
+     an inline style that then stayed on the element for the rest of the
+     session, so the next quotation's Record Client Choice opened already
+     faded, looking pressed before anyone had touched it. Nothing here writes
+     to the button any more: renderClientQuote decides whether it belongs on
+     screen at all, and a recorded decision is reported by the status line. */
+  await renderClientQuote();
 }
 
 function closeRecordModal() {
@@ -2240,10 +2304,31 @@ function deleteHistory(id) {
       } catch (e) {
         /* The database has the final say (schema.sql's delete policy and
            guard). Reword its refusal for the dialog rather than letting the
-           raw failure through. */
+           raw failure through — and word it from the row's actual state. A
+           refusal used to be reported as "a client decision has been recorded
+           against it" whatever the row was, which is simply untrue of a
+           Pending request: those are deletable, so a refusal on one means the
+           row is not what this page thinks it is (already deleted elsewhere,
+           or decided since the table was loaded). */
         e.userMessage = e.blocked
-          ? 'This record can no longer be deleted — a client decision has been recorded against it.'
+          ? (h.status === 'Pending'
+              ? 'The database refused this deletion. This record is no longer what the page ' +
+                'shows — it may have been deleted or decided elsewhere. The table has been reloaded.'
+              : `This record can no longer be deleted — the client ${h.status === 'Cancelled' ? 'cancelled' : 'confirmed'} ` +
+                'it, and a recorded decision is permanent.')
           : 'Could not delete this record. Please check your connection and try again.';
+
+        /* Whatever the reason, the page and the database now disagree about
+           this row, and the page is the one that is wrong. Re-read the table
+           so a failed delete cannot leave a row on screen whose real state
+           nobody has checked. A reload that itself fails changes nothing and
+           must not replace the reason the delete failed. */
+        try {
+          await initHistory();
+          applyHistoryFilters();
+        } catch (reloadErr) {
+          console.error('Could not reload Forecast History after a failed delete:', reloadErr);
+        }
         throw e;
       }
 

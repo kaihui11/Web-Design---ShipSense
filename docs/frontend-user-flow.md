@@ -63,17 +63,19 @@ User opens the app
   Click → "Forecast Estimated Shipping Fee"
         │
         ▼
-[ Client Quote Preview ]  ←── landed on automatically
-  See quoted price (fee + 20% markup)
-  1. "Save Forecast Record"  → writes the Pending row (CREATE)
-  2. "Generate Quotation"    → reference, validity window, locked price
-  Select client's preferred date
+[ Forecast Result ]  ←── landed on automatically
+  ±5 day rate grid, selected vs. cheapest date, saving,
+  day-on-day forecast revision — all internal, never quoted
+  1. "Save Forecast"             → writes the Pending row (CREATE)
+  2. "Generate Client Quotation" → confirm → save (if needed) + issue
+        │
+        ▼
+[ Client Quote Preview ]  ←── opens on the issued document
+  Quotation reference, validity window, locked price
+  Quoted price (fee + 20% markup)
+  Select client's preferred date  (moving it issues a new quotation)
   Record decision (Confirmed / Pending)
   Export PDF if needed
-        │
-        ├──▶ [ Forecast Result ]  ←── sidebar, any time
-        │       ±5 day rate grid, selected vs. cheapest date, saving,
-        │       day-on-day forecast revision — all internal, never quoted
         │
         ▼  (appears in history once saved)
 [ Forecast History ]  ←── accessible any time from sidebar
@@ -193,7 +195,7 @@ At the bottom: a prominent **"Forecast Estimated Shipping Fee"** button.
 4. User enters how many containers they need.
 5. User fills in the client's company name and their own name (used for records).
 6. User clicks the blue forecast button.
-7. App runs the forecast calculation and navigates straight to **Client Quote Preview**. Nothing is written or priced on arrival: the page offers **Save Forecast Record** first, and only once saved does **Generate Quotation** appear. The two are separate presses because they are separate commitments — a saved record can still be edited or deleted from Forecast History, while an issued quotation is a price the client has been given and is locked from that moment. **Forecast Result** holds the internal working behind the number and stays one click away in the sidebar.
+7. App runs the forecast calculation and navigates to **Forecast Result** — the internal working behind the number, reviewed before anything is committed. Nothing is written or priced on arrival. Two buttons sit under the figures: **Save Forecast** writes the Pending record and stays put, while **Generate Client Quotation** confirms, saves if needed, issues the quotation and opens **Client Quote Preview** on the finished document. They are separate because they are separate commitments — a saved record can still be edited or deleted from Forecast History, while an issued quotation is a price the client has been given and is locked from that moment.
 
 ### Logic
 
@@ -259,9 +261,11 @@ A results page with three main sections:
 **Action buttons:**
 - **"Edit Forecast Input"** → goes back to New Forecast (preserves nothing — user re-enters)
 - **"Save Forecast"** (`saveForecastFromResult()`) → writes the request to Forecast History as a Pending, un-issued row and stays on this page. This is the Create step on its own; nothing is priced. Once saved the button reads *Saved to History* and is disabled, with a line underneath confirming the record is still editable.
-- **"Prepare Client Quote"** (`prepareClientQuote()`) → goes to Client Quote Preview. If the forecast has not been saved yet it does **not** navigate: a dialog asks *"This forecast must be saved before preparing a quotation. Save and continue?"*, and **Save and Continue** performs the save then opens the preview. The sidebar's Client Quote Preview link runs the same check, so the page has no unguarded door.
+- **"Generate Client Quotation"** (`prepareClientQuote()`) → the quoting act, not a page change. A dialog asks *"Generate the client quotation?"* and names what is about to be fixed — quoted date, containers, client quotation price, and the 48-hour hold. **Generate Quotation** then saves the forecast if it was never saved, issues the quotation, and opens Client Quote Preview on the stamped document. **Cancel** leaves nothing behind. Once a quotation exists the button reads *View Client Quotation* and simply reopens it.
 
-A quotation is a document about a record, so the record has to exist first. The gate honours the press by offering the missing step rather than disabling the button and leaving the reason unstated.
+A quotation is a document about a record, so the record has to exist first — an unsaved forecast is saved by the same press rather than sent back for a separate one. The confirm is there because issuing is the point of no return: from that moment the price is fixed for 48 hours and the record can no longer be edited or deleted. If the save succeeds but the issue fails, the dialog says so and the record stays saved and editable.
+
+The sidebar's **Client Quote Preview** link is plain navigation — a menu link must not do something irreversible on the way to a page. A forecast reached that way lands on the preview's own draft panel, which offers the missing step.
 
 ### Logic
 
@@ -302,7 +306,7 @@ The analyst's **client-facing pricing workspace**. This is where the internal sh
 
 **Top section:**
 - Same summary bar (Route | ISD | Quantity)
-- **Quotation document block** (`#quote-doc`) — before issue, a grey "Quotation not yet generated / Draft" note; after issue, the quotation reference, date & time issued, valid-until, the quoted price, and the validity statement (*"For shipment on …, priced from market information of … and held for 48 hours from issue. Rates may be revised after that."* — the shipment date is the client's selected date, so it follows the date picker; the market-information date is the forecast run the price came from and only moves when a newer run is ingested; the expiry is stated as a duration rather than repeating the Valid Until timestamp shown above it) with a green **Valid** or red **Expired** badge
+- **Quotation document block** (`#quote-doc`) — normally the issued document, since the quotation is issued before this page opens; through the side doors, a grey *Unsaved* or *Draft* panel carrying the estimated price and the button for the missing step. After issue: the quotation reference, date & time issued, valid-until, the quoted price, and the validity statement (*"For shipment on …, priced on … from the latest available market information and held for 48 hours from issue. Rates may be revised after that."* — the shipment date is the client's selected date, so it follows the date picker; the priced-on date is the issue date, so a client reads when the price was struck rather than the internal date of the forecast run behind it; the expiry is stated as a duration rather than repeating the Valid Until timestamp shown above it) with a green **Valid** or red **Expired** badge
 - Blue info banner: *"Client quotation price is calculated as estimated shipping fee + 20% markup."*
 
 **Three KPI cards:**
@@ -324,17 +328,17 @@ Side-by-side comparison of ISD vs Lowest Nearby Date:
 - A calendar picker restricted to dates present in the 90-day forecast range (`initClientDateCalendar`/`renderClientDateCalendar`) — dates outside the forecast render disabled. **It is never locked**: the shipping date is the client's decision, so it stays usable before and after a quotation is issued. It opens on the client's requested ISD, with the lowest nearby date marked as an option
 - Shows: Estimated Shipping Fee, 20% Markup, **Client Quotation Price** (live update as the user picks a date; frozen once issued)
 - **"Generate New Quotation"** button → only appears once an issued quote has expired
-- **"Record Client Choice"** button → opens a modal. Disabled until the quotation is issued, and removed entirely once a decision has been recorded
+- **"Record Client Choice"** button → opens a modal. Full blue and live for as long as a decision is still outstanding — it is disabled only in the un-issued side-door states, where there is no quotation to decide on — and removed entirely once a decision has been recorded
 - **"Export Quote (PDF)"** button → prints the issued quotation (disabled until issued)
 - **Action hint** above the two buttons, present only when something is unavailable or the record is closed — it names the reason rather than leaving a greyed button unexplained
 - **Decision Status** indicator showing: Pending / Confirmed / Cancelled
 
 ### User Flow
 
-1. User lands here directly from "Forecast Estimated Shipping Fee" — there is no intermediate click.
-2. The quote opens on the client's requested ISD, with the lowest-nearby comparison shown beside it as an option to offer.
-3. **On first open**, a "Pending" history record is automatically created in Supabase's `quote_requests` table, so the quote is tracked even if the analyst closes without recording a decision.
-4. **Immediately after**, that record is issued (`issueQuotationFor()`): the reference, issue time, 48-hour validity window and price are stamped on before any figure is drawn. A later forecast run no longer moves this price. If the write fails, the page still renders on live figures and offers a retry in the quotation document.
+1. User lands here from **Generate Client Quotation** on the Forecast Result page, having already confirmed the issue. Nothing is written or priced on arrival — the record was saved and the quotation issued by that press, so the page opens on a finished document.
+2. The quotation reference, issue time, 48-hour validity window and quoted price are therefore on screen from the first paint. A later forecast run no longer moves this price.
+3. The quote opens on the date the client asked for, with the lowest-nearby comparison shown beside it as an option to offer.
+4. The un-issued states are still reachable through the side doors — the sidebar link on a forecast nobody has saved, a Pending row reopened from Forecast History, or an issue that failed. Each shows its own panel offering the step that is missing (**Save Forecast Record**, **Generate Quotation**, or **Try Again**) with the working figures readable underneath.
 5. User discusses the quote with the client.
 6. If the client wants a different date, the picker still works: confirming the change issues a **new** quotation for the new date (`requoteForDate()`), with its own reference and validity period. The previous quotation stays in History exactly as issued.
 7. User clicks **"Record Client Choice"** → a modal appears.
@@ -646,8 +650,8 @@ HISTORY_DATA:
 | ML route | North Europe → US East Coast only | New Forecast (locked), Executive Dashboard |
 | Login/signup email restriction | must end with `@goodfortune.com` | Login |
 | Signup password rule | password ≥ 8 chars AND matches confirm field | Login |
-| Record created | On pressing "Save Forecast Record" | Client Quote Preview |
-| Quotation issued (price locked) | On pressing "Generate Quotation" | Client Quote Preview |
+| Record created | On pressing "Save Forecast", or as the first half of "Generate Client Quotation" | Forecast Result |
+| Quotation issued (price locked) | On confirming "Generate Client Quotation" | Forecast Result → Client Quote Preview |
 | Scenario elasticity (assumed, not fitted) | 1.8 | Market Impact |
 | Scenario slider range | the exchange rate's own 90-day forecast range (Low/Base/High) | Market Impact |
 

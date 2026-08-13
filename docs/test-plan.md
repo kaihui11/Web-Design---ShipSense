@@ -23,7 +23,9 @@
 
 | # | Test case | Steps | Expected result | Status |
 |---|---|---|---|---|
-| **C1** | Create a forecast record | New Forecast → ISD in range, 10 containers, company, PIC → Forecast Estimated Shipping Fee → Prepare Client Quote → **Save Forecast Record** | Record appears at the top of Forecast History with status *Pending* | ☐ to run |
+| **C1** | Create a forecast record | New Forecast → ISD in range, 10 containers, company, PIC → Forecast Estimated Shipping Fee → **Save Forecast** on the Forecast Result page | Record appears at the top of Forecast History with status *Pending*; the button reads *Saved to History*; nothing is priced | ☐ to run |
+| **C1a** | Generate the quotation in one press | On the Forecast Result page → **Generate Client Quotation** → read the dialog → **Generate Quotation** | Dialog names the quoted date, containers, price and 48-hour hold. Client Quote Preview opens with the **Quotation Reference** section already filled — no second button to press. An unsaved forecast is saved by the same press | ☐ to run |
+| **C1b** | The quotation gate can be refused | **Generate Client Quotation** → **Cancel** | Stays on Forecast Result; no quotation issued; an unsaved forecast is still unsaved | ☐ to run |
 | **C2** | Create rejects empty fields | Leave Company blank → submit | Validation message; nothing written | ☐ to run |
 | **C3** | Create rejects out-of-range ISD | Enter a date before 2026-08-10 | Rejected, range stated in the message | ☐ to run |
 | **C4** | Create via the Contact / Help form | Sidebar → Contact / Help → complete the form → Send | Success message replaces the form; row in `contact_messages` | ☐ to run |
@@ -38,6 +40,8 @@
 | **D2** | Delete asks first | Delete → read the dialog | Names the company; warns it cannot be undone | ☐ to run |
 | **D3** | Delete can be cancelled | Delete → "Keep it" | Row still present | ☐ to run |
 | **D4** | Delete blocked after a decision | Look at the Confirmed row | **No Delete button** | ☐ to run |
+| **D5** | Delete an issued quotation still awaiting an answer | Delete on a row that has a quotation reference and status *Pending* → "Delete permanently" | Dialog names the reference and price; the row disappears from the table **and** from the database (reload to confirm). Verified against the live API on 2026-08-13 | ✅ verified |
+| **D6** | A refused delete leaves nothing misleading | (Requires a row changed elsewhere.) Delete a row that the database will not remove | The dialog stays open with the reason — never "a client decision has been recorded" on a Pending row — and Forecast History re-reads from the database so the table matches it | ☐ to run |
 
 ### Authentication
 
@@ -230,8 +234,8 @@ Number and caption each one — the brief requires captions on every figure.
 **CRUD (Section V)**
 1. New Forecast form, filled in
 2. Validation error on an empty required field
-3. Forecast Result — ±5 day grid with the lowest date marked
-4. Client Quote before saving — "Save Forecast Record" visible
+3. Forecast Result — ±5 day grid with the lowest date marked, "Save Forecast" and "Generate Client Quotation" beneath it
+4. The quotation gate dialog — the price and 48-hour hold named before anything is fixed
 5. Forecast History with the new record at the top ← **Create**
 6. History table, all records ← **Read**
 7. Edit modal open with values loaded
