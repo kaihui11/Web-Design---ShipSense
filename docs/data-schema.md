@@ -123,7 +123,7 @@ Login is backed by real Supabase Auth (see `docs/business-logic.md`), but other 
 
 ## `contact_messages` table (Supabase)
 
-Enquiries submitted from the public Contact page (`frontend/contact.html` → `site.js`). Written with
+Enquiries submitted from the Contact / Help page (`frontend/index.html` → `contact-form.js`). Written with
 the anon key by visitors who are not logged in, which is why this table is shaped differently from
 the other three.
 
@@ -145,8 +145,8 @@ enquiry inbox — names, emails, phone numbers — to anyone who viewed the page
 these in the Supabase dashboard, which authenticates as `service_role` and bypasses RLS.
 
 One consequence worth knowing: an insert here cannot use `Prefer: return=representation`, because
-returning the new row needs the select permission that is deliberately absent. `site.js` sends
+returning the new row needs the select permission that is deliberately absent. `contact-form.js` sends
 `return=minimal` for that reason.
 
-Every browser-side rule in `site.js`'s validator map is declared again as a CHECK constraint,
+Every browser-side rule in `contact-form.js`'s validator map is declared again as a CHECK constraint,
 because a bot that never loads the page can POST straight to PostgREST with the public key.

@@ -1,74 +1,5 @@
 /* ===================================================================
-   PUBLIC SITE  — index.html / about.html / contact.html
-
-   Everything the three public pages need, in one file: the mobile
-   navigation, the footer year, and the Contact form's validation and
-   submission.
-
-   Deliberately independent of app.js. The public pages are the part of
-   the site a stranger sees, so they load no forecast data, no auth
-   client and no icon CDN — a broken network leaves them fully readable.
-   The only network call anywhere here is the one that posts a contact
-   message, and it happens on submit, never on load.
-   =================================================================== */
-
-/* ===================================================================
-   NAVIGATION
-   The header nav is a normal row on desktop and a drop-down panel under
-   the logo on narrow screens; which of the two is in play is decided
-   entirely in CSS. This only tracks whether the panel is open.
-   =================================================================== */
-(function initNav() {
-  const toggle = document.getElementById('site-nav-toggle');
-  const nav    = document.getElementById('site-nav');
-  if (!toggle || !nav) return;
-
-  function setOpen(open) {
-    nav.classList.toggle('open', open);
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
-  }
-
-  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
-
-  /* An in-page link (Home's "See how it works") scrolls without a
-     reload, so nothing else would close the panel it scrolled behind. */
-  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && nav.classList.contains('open')) {
-      setOpen(false);
-      toggle.focus();
-    }
-  });
-
-  /* Widening past the breakpoint turns the panel back into a plain row.
-     CSS handles the layout, but .open would otherwise survive the resize
-     and leave the menu "open" with nothing to close. The 900 here is the
-     breakpoint in style.css. */
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 900) setOpen(false);
-  });
-})();
-
-/* Sticky header gets its shadow only once there is content behind it. */
-(function initHeaderShadow() {
-  const header = document.getElementById('site-header');
-  if (!header) return;
-  const sync = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
-  sync();
-  window.addEventListener('scroll', sync, { passive: true });
-})();
-
-/* The copyright year is the one thing on a static page guaranteed to be
-   wrong eventually, so it is filled in rather than typed. */
-(function initYear() {
-  const el = document.getElementById('site-year');
-  if (el) el.textContent = String(new Date().getFullYear());
-})();
-
-/* ===================================================================
-   CONTACT FORM
+   CONTACT / HELP FORM  — the Contact page inside the app
 
    Validation rules live in one map keyed by field id. Each returns an
    error string, or '' when the value is acceptable. Keeping them
@@ -79,10 +10,16 @@
    supabase/schema.sql. Not redundancy: the anon key can POST to the
    table directly over PostgREST without ever loading this page, so the
    database has to be able to refuse a bad row on its own.
+
+   Kept out of app.js deliberately. Nothing here touches the forecast,
+   the quote history or the auth client — contact_messages is a separate
+   table with a separate shape, and this is the only code that writes to
+   it. The form markup is present from first paint (hidden with its
+   page), so the one-time wiring below can run on load.
    =================================================================== */
 (function initContactForm() {
   const form = document.getElementById('contact-form');
-  if (!form) return;                    /* not the Contact page */
+  if (!form) return;
 
   const TOPICS = ['quote', 'shipment', 'platform', 'partnership', 'other'];
   const MESSAGE_MIN = 20;
@@ -224,7 +161,7 @@
     /* Focus first, so the confirmation is what a screen reader reads next
        — but without the scroll focus() would do on its own, which parks
        the panel's own top edge at the viewport top and therefore under
-       the sticky header. Scrolling the whole card instead (with the
+       the sticky app header. Scrolling the whole card instead (with the
        scroll-margin in style.css clearing the header) shows the
        confirmation in one piece. */
     ok.focus({ preventScroll: true });
@@ -235,8 +172,7 @@
   /* ── Submission ──
      Posts straight to PostgREST rather than through the supabase-js
      client, matching how the rest of this project writes rows (see
-     insertHistoryRecord in app.js) and keeping the public pages free of
-     the auth SDK they otherwise have no use for.
+     insertHistoryRecord in app.js).
 
      `return=minimal` is not an optimisation: contact_messages has an
      insert policy but deliberately no select policy, so nobody holding
