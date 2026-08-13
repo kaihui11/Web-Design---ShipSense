@@ -8,7 +8,8 @@
 -- Safe to re-run: the forecast snapshot for a given run day is
 -- replaced rather than duplicated (mirroring pkl_to_json.py),
 -- historical days upsert on their primary key, and the sample
--- quote records are only inserted when that table is empty.
+-- quote and contact records are only inserted when their table
+-- is empty.
 
 begin;
 
@@ -2202,6 +2203,26 @@ if not exists (select 1 from quote_requests) then
     ('Pacific Rim Logistics', 'Chen Wei Ming', 'ne-usec', '2026-09-07', 15, 2691.26, '2026-09-08', 2682.64, '2026-09-08', 'Pending', NULL, 'SSQ-20260807-0003', '2026-08-07T00:00:00Z', '2026-08-09T00:00:00Z', 2682.64, 48287.52, '2026-08-07T00:00:00Z'),
     ('Atlantic Cargo Services', 'Michael Tan', 'ne-usec', '2026-09-15', 40, 2731.93, '2026-09-08', 2682.64, '2026-09-08', 'Confirmed', '2026-09-08', 'SSQ-20260807-0004', '2026-08-07T00:00:00Z', '2026-08-09T00:00:00Z', 2682.64, 128766.72, '2026-08-07T00:00:00Z'),
     ('Northern Star Shipping', 'Aisyah Rahman', 'ne-usec', '2026-08-26', 8, 2703.23, '2026-09-01', 2694.32, '2026-08-26', 'Cancelled', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+end if;
+end $$;
+
+-- ── contact_messages (sample records) ────────────────────────
+-- Two enquiries, so the inbox in the Supabase dashboard is not
+-- empty on a fresh install and shows what `company` now holds:
+-- the client the enquiry is about, blank when there isn't one.
+-- The senders are staff, because the form sits behind the login.
+--
+-- The guard reads the table, which the anon key cannot do (no
+-- select policy). That is fine here: seed.sql is run from the
+-- SQL editor, which authenticates as service_role.
+do $$
+begin
+if not exists (select 1 from contact_messages) then
+  insert into contact_messages (full_name, email, company, phone, topic, message, consent_given) values
+    ('Ahmad Rizal', 'ahmad.rizal@goodfortune.com', 'Global Marine Sdn Bhd', '+60 12 345 6789', 'quote',
+     'Global Marine are asking whether the 10 FEU booking can move a week later than the ISD we forecast. Can the desk confirm the rate still holds if they sail on 24 August?', true),
+    ('Siti Nurhaliza', 'siti.nurhaliza@goodfortune.com', NULL, NULL, 'platform',
+     'The Executive Dashboard KPI cards look a day behind the Forecast History table after this morning''s run. Nothing urgent, but worth a look before the Monday review.', true);
 end if;
 end $$;
 

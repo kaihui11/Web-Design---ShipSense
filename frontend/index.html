@@ -1767,9 +1767,17 @@
 
                 <div class="cf-row">
                   <div class="field-group">
-                    <label class="field-label" for="cf-company">Company</label>
-                    <input type="text" id="cf-company" class="text-input text-input-plain" autocomplete="organization"
-                           placeholder="Optional" aria-describedby="cf-company-error" />
+                    <!-- The client, not the sender. Everyone who can reach this page
+                         works at Good Fortune, so asking for "your company" would
+                         collect the same constant every time; the customer the
+                         enquiry is about is what the freight desk actually needs.
+                         autocomplete is off for the same reason — the browser would
+                         offer the sender's own employer. -->
+                    <label class="field-label" for="cf-company">Client company</label>
+                    <input type="text" id="cf-company" class="text-input text-input-plain" autocomplete="off"
+                           placeholder="Optional, e.g. Global Marine Sdn Bhd"
+                           aria-describedby="cf-company-hint cf-company-error" />
+                    <p class="field-hint" id="cf-company-hint">The customer this enquiry is about, if any.</p>
                     <p class="cf-error hidden" id="cf-company-error"></p>
                   </div>
 
