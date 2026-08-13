@@ -27,15 +27,15 @@ ShipSense is an **internal logistics cost-forecasting web application** built fo
           │
           ▼
 [Frontend — Static SPA]
-  app.html + style.css + app.js
-  (index/about/contact.html are the public pages; they load none of this)
+  index.html + style.css + app.js (+ contact-form.js, exec-*.js, market-impact.js)
   Loads the latest forecast snapshot from Supabase on page load
   Stores forecast history in Supabase's quote_requests table
           │
           ▼
-[7 Views — Single Page Application]
+[Login screen + 9 views — Single Page Application]
   All views exist in the DOM simultaneously.
   navigateTo(viewId) shows/hides them.
+  Nothing but the login screen is reachable without an account.
 ```
 
 **No custom backend server.** The app is a static SPA that talks directly to Supabase's PostgREST API for forecast data, historical actuals, and quote history — see [docs/data-pipeline.md](data-pipeline.md). None of these have any other data source; if Supabase is unreachable or unconfigured, the affected page/tab simply has no data.
@@ -48,16 +48,22 @@ ShipSense is an **internal logistics cost-forecasting web application** built fo
 User opens the app
         │
         ▼
-[ Page 1: Login ]
+[ Login / Register ]
   Enter email + password → Sign In
         │
         ▼
-[ Page 2: New Forecast ]  ←──────────── (can return to edit)
+[ Home ]  ←── the landing page after sign-in
+  What the system is, the accuracy figures, the workflow, the lane
+  Sidebar reaches everything else; About and Contact / Help sit
+  either side of the working pages and are readable at any time
+        │
+        ▼
+[ New Forecast ]  ←──────────── (can return to edit)
   Fill in: ISD date, containers, company, PIC
   Click → "Forecast Estimated Shipping Fee"
         │
         ▼
-[ Page 4: Client Quote Preview ]  ←── landed on automatically
+[ Client Quote Preview ]  ←── landed on automatically
   See quoted price (fee + 20% markup)
   1. "Save Forecast Record"  → writes the Pending row (CREATE)
   2. "Generate Quotation"    → reference, validity window, locked price
@@ -65,24 +71,27 @@ User opens the app
   Record decision (Confirmed / Pending)
   Export PDF if needed
         │
-        ├──▶ [ Page 3: Forecast Result ]  ←── sidebar, any time
+        ├──▶ [ Forecast Result ]  ←── sidebar, any time
         │       ±5 day rate grid, selected vs. cheapest date, saving,
         │       day-on-day forecast revision — all internal, never quoted
         │
         ▼  (appears in history once saved)
-[ Page 5: Forecast History ]  ←── accessible any time from sidebar
-  View, filter, cancel past records
+[ Forecast History ]  ←── accessible any time from sidebar
+  View, filter, edit, delete and cancel past records
 
-[ Page 6: Executive Dashboard ]  ←── accessible any time from sidebar
+[ Executive Dashboard ]  ←── accessible any time from sidebar
   90-day macro view, chart, booking calendar, stress monitor
 
-[ Page 7: Market Impact ]  ←── accessible any time from sidebar
+[ Market Impact ]  ←── accessible any time from sidebar
   Exchange-rate scenario slider vs the 90-day forecast. Illustrative only
+
+[ Contact / Help ]  ←── accessible any time from sidebar
+  Five common answers, the freight desk's details, an enquiry form
 ```
 
 ---
 
-## Page 1 — Login
+## Page 1 — Login / Register
 
 ### What the user sees
 
@@ -92,11 +101,11 @@ A split-screen login page:
 
 ### User Flow
 
-1. User opens `app.html` in a browser — usually via **Sign In** in the public site's header.
+1. User opens the site in a browser. `index.html` is the whole system, and the login screen is what it opens on — there is no public page in front of it.
 2. The app immediately fetches the latest forecast snapshot from Supabase in the background (populating the 90-day rate data). **Every visit starts here** — sessions are not persisted, so there is no auto-login and no way to land on the workspace without entering credentials. The Login button stays disabled until the forecast data has loaded.
 3. A first-time user clicks "Create one" to switch to the sign-up form, enters their name, `@goodfortune.com` email, and password (8+ characters, confirmed), and clicks **Create account**. Depending on the project's email-confirmation setting, this either logs them straight in or asks them to confirm via email first.
 4. A returning user types their `@goodfortune.com` email and password and clicks **Login**.
-5. If valid → the login screen disappears; the main app (sidebar + pages) slides in; the user lands on **New Forecast**.
+5. If valid → the login screen disappears; the main app (sidebar + pages) slides in; the user lands on **Home**.
 6. If invalid → a red error banner appears with the reason (wrong domain, wrong credentials, passwords not matching, etc.).
 
 ### Logic
@@ -137,7 +146,30 @@ This page establishes that ShipSense is an **internal tool for authorized users 
 
 ---
 
-## Page 2 — New Forecast
+## Page 2 — Home & About
+
+### What it looks like
+
+Two reading pages, both reached from the sidebar's **Overview** group, both laid out full-bleed rather than as cards: a dark hero, then banded sections of prose, cards and tables.
+
+- **Home** opens on the value proposition and two buttons — *Start a new forecast* and *See how it works*. Below that: a stat band (90-day horizon, 98.9% hold-out R², 1.45% MAPE, 2,149 training days, each dated to the model run they came from), six cards covering what the system does, the three-step workflow, and a panel describing the single lane it forecasts.
+- **About** covers the company, what is actually under the forecast (data, method, validation, plus the hold-out accuracy table for all three targets), a section titled "What ShipSense does not claim", and the four rules the system is held to.
+
+### User Flow
+
+1. Signing in lands here — `completeLogin()` calls `navigateTo('home')`.
+2. Every link on both pages goes to another view in the same app. Nothing leaves the workspace, so `navigateTo()` is the only navigation primitive in play; the one exception is Home's *See how it works*, which is an in-page jump via `scrollToSection('home-how')`.
+3. Both pages read nothing from Supabase. Their figures are printed with the model-run date they were measured on, precisely because a static page cannot know when the model was last retrained.
+
+### Why this matters for the presentation
+
+These two pages are where the system explains itself, and they are deliberately *inside* the login rather than in front of it. Home describes the internal workflow screen by screen and About publishes the model's error bars and its limits — that is documentation for a signed-in user, not a shop window for a stranger. Keeping them in also means there is exactly one navigation shell in the whole product, which is what makes "consistent navigation across all pages" true rather than aspirational. See §5 of [assessment-mapping.md](assessment-mapping.md).
+
+**Worth quoting in the report:** the "What ShipSense does not claim" section. A forecasting tool that states on screen where its numbers stop being trustworthy is making a harder claim than one that doesn't.
+
+---
+
+## Page 3 — New Forecast
 
 ### What the user sees
 
@@ -201,7 +233,7 @@ The `ROUTES` config in `app.js` carries a `scale` field (currently `1.00` for th
 
 ---
 
-## Page 3 — Forecast Result
+## Page 4 — Forecast Result
 
 Reached from the sidebar rather than in sequence: generating a forecast lands on the Client Quote. This page is the internal working behind that quote — the window it was picked from and how the prediction has moved — and none of it is client-facing.
 
@@ -262,7 +294,7 @@ This page is the core **decision support output**. The analyst sees immediately:
 
 ---
 
-## Page 4 — Client Quote Preview
+## Page 5 — Client Quote Preview
 
 ### What the user sees
 
@@ -356,7 +388,7 @@ This is the **commercial interface** of the system. It bridges the ML output (a 
 
 ---
 
-## Page 5 — Forecast History
+## Page 6 — Forecast History
 
 ### What the user sees
 
@@ -437,7 +469,7 @@ This page gives the team an **operational audit trail**. Every forecast ever run
 
 ---
 
-## Page 6 — Executive Dashboard
+## Page 7 — Executive Dashboard
 
 The dashboard has two tabs: **Forecast** and **Historical Data** (`switchExecTab()` in `app.js`, panels rendered by `frontend/exec-dashboard-panels.js` via `window.ExecPanels.onTabShown(tab)`). Both are read-only, macro-level views for **managers**, not the per-quote workflow of Pages 2–5.
 
@@ -504,7 +536,7 @@ This page is aimed at **decision-makers who need a strategic view**, not a singl
 
 ---
 
-## Page 7 — Market Impact
+## Page 8 — Market Impact
 
 Rendered by `frontend/market-impact.js` (`window.MarketImpact.render()`, called from `navigateTo`), using the shared `ss-*` card/chart components. It re-renders on every visit rather than initialising once, so a newer forecast run is simulated against instead of a stale one.
 
@@ -553,6 +585,25 @@ If a genuinely model-driven version is ever wanted, the clean route is the train
 ### Why this matters for the presentation
 
 It shows the system can be interrogated — "what if the euro strengthens 10%?" — rather than only producing a single number. It also demonstrates knowing the difference between what the model actually establishes and what is being assumed on top of it, and saying so on the screen rather than in a footnote.
+
+---
+
+## Page 9 — Contact / Help
+
+### What it looks like
+
+A dark page header, then two halves. **Getting unstuck** is five collapsed `<details>` answers — the ISD range being rejected, why a record can't be edited or deleted, why the quoted price differs from the forecast, what "no data" means, and why the Market Impact slider can't price a quote. Each answer names the page to go to and links straight to it. Below that, the freight desk's office, phone and two email addresses, a note on what to include when reporting a fault, and the enquiry form.
+
+### User Flow
+
+1. The form validates in JavaScript on submit, then live per-field once the user has been told something is wrong — see `attempted` in `contact-form.js`. Name, email, topic, message and the consent checkbox are required; company and phone are optional but still validated when filled.
+2. A valid submission `POST`s to `contact_messages` over PostgREST with `Prefer: return=minimal` — the table has an insert policy and deliberately **no** select policy, so asking for the inserted row back would be refused.
+3. On success the form is replaced by a confirmation panel with a *Send another message* button, rather than a banner above a form that still looks unsent.
+4. A hidden honeypot field drops bot submissions behind the ordinary success screen; reporting the rejection would only teach the bot to skip the field.
+
+### Why this matters for the presentation
+
+Two things. First, it is the project's **second CRUD entity**: `contact_messages` is a different table with a different shape and a different policy set from `quote_requests`, which is a stronger demonstration than a second insert into the same table. Second, every rule in `contact-form.js`'s validator map is declared again as a CHECK constraint in `schema.sql` — the anon key can POST to the table without ever loading this page, so the database has to be able to refuse a bad row on its own.
 
 ---
 

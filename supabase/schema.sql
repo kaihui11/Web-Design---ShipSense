@@ -331,18 +331,18 @@ create policy "Public read access"
     using (true);
 
 -- ---------------------------------------------------------------------
--- contact_messages: enquiries submitted from the public Contact page
--- (frontend/contact.html + frontend/site.js). Unlike every other table
--- here, the writer is a stranger on the open internet rather than a
--- member of staff, and that changes two things.
+-- contact_messages: enquiries submitted from the Contact / Help page
+-- (frontend/index.html + frontend/contact-form.js). Two things about this
+-- table differ from every other one here.
 --
 -- First, the direction of access is reversed. The tables above are
 -- public-read; this one is public-*write* and not readable at all with
 -- the anon key — see the policies below. Second, nothing client-side can
--- be trusted, so every rule site.js applies in the browser is declared
--- again here as a constraint. A bot that never loads the page can POST
--- straight to PostgREST with the (already-public) anon key; these
--- constraints are what actually stops it storing junk.
+-- be trusted, so every rule contact-form.js applies in the browser is
+-- declared again here as a constraint. The page now sits behind a login,
+-- but the anon key it posts with is still shipped to every browser, so a
+-- bot that never loads the page can POST straight to PostgREST with it;
+-- these constraints are what actually stops it storing junk.
 create table if not exists contact_messages (
     id            bigint generated always as identity primary key,
     full_name     text        not null,
@@ -361,7 +361,7 @@ create table if not exists contact_messages (
 create index if not exists idx_contact_messages_created
     on contact_messages (created_at desc);
 
--- Field validity — the server-side half of the rules in site.js's
+-- Field validity — the server-side half of the rules in contact-form.js's
 -- VALIDATORS map. ADD CONSTRAINT has no IF NOT EXISTS, so each is guarded
 -- by a pg_constraint lookup to keep this file re-runnable.
 do $$
@@ -422,8 +422,8 @@ alter table contact_messages enable row level security;
 --
 -- One consequence worth knowing: an insert here cannot use PostgREST's
 -- `Prefer: return=representation`, because returning the new row would
--- require the select permission that is deliberately absent. site.js
--- sends `return=minimal` for exactly this reason.
+-- require the select permission that is deliberately absent.
+-- contact-form.js sends `return=minimal` for exactly this reason.
 drop policy if exists "Public insert access" on contact_messages;
 create policy "Public insert access"
     on contact_messages

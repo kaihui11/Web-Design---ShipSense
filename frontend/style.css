@@ -160,23 +160,6 @@ input:focus, select:focus { outline: none; }
 }
 .login-card { width: 100%; }
 
-/* Way back out to the public site. Positioned out of the flex flow rather
-   than added to it, so the sign-in card stays optically centred in the
-   panel instead of being pushed down by a link above it. */
-.login-back-link {
-  position: absolute;
-  top: 22px;
-  left: 44px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #64748b;
-  transition: color 0.15s;
-}
-.login-back-link:hover { color: #2563eb; }
-.login-back-link svg { width: 15px; height: 15px; }
 
 .login-title {
   font-size: 28px;
@@ -555,6 +538,20 @@ input:focus, select:focus { outline: none; }
   overflow-y: auto;
 }
 
+/* Group heading in the sidebar. Nine destinations is past the point where a
+   flat list is read as a list rather than scanned as a wall, and the groups
+   also make the shape of the system visible: overview, doing the work,
+   looking back at it, getting help. */
+.nav-group-label {
+  padding: 14px 12px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: #475569;
+}
+.nav-group-label:first-child { padding-top: 4px; }
+
 .nav-item {
   display: flex;
   align-items: center;
@@ -662,9 +659,13 @@ input:focus, select:focus { outline: none; }
 }
 .dropdown-item:hover { background: #f8fafc; }
 
-/* ── Page area ── */
+/* ── Page area ──
+   The padding is a custom property rather than a literal because .page-full
+   below has to cancel exactly as much of it as the current breakpoint applied
+   — see the three overrides in the responsive section. */
 .page-area {
-  padding: 24px;
+  --page-pad: 24px;
+  padding: var(--page-pad);
   flex: 1;
 }
 .page {
@@ -673,6 +674,20 @@ input:focus, select:focus { outline: none; }
   gap: 20px;
   max-width: 1280px;
 }
+
+/* Home / About / Contact. These grew out of full-width marketing pages and
+   still read that way: dark hero, banded sections, edge-to-edge colour. The
+   negative margin pulls them back out through the page padding so a section
+   background reaches the window edge instead of floating in a 24px gutter. */
+.page-full {
+  max-width: none;
+  gap: 0;
+  margin: calc(var(--page-pad) * -1);
+}
+/* The sizes these three pages are typeset at live with the rules themselves,
+   further down. They are a step smaller than a standalone marketing page would
+   use: there is already a header and a sidebar framing the content, so the
+   larger spacing reads as a gap rather than as breathing room. */
 
 .page-header { }
 .page-title { font-size: 26px; font-weight: 700; color: #0f172a; }
@@ -1851,7 +1866,7 @@ body.nav-open { overflow: hidden; }
 
 /* ── Small desktop / large tablet ── */
 @media (max-width: 1280px) {
-  .page-area { padding: 20px; }
+  .page-area { --page-pad: 20px; }
   .page { max-width: 100%; }
   .four-col-cards { gap: 12px; }
 }
@@ -1891,7 +1906,7 @@ body.nav-open { overflow: hidden; }
 
 /* ── Small tablet / large phone ── */
 @media (max-width: 768px) {
-  .page-area { padding: 16px; }
+  .page-area { --page-pad: 16px; }
   .page { gap: 16px; }
   .page-title { font-size: 21px; }
   .page-desc  { font-size: 13px; }
@@ -1910,7 +1925,6 @@ body.nav-open { overflow: hidden; }
     padding: 60px 20px 32px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
   }
-  .login-back-link { top: 20px; left: 20px; }
   .login-left-content { padding: 28px 24px; }
   .login-hero h1 { font-size: 27px; }
   .login-hero p  { font-size: 13.5px; max-width: none; }
@@ -1954,7 +1968,7 @@ body.nav-open { overflow: hidden; }
 
 /* ── Phone ── */
 @media (max-width: 480px) {
-  .page-area { padding: 12px; }
+  .page-area { --page-pad: 12px; }
   .page-title { font-size: 19px; }
   .app-header { height: 54px; padding: 0 12px; }
 
@@ -2012,18 +2026,18 @@ body.nav-open { overflow: hidden; }
 }
 
 /* ============================================================
-   PUBLIC SITE  —  index.html / about.html / contact.html
+   CONTENT PAGES  —  Home / About / Contact-Help
 
-   The pre-login marketing pages. They share this stylesheet with the app
-   rather than carrying their own so the two halves of the product cannot
-   drift apart: same Inter stack, same navy-to-blue palette, same 8px
+   These three began as standalone marketing pages and kept their shape
+   when they moved inside the app: full-bleed sections, a dark hero, and
+   prose measured for reading rather than for scanning a table. They share
+   this stylesheet with the rest of the app so the two registers cannot
+   drift apart — same Inter stack, same navy-to-blue palette, same 8px
    radii, same 1.5px slate borders.
 
-   Everything below is namespaced (.site-*, .hero-*, .cf-*) or scoped to
-   body.public-page, so none of it can reach the app's screens.
+   Everything below is namespaced (.site-*, .hero-*, .cf-*), so none of it
+   can reach the forecast, dashboard or history screens.
    ============================================================ */
-
-.public-page { background: #ffffff; }
 
 .site-container {
   width: 100%;
@@ -2031,70 +2045,6 @@ body.nav-open { overflow: hidden; }
   margin: 0 auto;
   padding: 0 24px;
 }
-
-/* ── Header ── */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e2e8f0;
-}
-/* The border alone reads as a seam on an unscrolled page; the shadow is
-   only meaningful once there is content passing underneath. */
-.site-header.is-scrolled { box-shadow: 0 4px 18px rgba(15, 23, 42, 0.07); }
-
-.site-header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  height: 72px;
-}
-
-.site-brand { display: flex; align-items: center; gap: 11px; }
-.site-brand-text { display: flex; flex-direction: column; line-height: 1.2; }
-.site-brand-name { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
-.site-brand-tag  { font-size: 11px; color: #64748b; font-weight: 500; }
-
-.site-nav { display: flex; align-items: center; gap: 4px; }
-
-.site-nav-link {
-  padding: 9px 14px;
-  border-radius: 8px;
-  font-size: 14.5px;
-  font-weight: 500;
-  color: #475569;
-  transition: background 0.15s, color 0.15s;
-}
-.site-nav-link:hover { background: #f1f5f9; color: #1e293b; }
-.site-nav-link.is-active { color: #1d4ed8; font-weight: 600; }
-
-.site-nav-cta {
-  margin-left: 8px;
-  padding: 10px 20px;
-  border-radius: 8px;
-  background: #2563eb;
-  color: #ffffff;
-  font-size: 14.5px;
-  font-weight: 600;
-  transition: background 0.15s;
-}
-.site-nav-cta:hover { background: #1d4ed8; }
-
-.site-nav-toggle {
-  display: none;
-  width: 42px;
-  height: 42px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  border: 1.5px solid #e2e8f0;
-  color: #334155;
-}
-.site-nav-toggle svg { width: 22px; height: 22px; }
-.site-nav-toggle:hover { background: #f8fafc; }
 
 /* ── Buttons ── */
 .btn-hero-primary,
@@ -2146,7 +2096,7 @@ body.nav-open { overflow: hidden; }
   overflow: hidden;
   background: linear-gradient(160deg, #0b1530 0%, #0f1e4a 45%, #1a3080 100%);
   color: #ffffff;
-  padding: 96px 0 104px;
+  padding: 66px 0 74px;
 }
 /* Offset down and out rather than pinned to the corner: at top:0 the arcs
    land in the header's shadow and read as a stray line. Placed here the
@@ -2187,8 +2137,8 @@ body.nav-open { overflow: hidden; }
 
 .hero-title {
   margin-top: 26px;
-  font-size: 54px;
-  line-height: 1.08;
+  font-size: 44px;
+  line-height: 1.1;
   font-weight: 800;
   letter-spacing: -1.4px;
 }
@@ -2237,7 +2187,7 @@ body.nav-open { overflow: hidden; }
 }
 
 /* ── Generic section ── */
-.site-section { padding: 84px 0; }
+.site-section { padding: 64px 0; }
 .site-section-alt { background: #f8fafc; border-block: 1px solid #eef2f7; }
 
 .section-head { max-width: 700px; margin-bottom: 46px; }
@@ -2445,11 +2395,11 @@ body.nav-open { overflow: hidden; }
 .page-hero {
   background: linear-gradient(160deg, #0b1530 0%, #14285e 100%);
   color: #ffffff;
-  padding: 58px 0 66px;
+  padding: 46px 0 54px;
 }
 .page-hero h1 {
   margin-top: 18px;
-  font-size: 40px;
+  font-size: 34px;
   font-weight: 800;
   letter-spacing: -1px;
   line-height: 1.15;
@@ -2559,6 +2509,58 @@ body.nav-open { overflow: hidden; }
 .limit h3 { font-size: 16px; font-weight: 700; color: #0f172a; }
 .limit p  { margin-top: 8px; font-size: 14.5px; line-height: 1.65; color: #64748b; }
 
+/* ── Help (Contact page) ──
+   Native <details>, not a scripted accordion: it is searchable with the
+   browser's own find, it opens with no JavaScript at all, and it prints
+   expanded. Five answers is short enough that closed-by-default costs
+   nothing and long enough that five open answers would be a wall. */
+.help-list {
+  display: grid;
+  gap: 12px;
+  max-width: 860px;
+}
+.help-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 4px 20px;
+}
+.help-item[open] { border-color: #cbd5e1; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05); }
+.help-item summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 0;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.help-item summary::-webkit-details-marker { display: none; }
+/* Rotating plus rather than a chevron image: one character, no request, and
+   the transform makes the open/closed state read at a glance. */
+.help-item summary::after {
+  content: '+';
+  flex-shrink: 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  color: #2563eb;
+  transition: transform 0.18s ease;
+}
+.help-item[open] summary::after { transform: rotate(45deg); }
+.help-item summary:hover { color: #1d4ed8; }
+.help-item summary:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; border-radius: 6px; }
+.help-item > p {
+  padding: 0 0 16px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #64748b;
+  max-width: 68ch;
+}
+
 /* ── Contact ── */
 .contact-layout {
   display: grid;
@@ -2599,10 +2601,10 @@ body.nav-open { overflow: hidden; }
   border-radius: 16px;
   padding: 34px 32px;
   box-shadow: 0 10px 34px rgba(15, 23, 42, 0.05);
-  /* Anything scrolled to the top of the viewport lands under the 72px
-     sticky header. This is the offset site.js relies on when it scrolls
-     the card up to reveal the sent-message confirmation. */
-  scroll-margin-top: 92px;
+  /* Anything scrolled to the top of the viewport lands under the 58px
+     sticky app header. This is the offset contact-form.js relies on when
+     it scrolls the card up to reveal the sent-message confirmation. */
+  scroll-margin-top: 78px;
 }
 .contact-form-title { font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.4px; }
 .contact-form-sub   { margin: 7px 0 26px; font-size: 14px; color: #64748b; }
@@ -2704,67 +2706,10 @@ select.text-input-plain {
 .cf-success h3 { margin-top: 18px; font-size: 20px; font-weight: 700; color: #0f172a; }
 .cf-success p  { margin: 10px auto 22px; max-width: 380px; font-size: 14.5px; line-height: 1.65; color: #64748b; }
 
-/* ── Footer ── */
-.site-footer {
-  background: #0b1530;
-  color: #cbd5e1;
-  padding: 56px 0 26px;
-}
-.site-footer-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.3fr);
-  gap: 44px;
-  padding-bottom: 38px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-}
-.site-footer-brand > p {
-  margin-top: 18px;
-  max-width: 380px;
-  font-size: 13.5px;
-  line-height: 1.7;
-  color: #94a3b8;
-}
-.site-footer .site-brand-tag { color: #64748b; }
-
-.site-footer-col h4 {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.9px;
-  color: #ffffff;
-  margin-bottom: 16px;
-}
-.site-footer-col a {
-  display: block;
-  font-size: 14px;
-  color: #94a3b8;
-  padding: 5px 0;
-  transition: color 0.15s;
-}
-.site-footer-col a:hover { color: #ffffff; }
-.site-footer-col p {
-  font-size: 14px;
-  line-height: 1.75;
-  color: #94a3b8;
-  margin-bottom: 14px;
-}
-.site-footer-col p a { display: inline; padding: 0; }
-
-.site-footer-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding-top: 22px;
-  font-size: 12.5px;
-  color: #64748b;
-}
-
-/* ── Public site: responsive ──
-   Three moves, at the widths each layout actually breaks: the nav becomes
-   a drop-down panel, the two-column layouts stack, and the type comes
-   down a step.
+/* ── Content pages: responsive ──
+   Two moves, at the widths each layout actually breaks: the two-column
+   layouts stack, and the type comes down a step. The navigation is the
+   app's own sidebar and is handled with the rest of the app chrome.
    ============================================================ */
 
 @media (max-width: 1000px) {
@@ -2777,35 +2722,13 @@ select.text-input-plain {
   .limit-list { gap: 24px 30px; }
 }
 
-/* Nav collapses here: below this the four items plus the wordmark no
-   longer fit on one line without crowding the logo. */
 @media (max-width: 900px) {
-  .site-nav-toggle { display: inline-flex; }
-  .site-nav {
-    display: none;
-    position: absolute;
-    top: 72px;
-    left: 0;
-    right: 0;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 2px;
-    padding: 12px 24px 20px;
-    background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
-    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
-  }
-  .site-nav.open { display: flex; }
-  .site-header-inner { position: relative; }
-  .site-nav-link { padding: 13px 12px; font-size: 15px; }
-  .site-nav-cta { margin: 8px 0 0; padding: 13px 20px; text-align: center; }
-
-  .hero { padding: 72px 0 80px; }
-  .hero-title { font-size: 42px; letter-spacing: -1px; }
+  .hero { padding: 58px 0 64px; }
+  .hero-title { font-size: 38px; letter-spacing: -1px; }
   .hero-worldmap { opacity: 0.4; width: 90%; }
-  .site-section { padding: 64px 0; }
+  .site-section { padding: 52px 0; }
   .section-title { font-size: 28px; }
-  .page-hero h1 { font-size: 33px; }
+  .page-hero h1 { font-size: 30px; }
 }
 
 @media (max-width: 768px) {
@@ -2817,17 +2740,16 @@ select.text-input-plain {
   .card-grid-2,
   .card-grid-3 { grid-template-columns: 1fr; }
   .cta-inner { flex-direction: column; align-items: flex-start; }
-  .site-footer-grid { grid-template-columns: 1fr; gap: 34px; }
   .contact-form-card { padding: 26px 22px; }
 }
 
 @media (max-width: 560px) {
-  .hero { padding: 56px 0 64px; }
-  .hero-title { font-size: 33px; letter-spacing: -0.7px; }
+  .hero { padding: 46px 0 52px; }
+  .hero-title { font-size: 31px; letter-spacing: -0.7px; }
   .hero-sub { font-size: 15.5px; }
   .hero-actions { flex-direction: column; align-items: stretch; }
   .hero-actions a { width: 100%; }
-  .page-hero { padding: 44px 0 50px; }
+  .page-hero { padding: 36px 0 42px; }
   .page-hero h1 { font-size: 27px; }
   .page-hero p { font-size: 15px; }
   .section-title { font-size: 24px; }
@@ -2835,15 +2757,12 @@ select.text-input-plain {
   .cf-row { grid-template-columns: 1fr; }
   .cta-actions { width: 100%; flex-direction: column; }
   .cta-actions a { width: 100%; }
-  .site-brand-tag { display: none; }
   .lane-card { padding: 26px 22px; }
   .lane-meta { grid-template-columns: 1fr; gap: 14px; }
 }
 
 /* Touch targets, keyed off the pointer the same way the app's are. */
 @media (pointer: coarse) {
-  .site-nav-link, .site-nav-cta { min-height: 44px; display: flex; align-items: center; }
-  .site-nav-cta { justify-content: center; }
   .btn-hero-primary, .btn-hero-ghost { min-height: 46px; }
   .contact-form-card .text-input { min-height: 46px; }
   .cf-check input { width: 20px; height: 20px; }
@@ -2852,30 +2771,13 @@ select.text-input-plain {
 /* ============================================================
    PRINT
    ============================================================ */
+/* The quotation print overlay is the only thing in this app worth putting on
+   paper, so printing reveals it and hides everything else. Every other page
+   — including Home, About and Contact, which used to be standalone public
+   pages with their own print treatment — is a screen, not a document. */
 @media print {
   body > *               { display: none !important; }
   #print-overlay         { display: block !important; }
-}
-
-/* The rule above exists for the app's quotation print overlay, which is
-   the only thing in app.html worth putting on paper. On the public pages
-   there is no overlay to reveal, so it would hand the printer a blank
-   sheet. Higher specificity than `body > *`, so it wins regardless of
-   order. */
-@media print {
-  body.public-page > * { display: revert !important; }
-  body.public-page .site-header,
-  body.public-page .site-nav-toggle,
-  body.public-page .cta-band,
-  body.public-page .hero-worldmap { display: none !important; }
-  body.public-page .hero,
-  body.public-page .page-hero,
-  body.public-page .stat-band,
-  body.public-page .lane-card,
-  body.public-page .site-footer {
-    background: #ffffff !important;
-    color: #1e293b !important;
-  }
 }
 #print-overlay {
   padding: 30px;

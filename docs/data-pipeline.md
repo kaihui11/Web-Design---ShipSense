@@ -98,4 +98,4 @@ const json = await res.json();
 FORECAST_DATA = json[0].payload.forecast;
 ```
 
-`fetch()` requires an HTTP server — it does not work when opening `app.html` directly as a `file://` URL. Use `python -m http.server 8080` for local testing.
+`fetch()` requires an HTTP server — it does not work when opening `index.html` directly as a `file://` URL. Use `python -m http.server 8080` for local testing.

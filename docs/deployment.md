@@ -4,7 +4,7 @@
 
 ## Local Development
 
-`fetch()` in `app.js` requires an HTTP server — opening `app.html` directly as `file://` will fail to load data. (The three public pages fetch nothing on load and do work from `file://`, but serve the whole folder anyway so the links between them behave.)
+`fetch()` in `app.js` requires an HTTP server — opening `index.html` directly as `file://` will fail to load data.
 
 ```bash
 cd frontend
@@ -24,7 +24,7 @@ Login/signup uses Supabase Auth and requires a `@goodfortune.com` account — si
 4. Leave Build Command and Output Directory blank
 5. Click **Deploy**
 
-Vercel will serve `frontend/` as a static site: `/` is the public Home page, `/app.html` the internal app. Every push to `main` triggers an automatic redeploy.
+Vercel will serve `frontend/` as a static site: `/` is the login screen, and every page in the system lives behind it in the same file. Every push to `main` triggers an automatic redeploy.
 
 ---
 

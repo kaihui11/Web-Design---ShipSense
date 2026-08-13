@@ -66,7 +66,7 @@ The preview and the PDF carry only the quotation itself (reference, issue and va
 | Fee response to an exchange-rate move | `(selected / base) ^ 1.8` | `ELASTICITY = 1.8` |
 | Scenario slider range | the exchange rate's own 90-day forecast range | `Math.min/max` of the forecast FX |
 
-Unlike `MARKUP`, **this is not a business rule the company decided — it is an assumption this page makes**, because the ML pipeline provides no answer to "what is the fee at a different exchange rate" and the fee/FX relationship in the actuals is weak and unstable in sign (β = −0.106, R² = 0.0005 on daily changes; +1.994 on 60-day changes). The page carried an on-screen banner saying so; it was removed on request, so this doc and the header comment in `market-impact.js` are now where that is recorded. The full reasoning — including why re-running the model itself was attempted and rejected — is in [frontend-user-flow.md](frontend-user-flow.md#page-7--market-impact).
+Unlike `MARKUP`, **this is not a business rule the company decided — it is an assumption this page makes**, because the ML pipeline provides no answer to "what is the fee at a different exchange rate" and the fee/FX relationship in the actuals is weak and unstable in sign (β = −0.106, R² = 0.0005 on daily changes; +1.994 on 60-day changes). The page carried an on-screen banner saying so; it was removed on request, so this doc and the header comment in `market-impact.js` are now where that is recorded. The full reasoning — including why re-running the model itself was attempted and rejected — is in [frontend-user-flow.md](frontend-user-flow.md#page-8--market-impact).
 
 **No quotation may be priced from this page.** Quotes are priced only from the forecast, via the rules above.
 

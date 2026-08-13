@@ -20,10 +20,10 @@ let SNAPSHOT_RUNS = [];
 let SNAPSHOT_RUNS_LOADED = false;
 
 /* Supabase project — SUPABASE_URL / SUPABASE_ANON_KEY come from
-   supabase-config.js, which app.html loads before this file. They are
-   declared there rather than here because the public Contact page needs
-   the same two values and does not load app.js. See supabase/README.md
-   for setup. */
+   supabase-config.js, which index.html loads before this file. They are
+   declared there rather than here because contact-form.js needs the same
+   two values and is deliberately independent of this file. See
+   supabase/README.md for setup. */
 
 /* Route config — this deployment only supports the NE→USEC lane */
 const ROUTES = {
@@ -291,7 +291,20 @@ async function navigateTo(viewId) {
   if (viewId === 'market-impact' && window.MarketImpact) MarketImpact.render();
 
   reInitLucide();
+  /* Both, because which one actually scrolls depends on the page: the app
+     views sit inside .page-area, while Home/About/Contact are tall enough to
+     scroll the window itself. Arriving halfway down a page you have not seen
+     before is disorienting either way. */
   document.querySelector('.page-area').scrollTop = 0;
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+/* In-page jump for the Home page's "See how it works". A plain #anchor would
+   work, but it leaves a hash on a URL that has no other use for one — and a
+   reload on that hash would land in the app's login screen with a fragment
+   pointing at a section nobody can see yet. */
+function scrollToSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /* ===== MOBILE NAVIGATION =====
@@ -415,7 +428,9 @@ async function completeLogin(user) {
   document.getElementById('input-isd').value = today;
   applyIsdBounds();
 
-  navigateTo('new-forecast');
+  /* Home rather than New Forecast: signing in lands on the overview of the
+     system, and the work starts from a deliberate click. */
+  navigateTo('home');
 }
 
 async function handleLogin(e) {

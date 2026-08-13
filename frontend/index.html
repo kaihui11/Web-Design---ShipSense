@@ -3,397 +3,2019 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ShipSense — Ocean Freight Cost Forecasting by Good Fortune Logistics</title>
-  <meta name="description" content="ShipSense forecasts the North Europe to US East Coast ocean freight rate 90 days ahead, finds the cheapest booking window, and turns it into a client quotation." />
+  <title>ShipSense – Smart Forecast. Smarter Decisions.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
-<!-- The public pages carry this class so the print rule further down
-     style.css (written for the app's quotation print overlay) doesn't blank
-     them out — see the PUBLIC SITE print block. -->
-<body class="public-page">
+<body>
 
 <!-- ====================================================
-     HEADER  (identical markup on all three public pages;
-     only the .is-active nav link differs)
+     LOGIN PAGE
      ==================================================== -->
-<header class="site-header" id="site-header">
-  <div class="site-container site-header-inner">
-    <a href="index.html" class="site-brand" aria-label="ShipSense home">
-      <svg width="38" height="38" viewBox="0 0 44 44" fill="none" aria-hidden="true">
-        <rect width="44" height="44" rx="10" fill="#1e3a8a"/>
-        <path d="M10 28h24M13 24l3.5-7 4 4.5 4-6 4 4 3.5-3" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M8 32h28a2 2 0 000-4H8a2 2 0 000 4z" fill="#3b82f6"/>
-      </svg>
-      <span class="site-brand-text">
-        <span class="site-brand-name">Ship<span class="txt-blue">Sense</span></span>
-        <span class="site-brand-tag">by Good Fortune Logistics</span>
-      </span>
-    </a>
+<div id="view-login" class="login-page">
 
-    <button type="button" class="site-nav-toggle" id="site-nav-toggle"
-            aria-controls="site-nav" aria-expanded="false" aria-label="Open navigation menu">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
+  <!-- Left panel -->
+  <div class="login-left">
+    <div class="login-ship-photo"></div>
+    <div class="login-top-fade"></div>
 
-    <nav class="site-nav" id="site-nav" aria-label="Main">
-      <a href="index.html" class="site-nav-link is-active" aria-current="page">Home</a>
-      <a href="about.html" class="site-nav-link">About</a>
-      <a href="contact.html" class="site-nav-link">Contact</a>
-      <a href="app.html" class="site-nav-cta">Sign In</a>
-    </nav>
-  </div>
-</header>
-
-<main id="main">
-
-  <!-- ====================================================
-       HERO
-       ==================================================== -->
-  <section class="hero">
-    <!-- Same dot/arc motif as the sign-in screen, so the public site and the
-         app read as one product rather than two. Inline rather than an
-         image request: the public pages stay usable with no network. -->
-    <svg class="hero-worldmap" viewBox="0 0 780 420" fill="none" aria-hidden="true">
+    <!-- World-map dot/arc overlay SVG -->
+    <svg class="login-worldmap" viewBox="0 0 780 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- arcs -->
       <path d="M130 210 Q240 80 380 130" stroke="#60a5fa" stroke-width="1.2" opacity="0.45"/>
       <path d="M380 130 Q470 80 560 115" stroke="#60a5fa" stroke-width="1.2" opacity="0.45"/>
       <path d="M560 115 Q640 110 700 160" stroke="#60a5fa" stroke-width="1.2" opacity="0.35"/>
+      <path d="M380 130 Q390 220 420 290" stroke="#60a5fa" stroke-width="1" opacity="0.25"/>
+      <!-- key dots -->
       <circle cx="130" cy="210" r="4" fill="#60a5fa" opacity="0.8"/>
       <circle cx="380" cy="130" r="4" fill="#60a5fa" opacity="0.8"/>
       <circle cx="560" cy="115" r="4" fill="#60a5fa" opacity="0.8"/>
       <circle cx="700" cy="160" r="3.5" fill="#60a5fa" opacity="0.7"/>
+      <circle cx="420" cy="290" r="3.5" fill="#60a5fa" opacity="0.6"/>
+      <!-- scatter dots approximating continents -->
       <circle cx="100" cy="195" r="2" fill="#93c5fd" opacity="0.5"/>
       <circle cx="150" cy="185" r="2" fill="#93c5fd" opacity="0.45"/>
       <circle cx="155" cy="225" r="2" fill="#93c5fd" opacity="0.45"/>
+      <circle cx="110" cy="230" r="2" fill="#93c5fd" opacity="0.4"/>
+      <circle cx="170" cy="200" r="1.5" fill="#93c5fd" opacity="0.4"/>
+      <circle cx="190" cy="215" r="1.5" fill="#93c5fd" opacity="0.35"/>
       <circle cx="340" cy="120" r="2" fill="#93c5fd" opacity="0.45"/>
+      <circle cx="360" cy="110" r="2" fill="#93c5fd" opacity="0.45"/>
       <circle cx="400" cy="120" r="2" fill="#93c5fd" opacity="0.45"/>
+      <circle cx="370" cy="145" r="1.5" fill="#93c5fd" opacity="0.4"/>
+      <circle cx="410" cy="140" r="1.5" fill="#93c5fd" opacity="0.4"/>
       <circle cx="430" cy="125" r="1.5" fill="#93c5fd" opacity="0.4"/>
+      <circle cx="450" cy="135" r="1.5" fill="#93c5fd" opacity="0.35"/>
       <circle cx="530" cy="108" r="2" fill="#93c5fd" opacity="0.45"/>
+      <circle cx="550" cy="100" r="2" fill="#93c5fd" opacity="0.45"/>
       <circle cx="575" cy="112" r="1.5" fill="#93c5fd" opacity="0.4"/>
+      <circle cx="590" cy="125" r="1.5" fill="#93c5fd" opacity="0.35"/>
+      <circle cx="610" cy="110" r="1.5" fill="#93c5fd" opacity="0.35"/>
       <circle cx="660" cy="140" r="1.5" fill="#93c5fd" opacity="0.35"/>
+      <circle cx="680" cy="155" r="1.5" fill="#93c5fd" opacity="0.35"/>
       <circle cx="720" cy="170" r="1.5" fill="#93c5fd" opacity="0.3"/>
+      <circle cx="740" cy="150" r="1.5" fill="#93c5fd" opacity="0.3"/>
+      <circle cx="390" cy="280" r="2" fill="#93c5fd" opacity="0.4"/>
+      <circle cx="410" cy="300" r="1.5" fill="#93c5fd" opacity="0.35"/>
+      <circle cx="440" cy="310" r="1.5" fill="#93c5fd" opacity="0.3"/>
     </svg>
 
-    <div class="site-container hero-inner">
-      <span class="hero-eyebrow">
-        <span class="hero-eyebrow-dot"></span>
-        North Europe &rarr; US East Coast
-      </span>
-
-      <h1 class="hero-title">
-        Know the freight rate<br />
-        <span class="txt-blue-lt">before you quote it.</span>
-      </h1>
-
-      <p class="hero-sub">
-        ShipSense forecasts the daily ocean freight rate 90 days ahead, points
-        your team at the cheapest sailing window near the customer's intended
-        ship date, and turns that number into a quotation the client can hold
-        you to.
-      </p>
-
-      <div class="hero-actions">
-        <a href="app.html" class="btn-hero-primary">
-          Sign in to ShipSense
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
-        <a href="#how" class="btn-hero-ghost">See how it works</a>
-      </div>
-
-      <p class="hero-note">
-        Staff access only &mdash; a <strong>@goodfortune.com</strong> account is required.
-      </p>
-    </div>
-  </section>
-
-  <!-- ====================================================
-       STAT BAND
-       Figures are from a specific model run, and the run date is printed
-       with them on purpose: a static page cannot know when the model was
-       last retrained, so quoting accuracy without a date would let these
-       silently go stale.
-       ==================================================== -->
-  <section class="stat-band">
-    <div class="site-container">
-      <div class="stat-grid">
-        <div class="stat-cell">
-          <div class="stat-value">90</div>
-          <div class="stat-label">days forecast horizon</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-value">98.9<span class="stat-unit">%</span></div>
-          <div class="stat-label">hold-out R&sup2; on shipping fee</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-value">1.45<span class="stat-unit">%</span></div>
-          <div class="stat-label">mean absolute % error</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-value">2,149</div>
-          <div class="stat-label">days of history trained on</div>
-        </div>
-      </div>
-      <p class="stat-foot">Measured on the held-out test split of the model run dated 7 August 2026.</p>
-    </div>
-  </section>
-
-  <!-- ====================================================
-       WHAT IT DOES
-       ==================================================== -->
-  <section class="site-section" id="what">
-    <div class="site-container">
-      <div class="section-head">
-        <span class="section-eyebrow">What it does</span>
-        <h2 class="section-title">Six things your desk does every day, in one place</h2>
-        <p class="section-sub">
-          ShipSense is an internal tool, not a rate marketplace. Every screen
-          exists because someone quoting freight needed it.
-        </p>
-      </div>
-
-      <div class="card-grid">
-        <article class="site-card">
-          <div class="site-card-icon icon-blue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          </div>
-          <h3>Machine-learned rate forecast</h3>
-          <p>
-            An XGBoost model trained on six years of lane history, crude oil
-            and USD/EUR movements projects the daily rate per 40ft container
-            for the next 90 business days.
-          </p>
-        </article>
-
-        <article class="site-card">
-          <div class="site-card-icon icon-green">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
-          </div>
-          <h3>The cheapest window nearby</h3>
-          <p>
-            Give it an intended ship date and it scans the surrounding days
-            for the lowest forecast rate, so a shipment that can flex by
-            three days isn't booked on the worst one.
-          </p>
-        </article>
-
-        <article class="site-card">
-          <div class="site-card-icon icon-purple">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          </div>
-          <h3>Quotations that stay put</h3>
-          <p>
-            Issuing a quotation freezes the price, the reference and the
-            forecast run behind it. A later model run can never quietly move
-            a number a client was already given.
-          </p>
-        </article>
-
-        <article class="site-card">
-          <div class="site-card-icon icon-orange">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          </div>
-          <h3>Executive dashboard</h3>
-          <p>
-            Forecast KPIs, a trend chart, a calendar laid out on real
-            weekdays, and the historical actuals behind it &mdash; for the
-            people who need the shape, not the single number.
-          </p>
-        </article>
-
-        <article class="site-card">
-          <div class="site-card-icon icon-teal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </div>
-          <h3>Market impact scenarios</h3>
-          <p>
-            An exchange-rate slider against the 90-day path, clearly labelled
-            as an illustration. It is never used to price a quote &mdash; the
-            model produces one central path, not a rate surface.
-          </p>
-        </article>
-
-        <article class="site-card">
-          <div class="site-card-icon icon-slate">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <h3>A record of every decision</h3>
-          <p>
-            Requests, revisions, confirmations and cancellations are kept.
-            A confirmed or cancelled quote can't be edited away, because it
-            is the record of something that actually happened.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ====================================================
-       HOW IT WORKS
-       ==================================================== -->
-  <section class="site-section site-section-alt" id="how">
-    <div class="site-container">
-      <div class="section-head">
-        <span class="section-eyebrow">How it works</span>
-        <h2 class="section-title">From enquiry to issued quotation in three steps</h2>
-      </div>
-
-      <ol class="step-list">
-        <li class="step">
-          <div class="step-num">1</div>
-          <h3>Enter the shipment</h3>
-          <p>
-            Company, person in charge, container count and the customer's
-            intended ship date. That's the whole form &mdash; the lane is
-            fixed for this deployment.
-          </p>
-        </li>
-        <li class="step">
-          <div class="step-num">2</div>
-          <h3>Read the forecast</h3>
-          <p>
-            The rate for the requested date, the days either side of it, and
-            the cheapest of them highlighted, along with how the latest model
-            run revised its own earlier view.
-          </p>
-        </li>
-        <li class="step">
-          <div class="step-num">3</div>
-          <h3>Issue the quotation</h3>
-          <p>
-            Apply the standard markup, generate a referenced quotation with a
-            validity window, and record what the client decided against it.
-          </p>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- ====================================================
-       THE LANE
-       ==================================================== -->
-  <section class="site-section" id="lane">
-    <div class="site-container lane-layout">
-      <div class="lane-copy">
-        <span class="section-eyebrow">The lane</span>
-        <h2 class="section-title">One route, forecast properly</h2>
-        <p>
-          This deployment forecasts a single trade lane: <strong>Rotterdam to
-          New York</strong>, priced in US dollars per 40ft container. A model
-          that covers one lane well is worth more to a quoting desk than one
-          that covers forty badly, so the scope is deliberate rather than a
-          limitation waiting to be fixed.
-        </p>
-        <p>
-          The underlying index is the Xeneta XSI-C reading for the North
-          Europe to US East Coast trade, with crude oil and the USD/EUR rate
-          carried as explanatory features.
-        </p>
-        <a href="about.html" class="link-arrow">
-          More about the model
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
-      </div>
-
-      <div class="lane-card">
-        <div class="lane-port">
-          <div class="lane-port-dot"></div>
-          <div>
-            <div class="lane-port-name">Rotterdam</div>
-            <div class="lane-port-sub">North Europe &mdash; origin</div>
-          </div>
-        </div>
-        <div class="lane-line" aria-hidden="true">
-          <span class="lane-ship">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18l-2-6H5l-2 6z"/><path d="M12 12V6"/><path d="M8 6h8"/></svg>
-          </span>
-        </div>
-        <div class="lane-port">
-          <div class="lane-port-dot lane-port-dot-end"></div>
-          <div>
-            <div class="lane-port-name">New York</div>
-            <div class="lane-port-sub">US East Coast &mdash; destination</div>
-          </div>
-        </div>
-
-        <dl class="lane-meta">
-          <div><dt>Priced in</dt><dd>USD per FEU</dd></div>
-          <div><dt>Horizon</dt><dd>90 business days</dd></div>
-          <div><dt>Model</dt><dd>XGBoost regression</dd></div>
-          <div><dt>Refreshed</dt><dd>On each model run</dd></div>
-        </dl>
-      </div>
-    </div>
-  </section>
-
-  <!-- ====================================================
-       CTA BAND
-       ==================================================== -->
-  <section class="cta-band">
-    <div class="site-container cta-inner">
-      <div>
-        <h2>Ready to quote from a forecast instead of last month's rate sheet?</h2>
-        <p>Staff sign in with their work account. Everyone else &mdash; talk to us first.</p>
-      </div>
-      <div class="cta-actions">
-        <a href="app.html" class="btn-hero-primary">Sign in</a>
-        <a href="contact.html" class="btn-hero-ghost">Contact the team</a>
-      </div>
-    </div>
-  </section>
-
-</main>
-
-<!-- ====================================================
-     FOOTER
-     ==================================================== -->
-<footer class="site-footer">
-  <div class="site-container">
-    <div class="site-footer-grid">
-      <div class="site-footer-brand">
-        <div class="site-brand">
-          <svg width="34" height="34" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+    <!-- Left panel content -->
+    <div class="login-left-content">
+      <div class="login-brand">
+        <div class="login-logo-row">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
             <rect width="44" height="44" rx="10" fill="#1e3a8a"/>
             <path d="M10 28h24M13 24l3.5-7 4 4.5 4-6 4 4 3.5-3" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M8 32h28a2 2 0 000-4H8a2 2 0 000 4z" fill="#3b82f6"/>
           </svg>
-          <span class="site-brand-text">
-            <span class="site-brand-name"><span class="txt-white">Ship</span><span class="txt-blue-lt">Sense</span></span>
-            <span class="site-brand-tag">Smart Forecast. Smarter Decisions.</span>
-          </span>
+          <div>
+            <div class="login-brand-name"><span class="txt-white">Ship</span><span class="txt-blue-lt">Sense</span></div>
+            <div class="login-brand-tagline">Ocean Logistics Cost Forecasting System</div>
+          </div>
         </div>
-        <p>
-          An internal ocean freight cost forecasting platform built and
-          operated by Good Fortune Logistics Sdn Bhd.
-        </p>
       </div>
 
-      <nav class="site-footer-col" aria-label="Footer">
-        <h4>Explore</h4>
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="app.html">Sign in</a>
-      </nav>
-
-      <div class="site-footer-col">
-        <h4>Get in touch</h4>
-        <p>Level 12, Menara Pelabuhan<br />Jalan Sultan Ismail<br />50250 Kuala Lumpur, Malaysia</p>
-        <p>
-          <a href="tel:+60327118800">+60 3 2711 8800</a><br />
-          <a href="mailto:hello@goodfortune.com">hello@goodfortune.com</a>
-        </p>
+      <div class="login-hero">
+        <h1>Smarter shipping<br>cost decisions<br><span class="txt-blue-lt">start here.</span></h1>
+        <p>ShipSense empowers internal logistics teams with ML-based shipping fee forecasting and web-based operational decision support.</p>
       </div>
     </div>
 
-    <div class="site-footer-bottom">
-      <span>&copy; <span id="site-year">2026</span> Good Fortune Logistics Sdn Bhd. All rights reserved.</span>
-      <span>ShipSense &mdash; internal forecasting platform</span>
+    <!-- Feature cards pinned to bottom -->
+    <div class="login-feat-row">
+      <div class="feat-card">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <div><div class="feat-title">ML-Powered</div><div class="feat-sub">Forecasting</div></div>
+      </div>
+      <div class="feat-card">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <div><div class="feat-title">Operational</div><div class="feat-sub">Intelligence</div></div>
+      </div>
+      <div class="feat-card">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div><div class="feat-title">Secure &amp;</div><div class="feat-sub">Enterprise-Grade</div></div>
+      </div>
     </div>
   </div>
-</footer>
 
-<script src="site.js"></script>
+  <!-- Right panel -->
+  <div class="login-right">
+    <div class="login-card">
+
+      <!-- Sign-in mode -->
+      <div id="login-mode-signin">
+        <h2 class="login-title">Welcome back</h2>
+        <p class="login-sub">Access your internal forecasting workspace.</p>
+
+        <form id="login-form" onsubmit="handleLogin(event)" novalidate>
+          <div class="field-group">
+            <label class="field-label">Email<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input type="email" id="login-email" class="text-input" placeholder="you@goodfortune.com" required onblur="this.value = normalizeEmail(this.value)" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Password<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input type="password" id="login-password" class="text-input" placeholder="Enter your password" required />
+              <button type="button" class="pw-eye" onclick="togglePw('login-password', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- No "Remember me": sessions are deliberately not persisted, so
+               a checkbox offering to keep the user signed in would be a
+               promise the app never keeps. -->
+          <div class="login-check-row login-check-row-end">
+            <a href="#" class="link-blue" onclick="event.preventDefault();handleForgotPassword();">Forgot password?</a>
+          </div>
+
+          <div id="login-error" class="login-error hidden"></div>
+
+          <button type="submit" id="login-submit" class="btn-primary btn-full">Login</button>
+        </form>
+
+        <div class="login-footer-note login-switch-note">
+          <span>Don't have an account?</span>
+          <a href="#" class="link-blue" onclick="event.preventDefault();showAuthMode('signup');">Create one</a>
+        </div>
+      </div>
+
+      <!-- Sign-up mode -->
+      <div id="login-mode-signup" class="hidden">
+        <h2 class="login-title">Create your account</h2>
+        <p class="login-sub">Sign up with your Good Fortune work email.</p>
+
+        <form id="signup-form" onsubmit="handleSignup(event)" novalidate>
+          <div class="field-group">
+            <label class="field-label">Full name<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="signup-name" class="text-input" placeholder="Your full name" required onblur="this.value = toTitleCase(this.value)" />
+            </div>
+            <div class="field-hint">Capitalization is fixed automatically (e.g. "john doe" &rarr; "John Doe").</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Email<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input type="email" id="signup-email" class="text-input" placeholder="you@goodfortune.com" required onblur="this.value = normalizeEmail(this.value)" />
+            </div>
+            <div class="field-hint">Must be a @goodfortune.com work email.</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Password<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input type="password" id="signup-password" class="text-input" placeholder="At least 8 characters" required />
+              <button type="button" class="pw-eye" onclick="togglePw('signup-password', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Confirm password<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input type="password" id="signup-password-confirm" class="text-input" placeholder="Re-enter your password" required />
+              <button type="button" class="pw-eye" onclick="togglePw('signup-password-confirm', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="signup-error" class="login-error hidden"></div>
+          <div id="signup-success" class="login-error login-success hidden"></div>
+
+          <button type="submit" id="signup-submit" class="btn-primary btn-full">Create account</button>
+        </form>
+
+        <div class="login-footer-note login-switch-note">
+          <span>Already have an account?</span>
+          <a href="#" class="link-blue" onclick="event.preventDefault();showAuthMode('signin');">Sign in</a>
+        </div>
+      </div>
+
+      <div class="login-footer-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Authorized internal (@goodfortune.com) users only</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ====================================================
+     APP SHELL (sidebar + main)
+     ==================================================== -->
+<div id="view-app" class="hidden">
+
+  <!-- Sidebar. Fixed and always visible on desktop; below the tablet
+       breakpoint it slides in over the page and #sidebar-backdrop covers
+       what's behind it (see toggleSidebar in app.js). -->
+  <aside class="sidebar" id="app-sidebar">
+    <div class="sidebar-logo">
+      <svg width="36" height="36" viewBox="0 0 44 44" fill="none">
+        <rect width="44" height="44" rx="10" fill="#1e3a8a"/>
+        <path d="M10 28h24M13 24l3.5-7 4 4.5 4-6 4 4 3.5-3" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 32h28a2 2 0 000-4H8a2 2 0 000 4z" fill="#3b82f6"/>
+      </svg>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name"><span class="txt-white">Ship</span><span class="txt-blue-lt">Sense</span></div>
+        <div class="sidebar-tagline">Smart Forecast. Smarter Decisions.</div>
+      </div>
+    </div>
+
+    <!-- Every page in the system hangs off this one menu, so the menu is the
+         same on all of them — including Home, About and Contact, which are
+         part of the workspace rather than a separate public site. Nine items
+         is past the point where a flat list reads as a list, hence the
+         group labels. -->
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Overview</div>
+      <a href="#" class="nav-item" data-view="home" onclick="navigateTo('home');return false;">
+        <i data-lucide="home" class="nav-lucide"></i>
+        <span>Home</span>
+      </a>
+      <a href="#" class="nav-item" data-view="about" onclick="navigateTo('about');return false;">
+        <i data-lucide="info" class="nav-lucide"></i>
+        <span>About</span>
+      </a>
+
+      <div class="nav-group-label">Forecasting</div>
+      <a href="#" class="nav-item" data-view="new-forecast" onclick="navigateTo('new-forecast');return false;">
+        <i data-lucide="plus-circle" class="nav-lucide"></i>
+        <span>New Forecast</span>
+      </a>
+      <a href="#" class="nav-item" data-view="forecast-result" onclick="navigateTo('forecast-result');return false;">
+        <i data-lucide="trending-up" class="nav-lucide"></i>
+        <span>Forecast Result</span>
+      </a>
+      <!-- Same gate as the button on the Forecast Result page: the preview is
+           one page with two doors, and an unsaved forecast should be stopped
+           at either of them rather than only the one. -->
+      <a href="#" class="nav-item" data-view="client-quote" onclick="prepareClientQuote();return false;">
+        <i data-lucide="file-text" class="nav-lucide"></i>
+        <span>Client Quote Preview</span>
+      </a>
+
+      <div class="nav-group-label">Records &amp; insight</div>
+      <a href="#" class="nav-item" data-view="history" onclick="navigateTo('history');return false;">
+        <i data-lucide="clock" class="nav-lucide"></i>
+        <span>Forecast History</span>
+      </a>
+      <a href="#" class="nav-item" data-view="executive" onclick="navigateTo('executive');return false;">
+        <i data-lucide="bar-chart-2" class="nav-lucide"></i>
+        <span>Executive Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-view="market-impact" onclick="navigateTo('market-impact');return false;">
+        <i data-lucide="activity" class="nav-lucide"></i>
+        <span>Market Impact</span>
+      </a>
+
+      <div class="nav-group-label">Support</div>
+      <a href="#" class="nav-item" data-view="contact" onclick="navigateTo('contact');return false;">
+        <i data-lucide="life-buoy" class="nav-lucide"></i>
+        <span>Contact / Help</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-divider"></div>
+      <a href="#" class="nav-item nav-logout" onclick="handleLogout();return false;">
+        <i data-lucide="log-out" class="nav-lucide"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Dims and blocks the page while the mobile sidebar is open. Tapping it
+       closes the menu, which is the gesture people try first. -->
+  <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+  <!-- Main area -->
+  <div class="app-main">
+
+    <!-- Top header -->
+    <header class="app-header">
+      <button type="button" class="sidebar-toggle" id="sidebar-toggle"
+              onclick="toggleSidebar()" aria-label="Open navigation menu"
+              aria-controls="app-sidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div id="header-left"></div>
+      <div class="header-user" onclick="toggleUserMenu()">
+        <div class="user-avatar">LA</div>
+        <span class="user-name" id="header-username">Logistics Analyst</span>
+        <i data-lucide="chevron-down" class="user-chevron"></i>
+        <div id="user-menu" class="user-dropdown hidden">
+          <div class="dropdown-item" onclick="handleLogout()">Logout</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Pages -->
+    <div class="page-area">
+
+      <!-- ══════════════════════════════════════════════════════════
+           HOME  — overview of the system
+           Full-bleed like the marketing pages it grew out of, hence
+           .page-full: these three read as chapters rather than as
+           another form card. Everything they link to is an in-app
+           view, so nothing here leaves the workspace.
+           ══════════════════════════════════════════════════════════ -->
+      <div id="page-home" class="page page-full hidden">
+
+        <!-- ── HERO ── -->
+        <section class="hero">
+          <!-- Same dot/arc motif as the sign-in screen, so the two halves of
+               the product read as one. Inline rather than an image request:
+               it survives a dead network. -->
+          <svg class="hero-worldmap" viewBox="0 0 780 420" fill="none" aria-hidden="true">
+            <path d="M130 210 Q240 80 380 130" stroke="#60a5fa" stroke-width="1.2" opacity="0.45"/>
+            <path d="M380 130 Q470 80 560 115" stroke="#60a5fa" stroke-width="1.2" opacity="0.45"/>
+            <path d="M560 115 Q640 110 700 160" stroke="#60a5fa" stroke-width="1.2" opacity="0.35"/>
+            <circle cx="130" cy="210" r="4" fill="#60a5fa" opacity="0.8"/>
+            <circle cx="380" cy="130" r="4" fill="#60a5fa" opacity="0.8"/>
+            <circle cx="560" cy="115" r="4" fill="#60a5fa" opacity="0.8"/>
+            <circle cx="700" cy="160" r="3.5" fill="#60a5fa" opacity="0.7"/>
+            <circle cx="100" cy="195" r="2" fill="#93c5fd" opacity="0.5"/>
+            <circle cx="150" cy="185" r="2" fill="#93c5fd" opacity="0.45"/>
+            <circle cx="155" cy="225" r="2" fill="#93c5fd" opacity="0.45"/>
+            <circle cx="340" cy="120" r="2" fill="#93c5fd" opacity="0.45"/>
+            <circle cx="400" cy="120" r="2" fill="#93c5fd" opacity="0.45"/>
+            <circle cx="430" cy="125" r="1.5" fill="#93c5fd" opacity="0.4"/>
+            <circle cx="530" cy="108" r="2" fill="#93c5fd" opacity="0.45"/>
+            <circle cx="575" cy="112" r="1.5" fill="#93c5fd" opacity="0.4"/>
+            <circle cx="660" cy="140" r="1.5" fill="#93c5fd" opacity="0.35"/>
+            <circle cx="720" cy="170" r="1.5" fill="#93c5fd" opacity="0.3"/>
+          </svg>
+
+          <div class="site-container hero-inner">
+            <span class="hero-eyebrow">
+              <span class="hero-eyebrow-dot"></span>
+              North Europe &rarr; US East Coast
+            </span>
+
+            <h1 class="hero-title">
+              Know the freight rate<br />
+              <span class="txt-blue-lt">before you quote it.</span>
+            </h1>
+
+            <p class="hero-sub">
+              ShipSense forecasts the daily ocean freight rate 90 days ahead, points
+              your team at the cheapest sailing window near the customer's intended
+              ship date, and turns that number into a quotation the client can hold
+              you to.
+            </p>
+
+            <div class="hero-actions">
+              <a href="#" class="btn-hero-primary" onclick="navigateTo('new-forecast');return false;">
+                Start a new forecast
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+              <a href="#" class="btn-hero-ghost" onclick="scrollToSection('home-how');return false;">See how it works</a>
+            </div>
+
+            <p class="hero-note">
+              Signed in as a <strong>@goodfortune.com</strong> user &mdash; every page below is part of this workspace.
+            </p>
+          </div>
+        </section>
+
+        <!-- ── STAT BAND ──
+             Figures are from a specific model run, and the run date is printed
+             with them on purpose: this page cannot know when the model was last
+             retrained, so quoting accuracy without a date would let these
+             silently go stale. -->
+        <section class="stat-band">
+          <div class="site-container">
+            <div class="stat-grid">
+              <div class="stat-cell">
+                <div class="stat-value">90</div>
+                <div class="stat-label">days forecast horizon</div>
+              </div>
+              <div class="stat-cell">
+                <div class="stat-value">98.9<span class="stat-unit">%</span></div>
+                <div class="stat-label">hold-out R&sup2; on shipping fee</div>
+              </div>
+              <div class="stat-cell">
+                <div class="stat-value">1.45<span class="stat-unit">%</span></div>
+                <div class="stat-label">mean absolute % error</div>
+              </div>
+              <div class="stat-cell">
+                <div class="stat-value">2,149</div>
+                <div class="stat-label">days of history trained on</div>
+              </div>
+            </div>
+            <p class="stat-foot">Measured on the held-out test split of the model run dated 7 August 2026.</p>
+          </div>
+        </section>
+
+        <!-- ── WHAT IT DOES ── -->
+        <section class="site-section">
+          <div class="site-container">
+            <div class="section-head">
+              <span class="section-eyebrow">What it does</span>
+              <h2 class="section-title">Six things your desk does every day, in one place</h2>
+              <p class="section-sub">
+                ShipSense is an internal tool, not a rate marketplace. Every screen
+                exists because someone quoting freight needed it.
+              </p>
+            </div>
+
+            <div class="card-grid">
+              <article class="site-card">
+                <div class="site-card-icon icon-blue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                </div>
+                <h3>Machine-learned rate forecast</h3>
+                <p>
+                  An XGBoost model trained on six years of lane history, crude oil
+                  and USD/EUR movements projects the daily rate per 40ft container
+                  for the next 90 business days.
+                </p>
+              </article>
+
+              <article class="site-card">
+                <div class="site-card-icon icon-green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                </div>
+                <h3>The cheapest window nearby</h3>
+                <p>
+                  Give it an intended ship date and it scans the surrounding days
+                  for the lowest forecast rate, so a shipment that can flex by
+                  three days isn't booked on the worst one.
+                </p>
+              </article>
+
+              <article class="site-card">
+                <div class="site-card-icon icon-purple">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <h3>Quotations that stay put</h3>
+                <p>
+                  Issuing a quotation freezes the price, the reference and the
+                  forecast run behind it. A later model run can never quietly move
+                  a number a client was already given.
+                </p>
+              </article>
+
+              <article class="site-card">
+                <div class="site-card-icon icon-orange">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </div>
+                <h3>Executive dashboard</h3>
+                <p>
+                  Forecast KPIs, a trend chart, a calendar laid out on real
+                  weekdays, and the historical actuals behind it &mdash; for the
+                  people who need the shape, not the single number.
+                </p>
+              </article>
+
+              <article class="site-card">
+                <div class="site-card-icon icon-teal">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <h3>Market impact scenarios</h3>
+                <p>
+                  An exchange-rate slider against the 90-day path, clearly labelled
+                  as an illustration. It is never used to price a quote &mdash; the
+                  model produces one central path, not a rate surface.
+                </p>
+              </article>
+
+              <article class="site-card">
+                <div class="site-card-icon icon-slate">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <h3>A record of every decision</h3>
+                <p>
+                  Requests, revisions, confirmations and cancellations are kept.
+                  A confirmed or cancelled quote can't be edited away, because it
+                  is the record of something that actually happened.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── HOW IT WORKS ── -->
+        <section class="site-section site-section-alt" id="home-how">
+          <div class="site-container">
+            <div class="section-head">
+              <span class="section-eyebrow">How it works</span>
+              <h2 class="section-title">From enquiry to issued quotation in three steps</h2>
+            </div>
+
+            <ol class="step-list">
+              <li class="step">
+                <div class="step-num">1</div>
+                <h3>Enter the shipment</h3>
+                <p>
+                  Company, person in charge, container count and the customer's
+                  intended ship date, on the <a href="#" class="link-blue" onclick="navigateTo('new-forecast');return false;">New
+                  Forecast</a> page. That's the whole form &mdash; the lane is
+                  fixed for this deployment.
+                </p>
+              </li>
+              <li class="step">
+                <div class="step-num">2</div>
+                <h3>Read the forecast</h3>
+                <p>
+                  The rate for the requested date, the days either side of it, and
+                  the cheapest of them highlighted, along with how the latest model
+                  run revised its own earlier view.
+                </p>
+              </li>
+              <li class="step">
+                <div class="step-num">3</div>
+                <h3>Issue the quotation</h3>
+                <p>
+                  Apply the standard markup, generate a referenced quotation with a
+                  validity window, and record what the client decided against it.
+                </p>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- ── THE LANE ── -->
+        <section class="site-section">
+          <div class="site-container lane-layout">
+            <div class="lane-copy">
+              <span class="section-eyebrow">The lane</span>
+              <h2 class="section-title">One route, forecast properly</h2>
+              <p>
+                This deployment forecasts a single trade lane: <strong>Rotterdam to
+                New York</strong>, priced in US dollars per 40ft container. A model
+                that covers one lane well is worth more to a quoting desk than one
+                that covers forty badly, so the scope is deliberate rather than a
+                limitation waiting to be fixed.
+              </p>
+              <p>
+                The underlying index is the Xeneta XSI-C reading for the North
+                Europe to US East Coast trade, with crude oil and the USD/EUR rate
+                carried as explanatory features.
+              </p>
+              <a href="#" class="link-arrow" onclick="navigateTo('about');return false;">
+                More about the model
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+            </div>
+
+            <div class="lane-card">
+              <div class="lane-port">
+                <div class="lane-port-dot"></div>
+                <div>
+                  <div class="lane-port-name">Rotterdam</div>
+                  <div class="lane-port-sub">North Europe &mdash; origin</div>
+                </div>
+              </div>
+              <div class="lane-line" aria-hidden="true">
+                <span class="lane-ship">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18l-2-6H5l-2 6z"/><path d="M12 12V6"/><path d="M8 6h8"/></svg>
+                </span>
+              </div>
+              <div class="lane-port">
+                <div class="lane-port-dot lane-port-dot-end"></div>
+                <div>
+                  <div class="lane-port-name">New York</div>
+                  <div class="lane-port-sub">US East Coast &mdash; destination</div>
+                </div>
+              </div>
+
+              <dl class="lane-meta">
+                <div><dt>Priced in</dt><dd>USD per FEU</dd></div>
+                <div><dt>Horizon</dt><dd>90 business days</dd></div>
+                <div><dt>Model</dt><dd>XGBoost regression</dd></div>
+                <div><dt>Refreshed</dt><dd>On each model run</dd></div>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── CTA BAND ── -->
+        <section class="cta-band">
+          <div class="site-container cta-inner">
+            <div>
+              <h2>Ready to quote from a forecast instead of last month's rate sheet?</h2>
+              <p>Start from a shipment, or look at what the desk has already quoted.</p>
+            </div>
+            <div class="cta-actions">
+              <a href="#" class="btn-hero-primary" onclick="navigateTo('new-forecast');return false;">New forecast</a>
+              <a href="#" class="btn-hero-ghost" onclick="navigateTo('history');return false;">Forecast history</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+           ABOUT  — the project's purpose and objectives
+           ══════════════════════════════════════════════════════════ -->
+      <div id="page-about" class="page page-full hidden">
+
+        <section class="page-hero">
+          <div class="site-container">
+            <nav class="crumbs" aria-label="Breadcrumb">
+              <a href="#" onclick="navigateTo('home');return false;">Home</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">About</span>
+            </nav>
+            <h1>Built by a freight desk, for a freight desk</h1>
+            <p>
+              ShipSense exists because quoting ocean freight from a rate sheet that
+              was already three weeks old was costing us money in both directions
+              &mdash; margin when the market fell, business when it rose.
+            </p>
+          </div>
+        </section>
+
+        <!-- ── THE COMPANY ── -->
+        <section class="site-section">
+          <div class="site-container prose-layout">
+            <div class="prose-main">
+              <span class="section-eyebrow">The company</span>
+              <h2 class="section-title">Good Fortune Logistics Sdn Bhd</h2>
+              <p>
+                We have been moving containers for customers out of Kuala Lumpur
+                since 2009 &mdash; a freight forwarder, not a carrier. Our people
+                spend their day answering one question on behalf of exporters:
+                <em>what will it cost to put this box on a ship, and when should
+                it sail?</em>
+              </p>
+              <p>
+                For most of that time the answer came from a spreadsheet of
+                contracted rates, refreshed monthly, adjusted by whoever happened
+                to have read the market that week. It worked. It was also
+                consistently wrong in the same expensive way: a rate sheet is a
+                photograph of a market that has already moved on, and the gap
+                between the sheet and reality is absorbed either by our margin or
+                by the customer's trust.
+              </p>
+              <p>
+                ShipSense replaces the photograph with a projection. It is an
+                internal tool: there is no public rate lookup, no self-service
+                booking, and no account anyone outside the company can open.
+                Everything it produces goes through a person on our desk.
+              </p>
+            </div>
+
+            <aside class="prose-aside">
+              <h3>At a glance</h3>
+              <dl class="aside-list">
+                <div><dt>Founded</dt><dd>2009, Kuala Lumpur</dd></div>
+                <div><dt>Business</dt><dd>Ocean freight forwarding</dd></div>
+                <div><dt>Lane forecast</dt><dd>Rotterdam &rarr; New York</dd></div>
+                <div><dt>Platform built</dt><dd>2026</dd></div>
+                <div><dt>Access</dt><dd>Staff only</dd></div>
+              </dl>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ── HOW THE MODEL WORKS ── -->
+        <section class="site-section site-section-alt">
+          <div class="site-container">
+            <div class="section-head">
+              <span class="section-eyebrow">The model</span>
+              <h2 class="section-title">What is actually under the forecast</h2>
+              <p class="section-sub">
+                No black box for its own sake. If a number on the screen cannot be
+                explained to a customer, it should not be on the screen.
+              </p>
+            </div>
+
+            <div class="card-grid card-grid-3">
+              <article class="site-card">
+                <div class="site-card-icon icon-blue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                </div>
+                <h3>The data</h3>
+                <p>
+                  Daily readings of the Xeneta XSI-C index for the North Europe to
+                  US East Coast trade, going back to 2018, alongside crude oil
+                  prices, the USD/EUR rate, and GDP and inflation for both ends of
+                  the lane.
+                </p>
+              </article>
+
+              <article class="site-card">
+                <div class="site-card-icon icon-purple">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+                </div>
+                <h3>The method</h3>
+                <p>
+                  Gradient-boosted regression trees (XGBoost) over rolling
+                  time-series features &mdash; recent levels, momentum and
+                  seasonality &mdash; producing one central rate path per business
+                  day for the next 90 days.
+                </p>
+              </article>
+
+              <article class="site-card">
+                <div class="site-card-icon icon-green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <h3>The check</h3>
+                <p>
+                  Scored on a validation split and then on a hold-out period the
+                  model never saw during training. Both sets of figures are
+                  published below rather than only the flattering one.
+                </p>
+              </article>
+            </div>
+
+            <!-- Accuracy table. Wrapped in a scroll container because on a phone
+                 four numeric columns will not fit, and a table that scrolls inside
+                 its own card is better than a page that scrolls sideways. -->
+            <div class="table-wrap">
+              <table class="site-table">
+                <caption>
+                  Model accuracy on the hold-out split &mdash; run dated 7 August 2026,
+                  215 unseen days. Re-measured on every retrain.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Target</th>
+                    <th scope="col">R&sup2;</th>
+                    <th scope="col">RMSE</th>
+                    <th scope="col">MAE</th>
+                    <th scope="col">MAPE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Shipping fee (USD/FEU)</th>
+                    <td>0.989</td>
+                    <td>44.08</td>
+                    <td>27.79</td>
+                    <td>1.45%</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Crude oil (USD/bbl)</th>
+                    <td>0.956</td>
+                    <td>3.32</td>
+                    <td>2.18</td>
+                    <td>2.69%</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Exchange rate (USD/EUR)</th>
+                    <td>0.881</td>
+                    <td>0.0034</td>
+                    <td>0.0026</td>
+                    <td>0.30%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── WHAT IT DOESN'T DO ── -->
+        <section class="site-section">
+          <div class="site-container">
+            <div class="section-head">
+              <span class="section-eyebrow">Honest limits</span>
+              <h2 class="section-title">What ShipSense does not claim</h2>
+              <p class="section-sub">
+                A forecasting tool earns its keep by being trusted, and nothing
+                costs trust faster than a number that quietly meant less than it
+                looked like it meant.
+              </p>
+            </div>
+
+            <div class="limit-list">
+              <div class="limit">
+                <div class="limit-mark" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </div>
+                <div>
+                  <h3>It is not a rate guarantee</h3>
+                  <p>
+                    The forecast is a central estimate, not a contracted price.
+                    What binds us is the quotation a person on our desk issues from
+                    it, with its own reference and validity window.
+                  </p>
+                </div>
+              </div>
+
+              <div class="limit">
+                <div class="limit-mark" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </div>
+                <div>
+                  <h3>It does not cover every lane</h3>
+                  <p>
+                    One trade lane is modelled. Quotes on any other routing are
+                    produced the old way and are not touched by this system.
+                  </p>
+                </div>
+              </div>
+
+              <div class="limit">
+                <div class="limit-mark" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </div>
+                <div>
+                  <h3>The scenario slider is an illustration</h3>
+                  <p>
+                    The Market Impact page shows how the path might respond to a
+                    different exchange rate. The pipeline produces one central path
+                    and cannot truly answer that question, so nothing is ever
+                    priced from it &mdash; and the page says so.
+                  </p>
+                </div>
+              </div>
+
+              <div class="limit">
+                <div class="limit-mark" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </div>
+                <div>
+                  <h3>It cannot see a shock coming</h3>
+                  <p>
+                    Canal closures, strikes and sudden capacity withdrawal are not
+                    predictable from price history. The model catches drift and
+                    seasonality well; it will be caught out by an event, and our
+                    validity windows are short for that reason.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── PRINCIPLES ── -->
+        <section class="site-section site-section-alt">
+          <div class="site-container">
+            <div class="section-head">
+              <span class="section-eyebrow">How we build it</span>
+              <h2 class="section-title">Four rules the system is held to</h2>
+            </div>
+
+            <div class="card-grid card-grid-2">
+              <article class="site-card site-card-flat">
+                <h3><span class="rule-num">01</span> A quoted price never moves</h3>
+                <p>
+                  Once a quotation is issued, its price, reference and the forecast
+                  run behind it are frozen in the database, not merely in the
+                  interface. Re-quoting creates a new record; it never rewrites the
+                  old one.
+                </p>
+              </article>
+
+              <article class="site-card site-card-flat">
+                <h3><span class="rule-num">02</span> A decision is permanent</h3>
+                <p>
+                  When a client confirms or cancels, that record stops being
+                  editable. Business history is not something the interface should
+                  let anyone tidy up.
+                </p>
+              </article>
+
+              <article class="site-card site-card-flat">
+                <h3><span class="rule-num">03</span> Rules live in the database</h3>
+                <p>
+                  Every rule the screens enforce is enforced again in Postgres.
+                  Disabled buttons stop mistakes; constraints and triggers stop
+                  everything else.
+                </p>
+              </article>
+
+              <article class="site-card site-card-flat">
+                <h3><span class="rule-num">04</span> Uncertainty is labelled</h3>
+                <p>
+                  Where a figure is illustrative, held constant, or older than it
+                  looks, the screen says so in the place the figure appears &mdash;
+                  not in a footnote nobody opens.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── CTA ── -->
+        <section class="cta-band">
+          <div class="site-container cta-inner">
+            <div>
+              <h2>Questions about the model, the lane, or a shipment?</h2>
+              <p>The freight desk answers platform and data questions too.</p>
+            </div>
+            <div class="cta-actions">
+              <a href="#" class="btn-hero-primary" onclick="navigateTo('contact');return false;">Contact / Help</a>
+              <a href="#" class="btn-hero-ghost" onclick="navigateTo('executive');return false;">Open the dashboard</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ── NEW FORECAST ── -->
+      <div id="page-new-forecast" class="page hidden">
+        <div class="page-header">
+          <h1 class="page-title">New Forecast</h1>
+          <p class="page-desc">Provide shipment details to generate an estimated shipping fee.</p>
+        </div>
+
+        <div class="form-card">
+          <h3 class="form-card-title">Enter Shipment Details</h3>
+
+          <!-- Route Selection -->
+          <div class="field-group">
+            <label class="field-label">Shipment Route<span class="required-mark">*</span></label>
+            <div class="select-wrap">
+              <select id="input-route" class="styled-select" disabled>
+                <option value="ne-usec">North Europe → US East Coast</option>
+              </select>
+            </div>
+            <p class="field-hint">Only this route is currently supported.</p>
+          </div>
+
+          <!-- ISD -->
+          <div class="field-group">
+            <label class="field-label">Intended Ship Date (ISD)<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <input type="date" id="input-isd" class="text-input" required />
+            </div>
+            <!-- Bounds and the range in this hint are both written by
+                 applyIsdBounds() from the loaded forecast. Hard-coding either
+                 leaves the form quietly advertising a range the model no
+                 longer covers once a new bundle lands. -->
+            <p class="field-hint" id="isd-hint">Select the intended ship date.</p>
+          </div>
+
+          <!-- Number of Containers -->
+          <div class="field-group">
+            <label class="field-label">Number of Containers (40ft / FEU)<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+              <input type="number" id="input-containers" class="text-input" value="10" min="1" max="500" required />
+              <span class="input-badge">FEU</span>
+            </div>
+            <p class="field-hint">Enter the total number of 40ft containers (FEU) for your shipment.</p>
+          </div>
+
+          <!-- Company Name -->
+          <div class="field-group">
+            <label class="field-label">Company Name<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <input type="text" id="input-company" class="text-input" placeholder="e.g. Global Marine Sdn Bhd" required />
+            </div>
+          </div>
+
+          <!-- PIC -->
+          <div class="field-group">
+            <label class="field-label">Person in Charge (PIC)<span class="required-mark">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="input-pic" class="text-input" placeholder="e.g. Ahmad Rizal" required />
+            </div>
+          </div>
+
+          <button class="btn-primary btn-full btn-forecast" onclick="handleForecast()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            Forecast Estimated Shipping Fee
+          </button>
+
+          <div class="form-note">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>The model estimates daily shipping fees around the selected shipment date and identifies the lowest nearby booking option.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FORECAST RESULT ── -->
+      <div id="page-forecast-result" class="page hidden">
+        <div class="page-header">
+          <h1 class="page-title">Shipping Fee Forecast Result</h1>
+        </div>
+
+        <div class="summary-bar">
+          <div class="summary-col">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div><div class="sum-label">Route</div><div class="sum-value" id="res-route"></div></div>
+          </div>
+          <div class="sum-divider"></div>
+          <div class="summary-col">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div><div class="sum-label">Selected ISD</div><div class="sum-value" id="res-isd"></div></div>
+          </div>
+          <div class="sum-divider"></div>
+          <div class="summary-col">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            <div><div class="sum-label">Quantity</div><div class="sum-value" id="res-qty"></div></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <div>
+              <h3 class="section-card-title">Estimated Shipping Fee (USD / FEU) by Intended Shipment Date (ISD)</h3>
+              <p class="section-card-sub">Showing &plusmn;5 days from selected ISD &nbsp;&middot;&nbsp; Rate shown per 40ft container (FEU)</p>
+            </div>
+          </div>
+          <div class="day-grid" id="day-grid"></div>
+          <div class="day-legend">
+            <span class="legend-dot dot-blue"></span><span>Selected ISD</span>
+            <span class="legend-dot dot-green"></span><span>Lowest Estimated Shipping Fee</span>
+          </div>
+        </div>
+
+        <div class="three-col-cards">
+          <div class="metric-card border-blue">
+            <div class="metric-icon-circle bg-blue-lt">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="metric-body">
+              <div class="metric-label txt-blue">Selected ISD</div>
+              <div class="metric-date txt-blue" id="sel-date"></div>
+              <div class="metric-sublabel">Total Estimated Shipping Fee</div>
+              <div class="metric-fee txt-blue" id="sel-fee"></div>
+              <div class="metric-revision" id="sel-revision"></div>
+            </div>
+          </div>
+
+          <div class="metric-card border-green">
+            <div class="metric-icon-circle bg-green-lt">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <div class="metric-body">
+              <div class="metric-label txt-green">Lowest Nearby Fee</div>
+              <div class="metric-date txt-green" id="low-date"></div>
+              <div class="metric-sublabel">Total Estimated Shipping Fee</div>
+              <div class="metric-fee txt-green" id="low-fee"></div>
+            </div>
+          </div>
+
+          <div class="metric-card border-purple">
+            <div class="metric-icon-circle bg-purple-lt">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <div class="metric-body">
+              <div class="metric-label txt-purple">Flexible Saving</div>
+              <div class="metric-date txt-purple" id="saving-val"></div>
+              <div class="metric-sublabel" id="saving-pct"></div>
+              <div class="metric-sublabel">If booking date is flexible</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two deliberate steps, in the order the work actually happens.
+             Save writes the request to Forecast History and nothing more;
+             Prepare Client Quote moves on to pricing it. Pressing Prepare
+             without saving does not skip the first step — it offers to do
+             it (see prepareClientQuote in app.js). -->
+        <div class="action-row">
+          <button class="btn-secondary" onclick="navigateTo('new-forecast')">
+            <i data-lucide="edit-2" style="width:15px;height:15px;"></i>
+            Edit Forecast Input
+          </button>
+          <button class="btn-secondary" id="save-forecast-btn" onclick="saveForecastFromResult()">
+            <i data-lucide="save" style="width:15px;height:15px;"></i>
+            Save Forecast
+          </button>
+          <button class="btn-primary" onclick="prepareClientQuote()">
+            <i data-lucide="file-text" style="width:15px;height:15px;"></i>
+            Prepare Client Quote
+          </button>
+        </div>
+        <p class="action-note" id="save-forecast-note"></p>
+      </div>
+
+      <!-- ── CLIENT QUOTE PREVIEW ── -->
+      <div id="page-client-quote" class="page hidden">
+        <div class="page-header">
+          <h1 class="page-title">Client Quote Preview</h1>
+        </div>
+
+        <div class="summary-bar">
+          <div class="summary-col">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div><div class="sum-label">Route</div><div class="sum-value" id="cq-route"></div></div>
+          </div>
+          <div class="sum-divider"></div>
+          <div class="summary-col">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div><div class="sum-label">Selected ISD</div><div class="sum-value" id="cq-isd"></div></div>
+          </div>
+          <div class="sum-divider"></div>
+          <div class="summary-col">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            <div><div class="sum-label">Quantity</div><div class="sum-value" id="cq-qty"></div></div>
+          </div>
+        </div>
+
+        <!-- Quotation reference / issue / validity. Rendered by
+             renderQuotationDoc(); mirrored in the exported PDF. -->
+        <div id="quote-doc" class="quote-doc quote-doc-draft"></div>
+
+        <div class="four-col-cards">
+          <div class="kpi-card">
+            <div class="kpi-label txt-blue">Selected ISD Quote</div>
+            <div class="kpi-value txt-blue" id="kpi-isd-quote"></div>
+            <div class="kpi-sub" id="kpi-isd-sub"></div>
+            <div class="kpi-icon-wrap bg-blue-lt">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label txt-green">Lowest Nearby Quote</div>
+            <div class="kpi-value txt-green" id="kpi-low-quote"></div>
+            <div class="kpi-sub txt-green" id="kpi-low-sub"></div>
+            <div class="kpi-icon-wrap bg-green-lt">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20.84 4.61 9 16.45 4 11.45"/></svg>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label txt-orange">Potential Client Saving</div>
+            <div class="kpi-value txt-orange" id="kpi-saving"></div>
+            <div class="kpi-sub txt-orange" id="kpi-saving-pct"></div>
+            <div class="kpi-icon-wrap bg-orange-lt">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="markup-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Client quotation price is calculated as estimated shipping fee + 20% markup.</span>
+          <div class="markup-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Fixed pricing rule: 20% markup applied
+          </div>
+        </div>
+
+        <div class="quote-two-col">
+          <!-- Left: comparison table -->
+          <div class="quote-card">
+            <h3 class="quote-card-title">Comparison Summary</h3>
+            <table class="cmp-table">
+              <thead>
+                <tr>
+                  <th>Comparison Item</th>
+                  <th class="th-blue" id="th-isd"></th>
+                  <th class="th-green" id="th-low"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Estimated Shipping Fee</td><td class="td-blue" id="ct-isd-fee"></td><td class="td-green" id="ct-low-fee"></td></tr>
+                <tr><td>Client Quotation Price</td><td class="td-blue" id="ct-isd-quote"></td><td class="td-green" id="ct-low-quote"></td></tr>
+                <tr><td>20% Markup Amount</td><td class="td-blue" id="ct-isd-markup"></td><td class="td-green" id="ct-low-markup"></td></tr>
+                <tr><td>Cost Difference</td><td class="td-blue" id="ct-isd-costdiff"></td><td class="td-green" id="ct-low-costdiff"></td></tr>
+                <tr><td>Potential Saving</td><td class="td-blue" id="ct-isd-saving"></td><td class="td-green" id="ct-low-saving"></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right: client date panel -->
+          <div class="quote-card">
+            <h3 class="quote-card-title">Client Selected Date</h3>
+            <p class="quote-card-sub" id="client-date-sub">Select Date from Forecast Range</p>
+            <div class="date-picker" id="client-date-picker">
+              <button type="button" class="date-picker-trigger" id="client-date-trigger" onclick="toggleClientDateCalendar()">
+                <span id="client-date-label">Select date</span>
+                <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </button>
+              <div class="date-picker-panel hidden" id="client-date-panel">
+                <div class="date-picker-header">
+                  <button type="button" class="date-picker-nav" id="client-date-prev" onclick="shiftClientDateMonth(-1)" aria-label="Previous month">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <span id="client-date-month-label" class="date-picker-month"></span>
+                  <button type="button" class="date-picker-nav" id="client-date-next" onclick="shiftClientDateMonth(1)" aria-label="Next month">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+                <div class="date-picker-dow">
+                  <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                </div>
+                <div class="date-picker-grid" id="client-date-grid"></div>
+              </div>
+            </div>
+
+            <div class="fee-detail-box">
+              <div class="fee-detail-row"><span>Estimated Shipping Fee</span><span id="cd-fee"></span></div>
+              <div class="fee-detail-row"><span>20% Markup</span><span id="cd-markup"></span></div>
+            </div>
+
+            <div class="client-total-row">
+              <span class="client-total-label">Client Quotation Price</span>
+              <span class="client-total-val txt-blue" id="cd-total"></span>
+            </div>
+
+            <!-- Says why these are unavailable instead of leaving two greyed
+                 buttons to be puzzled over. Filled by renderClientQuote. -->
+            <p class="side-hint hidden" id="quote-actions-hint"></p>
+
+            <button class="btn-primary btn-full hidden" id="regen-btn" onclick="regenerateQuotation()">
+              <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i>
+              Generate New Quotation
+            </button>
+            <button class="btn-primary btn-full" id="record-btn" style="margin-top:10px;" onclick="recordClientChoice()">
+              <i data-lucide="clipboard-check" style="width:16px;height:16px;"></i>
+              Record Client Choice
+            </button>
+            <button class="btn-secondary btn-full" id="export-btn" style="margin-top:10px;" onclick="exportQuotePDF()">
+              <i data-lucide="file-text" style="width:16px;height:16px;"></i>
+              Export Quote (PDF)
+            </button>
+
+            <div class="decision-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Client decision status: </span>
+              <span id="decision-status-text" class="status-pending">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FORECAST HISTORY ── -->
+      <div id="page-history" class="page hidden">
+        <div class="page-header">
+          <h1 class="page-title">Forecast History</h1>
+          <p class="page-desc">View and manage historical forecast and quotation records.</p>
+        </div>
+
+        <div class="exec-tabs" role="tablist">
+          <button class="exec-tab active" data-hist-tab="quotations" onclick="switchHistoryTab('quotations')">Quotations</button>
+          <button class="exec-tab" data-hist-tab="revisions" onclick="switchHistoryTab('revisions')">Forecast Revisions</button>
+        </div>
+
+        <div id="hist-tab-panel-quotations" class="hist-tab-panel">
+        <div class="filter-bar">
+          <div class="filter-group">
+            <div class="filter-date-wrap">
+              <input type="date" id="filter-date-from" class="filter-input" />
+            </div>
+          </div>
+          <div class="filter-group">
+            <input type="text" id="filter-company" class="filter-input" placeholder="Search company or PIC..." style="width:200px;" />
+          </div>
+          <div class="filter-group">
+            <input type="text" id="filter-route" class="filter-input" placeholder="Search route..." style="width:200px;" />
+          </div>
+          <div class="filter-group">
+            <div class="filter-select-wrap">
+              <select id="filter-status" class="filter-select">
+                <option value="">Select status</option>
+                <option value="Pending">Pending</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+              <svg class="filter-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <button class="btn-clear-filter" onclick="clearHistoryFilters()">
+            <i data-lucide="sliders" style="width:14px;height:14px;"></i>
+            Clear Filter
+          </button>
+        </div>
+
+        <div class="table-card">
+          <table class="hist-table">
+            <thead>
+              <tr>
+                <th>Date Generated</th>
+                <th>Company / PIC</th>
+                <th>Route</th>
+                <th>Shipment</th>
+                <th>Fee Comparison</th>
+                <th>Client Decision</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+        </div>
+        </div>
+
+        <div id="hist-tab-panel-revisions" class="hist-tab-panel hidden">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <div class="filter-select-wrap">
+                <select id="rev-route" class="filter-select" onchange="renderRevisionHistory()">
+                  <option value="ne-usec">North Europe &rarr; US East Coast</option>
+                </select>
+                <svg class="filter-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="filter-group">
+              <div class="filter-date-wrap">
+                <input type="date" id="rev-isd" class="filter-input" onchange="renderRevisionHistory()" />
+              </div>
+            </div>
+            <span class="rev-filter-hint">Select a route and intended shipment date to see every prediction made for it.</span>
+          </div>
+
+          <div id="rev-hist-body"></div>
+        </div>
+      </div>
+
+      <!-- ── EXECUTIVE DASHBOARD ── -->
+      <div id="page-executive" class="page hidden">
+        <div class="page-header">
+          <h1 class="page-title">Executive Dashboard</h1>
+        </div>
+
+        <div class="exec-tabs" role="tablist">
+          <button class="exec-tab active" data-exec-tab="forecast" onclick="switchExecTab('forecast')">Forecast</button>
+          <button class="exec-tab" data-exec-tab="historical" onclick="switchExecTab('historical')">Historical</button>
+        </div>
+
+        <button type="button" id="exec-back-to-top" class="exec-back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" aria-label="Back to top">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          <span>Back to Top</span>
+        </button>
+
+        <div id="exec-tab-panel-forecast" class="exec-tab-panel ss-root">
+          <div class="ss-page-head">
+            <div>
+              <h2>Executive Freight Booking Overview</h2>
+              <p>90-day shipping-fee forecast for smarter booking decisions.</p>
+            </div>
+            <div class="ss-context-chips">
+              <div class="ss-chip">
+                <span>Route</span>
+                <div class="select-wrap" style="max-width:240px;">
+                  <select id="exec-route" class="styled-select">
+                    <option value="ne-usec">North Europe &rarr; US East Coast</option>
+                  </select>
+                  <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+              </div>
+              <div class="ss-chip">
+                <span>Selected Date</span>
+                <b id="exec-selected-date-display">Not selected</b>
+              </div>
+              <div class="ss-chip">
+                <span>View Forecast for Date</span>
+                <input type="date" id="exec-isd-picker" aria-label="View forecast for date">
+              </div>
+              <button type="button" class="btn-secondary" id="exec-isd-clear-btn">Clear</button>
+            </div>
+          </div>
+
+          <div class="ss-grid cols-3" style="margin-bottom:16px;">
+            <div class="ss-card ss-kpi">
+              <div class="ss-kpi-icon blue">$</div>
+              <div>
+                <div class="ss-kpi-label">Predicted Shipping Fee</div>
+                <div class="ss-kpi-value" id="fk-predicted">&mdash;</div>
+                <div class="ss-kpi-note" id="fk-predicted-note">Select an Intended Shipping Date.</div>
+              </div>
+            </div>
+            <div class="ss-card ss-kpi">
+              <div class="ss-kpi-icon green">&#9660;</div>
+              <div>
+                <div class="ss-kpi-label">Lowest Fee Window</div>
+                <div class="ss-kpi-value" id="fk-low-window">&mdash;</div>
+                <div class="ss-kpi-note" id="fk-low-window-note">&mdash;</div>
+              </div>
+            </div>
+            <div class="ss-card ss-kpi">
+              <div class="ss-kpi-icon" style="background:var(--red-soft); color:var(--red);">&#9650;</div>
+              <div>
+                <div class="ss-kpi-label">Highest Fee Window</div>
+                <div class="ss-kpi-value" id="fk-high-window">&mdash;</div>
+                <div class="ss-kpi-note" id="fk-high-window-note">&mdash;</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ss-card" style="margin-bottom:16px;">
+            <div class="ss-card-head">
+              <div>
+                <div class="ss-card-title">Shipping Cost Trend &amp; Forecast</div>
+                <div class="ss-card-sub" id="forecast-chart-sub">Historical (solid) vs. forecast (dashed)</div>
+              </div>
+            </div>
+            <div class="ss-legend" id="forecast-chart-legend" style="margin-bottom:10px;"></div>
+            <div id="chart-forecast-trend"></div>
+          </div>
+
+          <div class="ss-card" style="margin-bottom:16px;">
+            <div class="ss-card-head">
+              <div>
+                <div class="ss-card-title">Daily Forecast Table</div>
+                <div class="ss-card-sub" id="forecast-table-sub">All 90 forecast days · scroll to browse, 11 rows shown at a time</div>
+              </div>
+            </div>
+            <div class="ss-table-filter">
+              <input type="date" id="forecast-date-filter" aria-label="Find a specific date">
+              <button type="button" id="forecast-date-filter-clear" hidden>Clear</button>
+            </div>
+            <div id="forecast-table"></div>
+          </div>
+
+          <div class="ss-card" style="margin-bottom:16px;">
+            <div class="ss-card-head">
+              <div>
+                <div class="ss-card-title">Shipping Fee Calendar</div>
+                <div class="ss-card-sub" id="forecast-cal-sub">90-day forecast</div>
+              </div>
+            </div>
+            <div id="forecast-calendar"></div>
+          </div>
+
+          <div class="ss-grid cols-main-side" style="align-items:stretch;">
+            <div class="ss-card">
+              <div class="ss-card-head">
+                <div>
+                  <div class="ss-card-title" id="macro-trend-title">Selected Macro Variable Trend: All Variables</div>
+                  <div class="ss-card-sub">Forecast-horizon values only</div>
+                </div>
+              </div>
+              <div class="ss-legend" id="macro-trend-legend" style="margin-bottom:10px;"></div>
+              <div id="chart-macro-trend"></div>
+            </div>
+            <div class="ss-card">
+              <div class="ss-card-title" style="margin-bottom:12px;">Select Macro Variable</div>
+              <div class="ss-slicer" id="macro-slicer"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="exec-tab-panel-historical" class="exec-tab-panel hidden ss-root">
+          <div class="ss-page-head">
+            <div>
+              <h2>Historical Data</h2>
+              <p>Full daily history behind the forecast.</p>
+            </div>
+          </div>
+
+          <div class="ss-grid cols-main-side" style="margin-bottom:16px; align-items:stretch;">
+            <div class="ss-card">
+              <div class="ss-card-head">
+                <div>
+                  <div class="ss-card-title" data-hist-chart-title>Historical Trend</div>
+                  <div class="ss-card-sub" data-hist-chart-sub>&mdash;</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div class="ss-gran-row" data-hist-granularity-group>
+                    <button type="button" class="ss-gran-btn active" data-hist-granularity="clear">Clear</button>
+                    <button type="button" class="ss-gran-btn" data-hist-granularity="month">Month</button>
+                    <button type="button" class="ss-gran-btn" data-hist-granularity="year">Year</button>
+                  </div>
+                  <div id="hist-month-picker" hidden></div>
+                  <div id="hist-year-picker" hidden></div>
+                </div>
+              </div>
+              <div class="ss-legend" data-hist-legend style="margin-bottom:10px;"></div>
+              <div id="chart-hist-trend"></div>
+            </div>
+            <div class="ss-card">
+              <div class="ss-card-title" style="margin-bottom:12px;">Select Variable</div>
+              <div class="ss-slicer" id="hist-slicer"></div>
+            </div>
+          </div>
+
+          <div class="ss-card">
+            <div class="ss-card-head">
+              <div>
+                <div class="ss-card-title">Historical Data Table</div>
+                <div class="ss-card-sub" data-hist-table-sub>&mdash;</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="ss-gran-row" data-hist-table-granularity-group>
+                  <button type="button" class="ss-gran-btn active" data-hist-table-granularity="clear">Clear</button>
+                  <button type="button" class="ss-gran-btn" data-hist-table-granularity="month">Month</button>
+                  <button type="button" class="ss-gran-btn" data-hist-table-granularity="year">Year</button>
+                </div>
+                <div id="hist-table-month-picker" hidden></div>
+                <div id="hist-table-year-picker" hidden></div>
+              </div>
+            </div>
+            <div class="ss-table-filter">
+              <input type="date" id="hist-date-filter" aria-label="Find a specific date">
+              <button type="button" id="hist-date-filter-clear" hidden>Clear</button>
+            </div>
+            <div id="hist-table"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MARKET IMPACT ── -->
+      <div id="page-market-impact" class="page hidden ss-root">
+        <div class="page-header">
+          <h1 class="page-title">Market Impact</h1>
+          <p class="page-desc">How a change in the exchange rate would move the 90-day shipping-fee forecast.</p>
+        </div>
+
+        <p id="mi-empty" class="mi-empty hidden"></p>
+
+        <div id="mi-body">
+          <div class="ss-grid cols-3" style="margin-bottom:16px;">
+            <div class="ss-card ss-kpi">
+              <div class="ss-kpi-icon blue">&#8644;</div>
+              <div>
+                <div class="ss-kpi-label">Scenario Exchange Rate</div>
+                <div class="ss-kpi-value" id="mi-kpi-rate">&mdash;</div>
+                <div class="ss-kpi-note" id="mi-kpi-rate-note">&mdash;</div>
+              </div>
+            </div>
+            <div class="ss-card ss-kpi">
+              <div class="ss-kpi-icon blue">$</div>
+              <div>
+                <div class="ss-kpi-label">90-Day Average Shipping Fee</div>
+                <div class="ss-kpi-value" id="mi-kpi-fee">&mdash;</div>
+                <div class="ss-kpi-note" id="mi-kpi-fee-note">&mdash;</div>
+              </div>
+            </div>
+            <div class="ss-card ss-kpi">
+              <div class="ss-kpi-icon" style="background:var(--orange-soft); color:var(--orange);">&#916;</div>
+              <div>
+                <div class="ss-kpi-label">Change vs Forecast</div>
+                <div class="ss-kpi-value" id="mi-kpi-change">&mdash;</div>
+                <div class="ss-kpi-note" id="mi-kpi-change-note">&mdash;</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ss-grid cols-side-main" style="align-items:stretch;">
+            <div class="ss-card">
+              <div class="ss-card-title" style="margin-bottom:12px;">Scenario Control</div>
+              <div class="mi-rate-value" id="mi-rate-value">&mdash;</div>
+              <div class="mi-rate-unit">USD per 1 EUR</div>
+
+              <div class="mi-slider-wrap">
+                <div class="mi-slider-label">Adjust exchange rate</div>
+                <input type="range" id="mi-slider" class="mi-slider" aria-label="Scenario exchange rate, USD per 1 EUR" />
+                <div class="mi-slider-ends">
+                  <span id="mi-slider-min">&mdash;</span>
+                  <span id="mi-slider-max">&mdash;</span>
+                </div>
+
+                <div class="ss-gran-row mi-preset-row" id="mi-presets">
+                  <button type="button" class="ss-gran-btn" data-mi-preset="low">Low</button>
+                  <button type="button" class="ss-gran-btn active" data-mi-preset="base">Base</button>
+                  <button type="button" class="ss-gran-btn" data-mi-preset="high">High</button>
+                </div>
+
+                <p class="mi-range-note" id="mi-range-note"></p>
+              </div>
+            </div>
+
+            <div class="ss-card">
+              <div class="ss-card-head">
+                <div>
+                  <div class="ss-card-title">90-Day Shipping Fee &mdash; Forecast vs Scenario</div>
+                  <div class="ss-card-sub" id="mi-horizon">&mdash;</div>
+                </div>
+              </div>
+              <div class="ss-legend" id="mi-legend" style="margin-bottom:10px;"></div>
+              <div id="mi-chart"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+           CONTACT / HELP  — support information for users
+           Two jobs on one page: how to reach a person (the aside and
+           the form), and how to get unstuck without reaching one (the
+           help section). The form still writes to contact_messages,
+           which is a second table for the CRUD evidence and the only
+           write on this page.
+           ══════════════════════════════════════════════════════════ -->
+      <div id="page-contact" class="page page-full hidden">
+
+        <section class="page-hero">
+          <div class="site-container">
+            <nav class="crumbs" aria-label="Breadcrumb">
+              <a href="#" onclick="navigateTo('home');return false;">Home</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">Contact / Help</span>
+            </nav>
+            <h1>Support and the freight desk</h1>
+            <p>
+              Answers to the questions this workspace raises most often, and a
+              way through to a person for everything else. A human reads every
+              message &mdash; usually within one business day.
+            </p>
+          </div>
+        </section>
+
+        <!-- ── HELP ── -->
+        <section class="site-section">
+          <div class="site-container">
+            <div class="section-head">
+              <span class="section-eyebrow">Help</span>
+              <h2 class="section-title">Getting unstuck</h2>
+              <p class="section-sub">
+                Most support requests are one of these five. Each answer says
+                where in the workspace to go, not just what the rule is.
+              </p>
+            </div>
+
+            <div class="help-list">
+              <details class="help-item">
+                <summary>The Intended Ship Date I need is rejected</summary>
+                <p>
+                  The date picker on <a href="#" class="link-blue" onclick="navigateTo('new-forecast');return false;">New
+                  Forecast</a> only accepts dates the current model run actually
+                  covers, and the hint under the field prints that range. A date
+                  outside it has no forecast behind it, so the system will not
+                  invent one. Wait for the next run, or quote that shipment the
+                  old way.
+                </p>
+              </details>
+
+              <details class="help-item">
+                <summary>I can't edit or delete a record</summary>
+                <p>
+                  Only records that are still <strong>Pending</strong> and have no
+                  quotation issued against them can be changed or removed from
+                  <a href="#" class="link-blue" onclick="navigateTo('history');return false;">Forecast History</a>.
+                  Once a quotation is issued, or the client has confirmed or
+                  cancelled, the record is the evidence of something that
+                  happened and the database refuses to alter it. Re-quoting
+                  creates a new record instead.
+                </p>
+              </details>
+
+              <details class="help-item">
+                <summary>The price changed between my forecast and my quotation</summary>
+                <p>
+                  A quotation carries the standard 20% markup and a 48-hour
+                  validity window, both applied at the moment it is issued. The
+                  underlying forecast can be revised by a later model run, but an
+                  issued quotation keeps the run it was priced from &mdash; that
+                  run's date is printed on the record.
+                </p>
+              </details>
+
+              <details class="help-item">
+                <summary>A page says there is no data</summary>
+                <p>
+                  The dashboard and the forecast pages read the latest model run
+                  directly. If no run has been ingested yet, or the database is
+                  unreachable, the pages say so rather than showing a stale
+                  number. Tell us via the form below and include which page and
+                  roughly when you saw it.
+                </p>
+              </details>
+
+              <details class="help-item">
+                <summary>Can I price a quote from the Market Impact slider?</summary>
+                <p>
+                  No. The model produces one central rate path, not a rate
+                  surface, so the exchange-rate scenario on
+                  <a href="#" class="link-blue" onclick="navigateTo('market-impact');return false;">Market Impact</a>
+                  is an illustration of direction and rough scale only. Quotes are
+                  always priced from the forecast itself.
+                </p>
+              </details>
+            </div>
+          </div>
+        </section>
+
+        <section class="site-section site-section-alt">
+          <div class="site-container contact-layout">
+
+            <!-- ── CONTACT DETAILS ── -->
+            <aside class="contact-aside">
+              <div class="contact-info-card">
+                <div class="site-card-icon icon-blue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </div>
+                <h3>Office</h3>
+                <p>
+                  Level 12, Menara Pelabuhan<br />
+                  Jalan Sultan Ismail<br />
+                  50250 Kuala Lumpur<br />
+                  Malaysia
+                </p>
+              </div>
+
+              <div class="contact-info-card">
+                <div class="site-card-icon icon-green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.68 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0122 16.92z"/></svg>
+                </div>
+                <h3>Phone</h3>
+                <p><a href="tel:+60327118800">+60 3 2711 8800</a></p>
+                <p class="contact-info-note">Mon&ndash;Fri, 9:00&ndash;18:00 MYT (GMT+8)</p>
+              </div>
+
+              <div class="contact-info-card">
+                <div class="site-card-icon icon-purple">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <h3>Email</h3>
+                <p>
+                  <a href="mailto:hello@goodfortune.com">hello@goodfortune.com</a><br />
+                  <span class="contact-info-note">General enquiries</span>
+                </p>
+                <p>
+                  <a href="mailto:shipsense@goodfortune.com">shipsense@goodfortune.com</a><br />
+                  <span class="contact-info-note">Platform &amp; data questions</span>
+                </p>
+              </div>
+
+              <div class="contact-staff-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                <div>
+                  <strong>Reporting a fault?</strong>
+                  <p>
+                    Say which page you were on and what you expected to see. A
+                    screenshot of the Executive Dashboard or Forecast History
+                    saves a round trip, since both are driven by whichever model
+                    run was last ingested.
+                  </p>
+                </div>
+              </div>
+            </aside>
+
+            <!-- ── FORM ── -->
+            <div class="contact-form-card">
+              <h2 class="contact-form-title">Send us a message</h2>
+              <p class="contact-form-sub">
+                Fields marked <span class="required-mark">*</span> are required.
+              </p>
+
+              <!-- Success state. Swapped in place of the form once a message is
+                   stored, rather than shown above a form that still looks like it
+                   needs sending again. -->
+              <div id="cf-success" class="cf-success hidden" role="status" tabindex="-1">
+                <div class="cf-success-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <h3>Message received</h3>
+                <p id="cf-success-text">
+                  Thanks &mdash; your message is with the freight desk. We reply to
+                  enquiries within one business day.
+                </p>
+                <button type="button" class="btn-hero-ghost" id="cf-reset">Send another message</button>
+              </div>
+
+              <!-- novalidate hands validation to contact-form.js: the browser's
+                   own bubbles can't be styled, show one error at a time, and
+                   word the message the way this form needs. -->
+              <form id="contact-form" novalidate>
+
+                <!-- Honeypot. Hidden from people, irresistible to the crude bots
+                     that fill in every input they find. A filled value means the
+                     submission is silently dropped instead of stored. -->
+                <div class="cf-hp" aria-hidden="true">
+                  <label for="cf-website">Website</label>
+                  <input type="text" id="cf-website" name="website" tabindex="-1" autocomplete="off" />
+                </div>
+
+                <div class="cf-row">
+                  <div class="field-group">
+                    <label class="field-label" for="cf-name">Full name<span class="required-mark">*</span></label>
+                    <input type="text" id="cf-name" class="text-input text-input-plain" autocomplete="name"
+                           placeholder="e.g. Siti Nurhaliza" aria-describedby="cf-name-error" />
+                    <p class="cf-error hidden" id="cf-name-error"></p>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="cf-email">Email<span class="required-mark">*</span></label>
+                    <input type="email" id="cf-email" class="text-input text-input-plain" autocomplete="email"
+                           placeholder="you@company.com" aria-describedby="cf-email-error" />
+                    <p class="cf-error hidden" id="cf-email-error"></p>
+                  </div>
+                </div>
+
+                <div class="cf-row">
+                  <div class="field-group">
+                    <label class="field-label" for="cf-company">Company</label>
+                    <input type="text" id="cf-company" class="text-input text-input-plain" autocomplete="organization"
+                           placeholder="Optional" aria-describedby="cf-company-error" />
+                    <p class="cf-error hidden" id="cf-company-error"></p>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="cf-phone">Phone</label>
+                    <input type="tel" id="cf-phone" class="text-input text-input-plain" autocomplete="tel"
+                           placeholder="Optional, e.g. +60 12 345 6789" aria-describedby="cf-phone-error" />
+                    <p class="cf-error hidden" id="cf-phone-error"></p>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label" for="cf-topic">What is this about?<span class="required-mark">*</span></label>
+                  <select id="cf-topic" class="text-input text-input-plain" aria-describedby="cf-topic-error">
+                    <option value="">Select an enquiry type…</option>
+                    <option value="quote">Rate or quotation enquiry</option>
+                    <option value="shipment">An existing shipment</option>
+                    <option value="platform">ShipSense platform or data</option>
+                    <option value="partnership">Partnership or supplier</option>
+                    <option value="other">Something else</option>
+                  </select>
+                  <p class="cf-error hidden" id="cf-topic-error"></p>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label" for="cf-message">Message<span class="required-mark">*</span></label>
+                  <textarea id="cf-message" class="text-input text-input-plain cf-textarea" rows="6"
+                            placeholder="Tell us the lane, the cargo, and roughly when it needs to sail."
+                            aria-describedby="cf-message-error cf-message-count"></textarea>
+                  <div class="cf-meta">
+                    <p class="cf-error hidden" id="cf-message-error"></p>
+                    <span class="cf-count" id="cf-message-count">0 / 1000</span>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="cf-check">
+                    <input type="checkbox" id="cf-consent" aria-describedby="cf-consent-error" />
+                    <span>
+                      I agree that Good Fortune Logistics may store these details in
+                      order to reply to my enquiry.<span class="required-mark">*</span>
+                    </span>
+                  </label>
+                  <p class="cf-error hidden" id="cf-consent-error"></p>
+                </div>
+
+                <!-- Form-level failure (the network, not the user). Kept separate
+                     from the field errors so a failed send never reads as "you
+                     typed something wrong". -->
+                <div id="cf-form-error" class="cf-form-error hidden" role="alert"></div>
+
+                <button type="submit" id="cf-submit" class="btn-hero-primary btn-full">Send message</button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </div><!-- end page-area -->
+  </div><!-- end app-main -->
+</div><!-- end view-app -->
+
+<!-- PDF print layer -->
+<div id="print-overlay" class="hidden">
+  <div id="print-content"></div>
+</div>
+
+<!-- Record Client Choice modal -->
+<div id="record-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeRecordModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Record Client Decision</div>
+      <button class="modal-close" onclick="closeRecordModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p class="modal-desc">What is the client's response to this quotation?</p>
+    <div class="modal-options">
+      <button class="modal-option-btn confirmed" onclick="confirmRecordChoice('Confirmed')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div>
+          <div class="modal-opt-label">Confirmed</div>
+          <div class="modal-opt-sub">Client accepted the quotation</div>
+        </div>
+      </button>
+      <button class="modal-option-btn pending" onclick="confirmRecordChoice('Pending')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div>
+          <div class="modal-opt-label">Pending</div>
+          <div class="modal-opt-sub">Client is still deciding</div>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- View History Detail Modal -->
+<div id="view-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeViewModal()">
+  <div class="modal-box" style="width:520px;max-width:94vw;">
+    <div class="modal-header">
+      <div class="modal-title">Forecast Record</div>
+      <button class="modal-close" onclick="closeViewModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="view-modal-body" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- Edit Record Modal — the U of CRUD. Only opened for records that are
+     still Pending and un-issued (see openEditModal in app.js). -->
+<div id="edit-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal-box modal-box-form">
+    <div class="modal-header">
+      <div class="modal-title">Edit Forecast Record</div>
+      <button class="modal-close" onclick="closeEditModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p class="modal-desc">Update the request details. Changing the ship date re-reads the forecast for that day.</p>
+
+    <form id="edit-form" onsubmit="saveEditRecord(event)" novalidate>
+      <div class="field-group">
+        <label class="field-label" for="edit-company">Company Name<span class="required-mark">*</span></label>
+        <input type="text" id="edit-company" class="text-input text-input-plain" required />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="edit-pic">Person in Charge (PIC)<span class="required-mark">*</span></label>
+        <input type="text" id="edit-pic" class="text-input text-input-plain" required />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="edit-containers">Number of Containers (FEU)<span class="required-mark">*</span></label>
+        <input type="number" id="edit-containers" class="text-input text-input-plain" min="1" max="500" step="1" required />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="edit-isd">Intended Ship Date (ISD)<span class="required-mark">*</span></label>
+        <input type="date" id="edit-isd" class="text-input text-input-plain" required />
+      </div>
+
+      <div id="edit-error" class="login-error hidden"></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" id="edit-save-btn" class="btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Shared confirmation dialog for the two irreversible row actions, Delete
+     and Mark Cancelled. A native confirm() cannot be styled, cannot name the
+     record in anything but plain text, and looks like a browser security
+     warning rather than part of this app — which is the wrong tone for a
+     decision the user is meant to weigh. openConfirm() in app.js fills it. -->
+<div id="confirm-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeConfirmModal()">
+  <div class="modal-box modal-box-confirm">
+    <div class="confirm-icon" id="confirm-icon"></div>
+    <div class="modal-title" id="confirm-title"></div>
+    <p class="modal-desc" id="confirm-body"></p>
+    <div id="confirm-error" class="login-error hidden"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" id="confirm-dismiss-btn" onclick="closeConfirmModal()">Keep it</button>
+      <button type="button" class="btn-primary" id="confirm-ok-btn" onclick="runConfirmAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Save-before-quoting gate. Shown when "Prepare Client Quote" is pressed on
+     a forecast that has never been written to Forecast History. It is a
+     prompt rather than a refusal: the only thing standing between here and
+     the preview is a save, so the dialog offers to do it. -->
+<div id="save-gate-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeSaveGateModal()">
+  <div class="modal-box" style="width:460px;max-width:94vw;">
+    <div class="modal-header">
+      <div class="modal-title">Save this forecast first</div>
+      <button class="modal-close" onclick="closeSaveGateModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p class="modal-desc">
+      This forecast must be saved before preparing a quotation. Save and continue?
+    </p>
+    <p class="modal-desc modal-desc-sub">
+      Saving files the request under <strong id="save-gate-company"></strong> in Forecast
+      History, where it stays editable. No price is fixed and nothing is sent to the client.
+    </p>
+
+    <div id="save-gate-error" class="login-error hidden"></div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" onclick="closeSaveGateModal()">Cancel</button>
+      <button type="button" id="save-gate-btn" class="btn-primary" onclick="saveAndContinue()">Save and Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Forecast Revision Detail Modal -->
+<div id="revision-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeRevisionModal()">
+  <div class="modal-box" style="width:480px;max-width:94vw;max-height:90vh;overflow-y:auto;">
+    <div class="modal-header">
+      <div class="modal-title">Forecast Revision</div>
+      <button class="modal-close" onclick="closeRevisionModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p class="modal-desc">How the latest forecast run revised this shipment date.</p>
+    <div id="revision-modal-body"></div>
+  </div>
+</div>
+
+<!-- Loaded first: it defines SUPABASE_URL / SUPABASE_ANON_KEY, which every
+     script below reads. -->
+<script src="supabase-config.js"></script>
+<script src="exec-data.js"></script>
+<script src="app.js"></script>
+<script src="exec-dashboard-panels.js"></script>
+<script src="market-impact.js"></script>
+<script src="contact-form.js"></script>
 </body>
 </html>

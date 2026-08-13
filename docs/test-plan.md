@@ -26,7 +26,7 @@
 | **C1** | Create a forecast record | New Forecast → ISD in range, 10 containers, company, PIC → Forecast Estimated Shipping Fee → Prepare Client Quote → **Save Forecast Record** | Record appears at the top of Forecast History with status *Pending* | ☐ to run |
 | **C2** | Create rejects empty fields | Leave Company blank → submit | Validation message; nothing written | ☐ to run |
 | **C3** | Create rejects out-of-range ISD | Enter a date before 2026-08-10 | Rejected, range stated in the message | ☐ to run |
-| **C4** | Create via public contact form | contact.html → complete → Send | Success message; row in `contact_messages` | ☐ to run |
+| **C4** | Create via the Contact / Help form | Sidebar → Contact / Help → complete the form → Send | Success message replaces the form; row in `contact_messages` | ☐ to run |
 | **R1** | Read all records | Open Forecast History | 5 seed records plus anything created | ☐ to run |
 | **R2** | Read with filter | Type "Global" in the company filter | Only Global Marine shown | ☐ to run |
 | **R3** | Read one record | Click View on any row | Modal shows that record's details | ☐ to run |
@@ -48,7 +48,7 @@
 | A3 | Password under 8 characters | Rejected | ☐ to run |
 | A4 | Mismatched confirmation | Rejected | ☐ to run |
 | A5 | Login with wrong password | Error banner, no access | ☐ to run |
-| A6 | Direct access to `app.html` without logging in | Login screen, no data | ☐ to run |
+| A6 | Open the site without logging in | Login screen and nothing else — Home, About and Contact are all behind it | ☐ to run |
 | A7 | Logout then reload | Login screen — sessions are not persisted | ☐ to run |
 
 ---
@@ -173,6 +173,14 @@ when nothing is wrong.
 | Mobile | 390px | New Forecast | Full-width fields | ✅ `scrollWidth=390` |
 | Mobile | 390px | Forecast History | Filters stacked, table scrolls | ✅ `scrollWidth=390`, table card 366px |
 | Mobile | 390px | Nav drawer open | Drawer over dimmed backdrop | ✅ 250px drawer, backdrop active |
+| Mobile | 390px | Home | Full-bleed sections, cards single-file | ✅ `scrollWidth=390` |
+| Mobile | 390px | About | Prose stacks above the aside; accuracy table scrolls in its card | ✅ `scrollWidth=390` |
+| Mobile | 390px | Contact / Help | Help answers full width; form fields single-column | ✅ `scrollWidth=390` |
+
+The last three were measured after Home, About and Contact moved inside the app. They are full-bleed
+(`.page-full` cancels the page padding with a negative margin) which is exactly the kind of change
+that reintroduces the overflow defect described below, so they are worth re-measuring on any layout
+edit rather than assumed.
 
 ### Defect found and fixed
 
@@ -243,9 +251,9 @@ Number and caption each one — the brief requires captions on every figure.
 
 **Features (Sections IV & VI)**
 19. Login and registration
-20. Public home page
-21. About page
-22. Contact form with a validation error
+20. Home page, showing the sidebar reaching all nine pages
+21. About page — the accuracy table and "What ShipSense does not claim"
+22. Contact / Help — the Help answers, and the form showing a validation error
 23. Executive Dashboard — KPIs and trend chart
 24. Issued quotation with reference and validity
 25. Exported PDF
