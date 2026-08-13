@@ -1,5 +1,12 @@
 # Deployment Guide
 
+| | |
+|---|---|
+| Repository | https://github.com/kaihui11/Web-Design---ShipSense |
+| Live site | https://web-design-ship-sense.vercel.app |
+
+Every push to `main` triggers an automatic Vercel redeploy.
+
 ---
 
 ## Local Development
@@ -18,23 +25,27 @@ Login/signup uses Supabase Auth and requires a `@goodfortune.com` account — si
 
 ## Deploy to Vercel (recommended)
 
-1. Go to [vercel.com](https://vercel.com) → **Add New Project** → Import from GitHub → select `kaihui11/shipsense`
-2. Set **Root Directory** to `frontend`
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → Import from GitHub → select `kaihui11/Web-Design---ShipSense`
+2. Leave **Root Directory** at the repository root — do *not* set it to `frontend`
 3. Framework Preset: **Other**
 4. Leave Build Command and Output Directory blank
 5. Click **Deploy**
 
-Vercel will serve `frontend/` as a static site: `/` is the login screen, and every page in the system lives behind it in the same file. Every push to `main` triggers an automatic redeploy.
+Step 2 matters: [`vercel.json`](../vercel.json) at the repo root already sets `"outputDirectory": "frontend"`, so `frontend/` becomes the document root. Setting Root Directory to `frontend` as well would resolve to `frontend/frontend` and break the deploy.
+
+The result is a static site: `/` is the login screen, and every page in the system lives behind it in the same file. Assets resolve from the document root — `/style.css`, `/app.js`, `/data/macro-history.json`.
 
 ---
 
 ## Deploy to Netlify
 
 1. Go to [netlify.com](https://netlify.com) → **Add new site** → Import from Git → select the repo
-2. Base directory: `frontend`
+2. Base directory: *(leave blank)*
 3. Build command: *(leave blank)*
 4. Publish directory: `frontend`
 5. Deploy
+
+Publish directory is relative to the base directory, so setting both to `frontend` would look for `frontend/frontend` — the same trap as the Vercel step above.
 
 ---
 
@@ -62,7 +73,7 @@ jobs:
       - uses: actions/deploy-pages@v4
 ```
 
-Note: GitHub Pages serves from `https://kaihui11.github.io/shipsense/` — `app.js` fetches forecast data directly from Supabase's REST API, so no relative-path data files need to resolve correctly under the Pages subpath.
+Note: GitHub Pages would serve from `https://kaihui11.github.io/Web-Design---ShipSense/` — a subpath, not a domain root. Nothing breaks under it: forecast and history data come from Supabase's REST API by absolute URL, and the one local file, `macro-history.json`, is fetched as a *relative* path (`exec-data.js:192`), so it resolves against the subpath correctly.
 
 ---
 
@@ -82,4 +93,5 @@ The forecast data pipeline's backend is Supabase (hosted Postgres), reachable fr
 
 - `scripts/pkl_to_json.py` converts the notebook's `.pkl` output and `POST`s it straight into Supabase's `snapshots` and `historical_data` tables via its REST API (service_role key).
 - `frontend/app.js`/`exec-data.js` fetch the latest snapshot from Supabase's REST API directly — it is the only data source for the Forecast tab.
-- Auth, history persistence (`localStorage`), and multi-lane models are still out of scope for this pass — see `docs/business-logic.md` for what's still simulated client-side.
+- Sign-in is real Supabase Auth, and quote records live in the `quote_requests` table, so history is shared across devices rather than held in one browser. `localStorage` now carries only the selected ISD (`ss_isd`), shared between New Forecast and the Executive Dashboard.
+- Still out of scope: multi-lane models. The route selector exists but is fixed to North Europe → US East Coast. See [business-logic.md](business-logic.md).
